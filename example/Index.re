@@ -1,6 +1,6 @@
 open Express;
 
-let __dirname: string = [%bs.raw "__dirname"];
+let __dirname: Js.undefined string = [%bs.node __dirname];
 
 let app = Express.express ();
 
