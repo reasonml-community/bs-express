@@ -13,6 +13,10 @@ app.get("/", function (_, res) {
                 });
     });
 
+app.use(Express.static("__dirname"));
+
+app.listen(3000);
+
 exports.__dirname = __dirname;
 exports.app       = app;
 /* __dirname Not a pure module */

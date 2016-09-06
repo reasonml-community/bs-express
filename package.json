@@ -10,6 +10,7 @@
   },
   "devDependencies": {},
   "scripts": {
+    "start": "npm run bs && node example/index.js",
     "bs": "npm run clean-build && npm run refmt && npm run build",
     "clean-build": "rm -r -f _build/express && rm -f express.js index.js && mkdir -p _build/express",
     "refmt": "npm run refmt:src && npm run refmt:example",
