@@ -15,7 +15,7 @@
     "refmt": "npm run refmt:src && npm run refmt:example",
     "refmt:src": "refmt -parse re -print ml src/Express.re > _build/express/express.ml",
     "refmt:example": "refmt -parse re -print ml example/Index.re > _build/express/index.ml",
-    "build":  "cd _build/express && bsc -c -bs-files *.ml && cp index.js ../../ && cp express.js ../../",
+    "build":  "cd _build/express && bsc -c -bs-files *.ml && cp index.js ../../example",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {

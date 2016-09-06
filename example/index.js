@@ -8,7 +8,7 @@ var __dirname = (__dirname);
 var app = Express();
 
 app.get("/", function (_, res) {
-      return res.sendFile("index.html", {
+      return res.json({
                   root: __dirname
                 });
     });
