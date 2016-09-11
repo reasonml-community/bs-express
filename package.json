@@ -29,5 +29,7 @@
   "bugs": {
     "url": "https://github.com/vramana/Rexpress/issues"
   },
-  "homepage": "https://github.com/vramana/Rexpress#readme"
+  "homepage": "https://github.com/vramana/Rexpress#readme",
+  "rebel": {
+  }
 }
