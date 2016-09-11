@@ -4,11 +4,12 @@
   "description": "Express bindings in Reason",
   "main": "index.js",
   "dependencies": {
+    "express": "^4.14.0"
+  },
+  "devDependencies": {
     "bs-platform": "^1.0.1",
-    "express": "^4.14.0",
     "webpack": "^1.13.2"
   },
-  "devDependencies": {},
   "scripts": {
     "start": "npm run bs && node example/index.js",
     "bs": "npm run clean-build && npm run refmt && npm run build",
