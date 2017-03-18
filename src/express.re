@@ -1,3 +1,19 @@
+/*
+  There are a few types to update in this file.
+  We're generic in 'a in most types, but really
+  should specify which JS type should be used.
+
+  An example of how to handle JS fns that take
+  more than one type, where some types are
+  containers and some primitives is the the
+  Response.send binding below.
+
+  sendString | sendObject | sendBuffer | sendArray
+  are all bindings to the .send method based on the
+  input type
+
+  tracked in https://github.com/BuckleTypes/Rexpress/issues/6
+ */
 module Next = {
   type t;
 };
@@ -10,7 +26,7 @@ module Response = {
   type t;
   external sendFile : t => string => 'a => unit = "" [@@bs.send];
   external sendString : t => string => unit = "send" [@@bs.send];
-  external sendObject : t => Js.t 'a => unit = "send" [@@bs.send];
+  external sendObject : t => Js.Json.t => unit = "send" [@@bs.send];
   external sendBuffer : t => Buffer.t => unit = "send" [@@bs.send];
   external sendArray : t => array 'a => unit = "send" [@@bs.send];
   external json : t => 'a => unit = "" [@@bs.send];
@@ -23,5 +39,5 @@ module Express = {
   external use : t => middlewareT => unit = "" [@@bs.send];
   external static : path::string => middlewareT = "" [@@bs.module "express"];
   external get : t => string => ('a => Response.t => unit) => unit = "" [@@bs.send];
-  external listen : t => int => unit = "" [@@bs.send];
+  external listen : t => port::int => unit = "" [@@bs.send];
 };
