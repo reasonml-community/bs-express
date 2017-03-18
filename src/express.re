@@ -26,10 +26,10 @@ module Response = {
   type t;
   external sendFile : t => string => 'a => unit = "" [@@bs.send];
   external sendString : t => string => unit = "send" [@@bs.send];
-  external sendObject : t => Js.Json.t => unit = "send" [@@bs.send];
+  external sendJson : t => Js.Json.t => unit = "send" [@@bs.send];
   external sendBuffer : t => Buffer.t => unit = "send" [@@bs.send];
   external sendArray : t => array 'a => unit = "send" [@@bs.send];
-  external json : t => 'a => unit = "" [@@bs.send];
+  external json : t => 'a => unit = "" [@@bs.send] [@@ocaml.deprecated "User sendJson instead`"];
 };
 
 module Express = {
