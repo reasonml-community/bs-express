@@ -9,7 +9,10 @@ module Request = {
 module Response = {
   type t;
   external sendFile : t => string => 'a => unit = "" [@@bs.send];
-  external send : t => 'a => unit = "" [@@bs.send];
+  external sendString : t => string => unit = "send" [@@bs.send];
+  external sendObject : t => Js.t 'a => unit = "send" [@@bs.send];
+  external sendBuffer : t => Buffer.t => unit = "send" [@@bs.send];
+  external sendArray : t => array 'a => unit = "send" [@@bs.send];
   external json : t => 'a => unit = "" [@@bs.send];
 };
 
