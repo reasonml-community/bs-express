@@ -8,7 +8,7 @@
   containers and some primitives is the the
   Response.send binding below.
 
-  sendString | sendObject | sendBuffer | sendArray
+  sendString | sendJson | sendBuffer | sendArray
   are all bindings to the .send method based on the
   input type
 
@@ -29,7 +29,7 @@ module Response = {
   external sendJson : t => Js.Json.t => unit = "send" [@@bs.send];
   external sendBuffer : t => Buffer.t => unit = "send" [@@bs.send];
   external sendArray : t => array 'a => unit = "send" [@@bs.send];
-  external json : t => 'a => unit = "" [@@bs.send] [@@ocaml.deprecated "User sendJson instead`"];
+  external json : t => Js.Json.t => unit = "" [@@bs.send] [@@ocaml.deprecated "Use sendJson instead`"];
 };
 
 module Express = {
