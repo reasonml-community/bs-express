@@ -19,5 +19,8 @@ _build/
 setup.data
 setup.log
 
+# .merlin (is created by bsb when it doesn't exist)
+.merlin
+
 node_modules
 npm-debug.log
