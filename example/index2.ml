@@ -69,6 +69,10 @@ let () =
   |] in 
   
   App.getN app "/from/:who" fromMiddlewares;
+  
+  App.get app "/skip" @@ Middleware.ofF (fun _ _ next -> 
+    Next.to_router next [@bs]
+  );
 
   (* -- *)
 

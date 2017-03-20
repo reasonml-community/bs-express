@@ -35,6 +35,20 @@ module Response = struct
   external sendString : t -> string -> done_ = "send" [@@bs.send] 
 end
 
+module Next = struct 
+
+  type t = unit -> done_ [@bs]
+
+  let to_router : t -> done_ [@bs] = fun [@bs] t ->
+    (* This is the only way I could find to be able to write `next("router")` 
+     * as well *)
+    let module Cast = struct 
+      external arg : t -> (string -> done_ [@bs]) = "%identity"
+    end in 
+    (Cast.arg t) "router" [@bs]
+
+end 
+
 module Middleware = struct 
 
   type next  = unit -> done_ [@bs]
