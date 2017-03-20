@@ -15,7 +15,7 @@ module Birds = struct
         |> Js.Date.toString
       in 
       Js.log ("Time: " ^ date);
-      next () [@bs]
+      next Js.undefined [@bs]
     ); 
 
     Router.get router "/" @@ Middleware.ofF (fun _ res _ -> 
@@ -38,7 +38,7 @@ let () =
   (* Show how to add a Middleware from a function *)
   App.use app @@ Middleware.ofF (fun _ _ next -> 
     Js.log "Request received";
-    next () [@bs]
+    next Js.undefined [@bs]
   ); 
 
   (* -- *)
@@ -59,7 +59,7 @@ let () =
     Middleware.ofF (fun req _ next-> 
       Js.log @@ Request.params req; 
       print_endline "Just got who";
-      next () [@bs];
+      next Js.undefined [@bs];
     );
 
     Middleware.ofF (fun _ res _ -> 
@@ -71,7 +71,7 @@ let () =
   App.getN app "/from/:who" fromMiddlewares;
   
   App.get app "/skip" @@ Middleware.ofF (fun _ _ next -> 
-    Next.to_router next [@bs]
+    next (Js.Undefined.return "router") [@bs]
   );
 
   (* -- *)
