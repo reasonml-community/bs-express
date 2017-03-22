@@ -1,5 +1,5 @@
 {
-  "name": "Rexpress",
+  "name": "bs-express",
   "version": "1.0.0",
   "description": "Express bindings in Reason",
   "main": "index.js",
@@ -21,15 +21,15 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/vramana/Rexpress.git"
+    "url": "git+https://github.com/BuckleTypes/bs-express.git"
   },
   "keywords": [],
   "author": "Ramana Venkata <idlike2dream@gmail.com>",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/vramana/Rexpress/issues"
+    "url": "https://github.com/BuckleTypes/bs-express/issues"
   },
-  "homepage": "https://github.com/vramana/Rexpress#readme",
+  "homepage": "https://github.com/BuckleTypes/bs-express#readme",
   "rebel": {
   }
 }

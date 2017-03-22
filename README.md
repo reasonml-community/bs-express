@@ -1,4 +1,4 @@
-# Rexpress
+# bs-express
 
 Express bindings in Reason
 

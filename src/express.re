@@ -12,7 +12,7 @@
   are all bindings to the .send method based on the
   input type
 
-  tracked in https://github.com/BuckleTypes/Rexpress/issues/6
+  tracked in https://github.com/BuckleTypes/bs-express/issues/6
  */
 module Next = {
   type t;
