@@ -1,11 +1,24 @@
 open Express;
 
-let __dirname: option string = [%bs.node __dirname];
+let app = express ();
 
-let app = Express.express ();
+App.useOnPath app path::"/" @@ Middleware.fromF (fun _ _ next => {
+  Js.log "Request received"; 
+     /* This will be printed for every request */
+  next Js.undefined [@bs]
+     /* call the next middleware in the processing pipeline */
+});
 
-Express.get app "/" (fun req res => Response.json res [%bs.obj {root: __dirname}]);
+App.get app path::"/" @@ Middleware.fromF (fun _ res _ => { 
+  let json = Js_dict.empty ();
+  Js_dict.set json "hello" (Js_json.string "World"); 
+    /* This only works with dev version of BuckleScript */
+  Response.sendJson res (Js_json.object_ json);
+});
 
-Express.use app (Express.static path::"__dirname");
+App.useOnPath app path::"/static" @@ {
+  let options = Static.defaultOptions (); 
+  Static.make "static" options |> Static.toMiddleware 
+};
 
-Express.listen app 3000;
+App.listen app port::3000 ;

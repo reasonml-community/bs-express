@@ -6,17 +6,16 @@
   "dependencies": {
     "express": "^4.14.0"
   },
+  "peerDependencies" : {
+    "bs-platform": "file:../bucklescript.git/"
+  },
   "devDependencies": {
-    "bs-platform": "^1.0.1"
+    "bs-platform": "file:../bucklescript.git/"
   },
   "scripts": {
-    "start": "npm run bs && node example/index.js",
-    "bs": "npm run clean-build && npm run refmt && npm run build",
-    "clean-build": "rm -r -f _build/express && rm -f express.js index.js && mkdir -p _build/express",
-    "refmt": "npm run refmt:src && npm run refmt:example",
-    "refmt:src": "refmt --parse re --print ml src/express.re > _build/express/express.ml",
-    "refmt:example": "refmt --parse re --print ml example/Index.re > _build/express/index.ml",
-    "build":  "cd _build/express && bsb -make-world",
+    "build": "bsb -clean-world && bsb -make-world",
+    "start": "yarn build && node lib/js/example/",
+    "clean-build": "bsb -clean-world",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -30,6 +29,5 @@
     "url": "https://github.com/BuckleTypes/bs-express/issues"
   },
   "homepage": "https://github.com/BuckleTypes/bs-express#readme",
-  "rebel": {
-  }
+  "rebel": {}
 }
