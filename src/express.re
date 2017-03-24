@@ -12,8 +12,10 @@ module Error = {
   type t;
   /** Error type */
 
-  external message : t => Js.undefined string = "" [@@bs.send];
-  external name : t => Js.undefined string = "" [@@bs.send];
+  external message : t => option string = "" 
+    [@@bs.send][@@bs.return null_undefined_to_opt];
+  external name : t => option string = "" 
+    [@@bs.send][@@bs.return null_undefined_to_opt];
 };
 
 module Request = {
