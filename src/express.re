@@ -27,8 +27,8 @@ module Request = {
   /** [params request] return the JSON object filled with the 
       request parameters */
 
-  external asJSONObject : t => Js_dict.t Js_json.t = "%identity";
-  /** [asJSONObject request] casts a [request] to a JSON object. It is 
+  external asJsonObject : t => Js_dict.t Js_json.t = "%identity";
+  /** [asJsonObject request] casts a [request] to a JSON object. It is 
       common in Express application to use the Request object as a 
       placeholder to maintain state through the various middleware which 
       are executed. */ 
@@ -52,6 +52,10 @@ module Next : {
 
   type t = (Js.undefined content => done_) [@bs];
 
+  let undefined : Js.undefined content;
+  /** value to use as [next] callback argument to invoke the next 
+      middleware */
+
   let router : Js.undefined content;  
   /** value to use as [next] callback argument to skip middleware 
       processing. */ 
@@ -66,6 +70,8 @@ module Next : {
 
   type t = (Js.undefined content => done_) [@bs];
 
+  let undefined  = Js.undefined;
+
   external castToContent : 'a => content = "%identity";
 
   let router = 
@@ -78,6 +84,7 @@ module Next : {
 
 module Middleware = {
   type next = Next.t;
+
   type t; 
       /* Middleware abstract type which unified the various way an
          Express middleware can be constructed:
@@ -90,15 +97,16 @@ module Middleware = {
          For each of the class which implements the middleware interface
          is JavaScript, one can use the "%identity" function to cast
          it to this type [t] */
+
   type f = Request.t => Response.t => next => done_;
   
-  external fromF: f => t = "%identity"
-    [@@ocaml.doc " Create a Middleware from a function " ]; 
+  external from: f => t = "%identity";
+  /** [from f] creates a Middleware from a function */
   
   type errorF = Error.t => Request.t => Response.t => next => done_;
   
-  external fromErrorF: errorF => t = "%identity"
-    [@@ocaml.doc " Create a Middleware from an error function " ]; 
+  external fromError: errorF => t = "%identity";
+  /** [fromError f] creates a Middleware from an error function */ 
 };
 
 /* Generate the common Middleware binding function for a given
@@ -115,18 +123,18 @@ module App = {
 
   include MakeBindFunctions { type nonrec t = t; };
   
-  external make : unit => t = "express" [@@bs.module]
-    [@@ocaml.doc " [make ()] create an App class "]; 
+  external make : unit => t = "express" [@@bs.module];
+  /** [make ()] creates an instance of the App class. */
   
-
-  external toMiddleware : t => Middleware.t = "%identity"
-    [@@ocaml.doc " [toMiddleware app] casts an App  to a Middleware type "]; 
+  external asMiddleware : t => Middleware.t = "%identity";
+  /** [asMiddleware app] casts an App instance to a Middleware type */ 
   
   external listen : t => port::int => unit = "" [@@bs.send];
 };
   
-let express = App.make
-  [@@ocaml.doc " [express ()] create an App class "]; 
+let express = App.make;
+/** [express ()] creates an instance of the App class. 
+    Alias for [App.make ()] */
 
 module Static = {
   type options;
@@ -141,9 +149,9 @@ module Static = {
 
   type t;
   
-  external make : string => options => t = "static" [@@bs.module "express"]
-    [@@ocaml.doc " [make directory] create a static middleware for [directory] " ]; 
+  external make : string => options => t = "static" [@@bs.module "express"];
+  /** [make directory] creates a static middleware for [directory] */
 
-  external toMiddleware : t => Middleware.t = "%identity" 
-    [@@ocaml.doc " Cast a Static class to a Middleware " ]; 
+  external asMiddleware : t => Middleware.t = "%identity";
+  /** [asMiddleware static] casts [static] to a Middleware type */
 };
