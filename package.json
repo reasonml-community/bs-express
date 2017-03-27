@@ -6,15 +6,12 @@
   "dependencies": {
     "express": "^4.14.0"
   },
-  "peerDependencies" : {
-    "bs-platform": "git://github.com/bloomberg/bucklescript.git"
-  },
   "devDependencies": {
-    "bs-platform": "git://github.com/bloomberg/bucklescript.git"
+    "bs-platform": "^1.6.x"
   },
   "scripts": {
     "build": "bsb -clean-world && bsb -make-world",
-    "start": "yarn build && node lib/js/example/",
+    "start": "npm run-script build && node lib/js/example/",
     "clean-build": "bsb -clean-world",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
