@@ -9,6 +9,17 @@ App.useOnPath app path::"/" @@ Middleware.from (fun _ _ next => {
      /* call the next middleware in the processing pipeline */
 });
 
+App.use app @@ Middleware.fromArray [|
+  Middleware.from (fun _ _ next => {
+    Js.log "trace #1";
+    next Next.undefined [@bs];
+  }),
+  Middleware.from (fun _ _ next => {
+    Js.log "trace #2";
+    next Next.undefined [@bs];
+  })
+|]; 
+
 App.get app path::"/" @@ Middleware.from (fun _ res _ => { 
   let json = Js_dict.empty ();
   Js_dict.set json "hello" (Js_json.string "World"); 

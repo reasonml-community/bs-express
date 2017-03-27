@@ -107,6 +107,9 @@ module Middleware = {
   
   external fromError: errorF => t = "%identity";
   /** [fromError f] creates a Middleware from an error function */ 
+
+  external fromArray : array t => t = "%identity";
+  /** [fromArray a] creates a Middleware from an array of Middleware */
 };
 
 /* Generate the common Middleware binding function for a given
@@ -115,7 +118,6 @@ module MakeBindFunctions (T: {type t;}) => {
   external use : T.t => Middleware.t => unit = "" [@@bs.send];
   external useOnPath : T.t => path::string => Middleware.t => unit = "use" [@@bs.send];
   external get : T.t => path::string => Middleware.t => unit = "" [@@bs.send];
-  external getN : T.t => path::string => array Middleware.t => unit = "get" [@@bs.send];
 };
 
 module App = {
