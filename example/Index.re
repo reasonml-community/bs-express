@@ -27,9 +27,15 @@ App.get app path::"/" @@ Middleware.from (fun _ res _ => {
   Response.sendJson res (Js_json.object_ json);
 });
 
-App.useOnPath app path::"/static" {
-  let options = Static.defaultOptions (); 
-  Static.make "static" options |> Static.asMiddleware 
-};
+App.useOnPath app path::"/static" @@ Middleware.fromArray [| 
+  Middleware.from (fun _ _ next => {
+    Js.log "trace #3";
+    next Next.undefined [@bs]; 
+  }), 
+  {
+    let options = Static.defaultOptions (); 
+    Static.make "static" options |> Static.asMiddleware 
+  }, 
+|]; 
 
 App.listen app port::3000 ;
