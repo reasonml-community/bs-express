@@ -7,10 +7,10 @@
     "express": "^4.14.0"
   },
   "peerDependencies" : {
-    "bs-platform": "file:../bucklescript.git/"
+    "bs-platform": "git://github.com/bloomberg/bucklescript.git"
   },
   "devDependencies": {
-    "bs-platform": "file:../bucklescript.git/"
+    "bs-platform": "git://github.com/bloomberg/bucklescript.git"
   },
   "scripts": {
     "build": "bsb -clean-world && bsb -make-world",
