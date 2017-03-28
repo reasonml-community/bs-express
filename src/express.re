@@ -56,9 +56,9 @@ module Next : {
   /** value to use as [next] callback argument to invoke the next 
       middleware */
 
-  let router : Js.undefined content;  
+  let route : Js.undefined content;  
   /** value to use as [next] callback argument to skip middleware 
-      processing. */ 
+      processing for the current route.*/ 
 
   let error : Error.t => Js.undefined content;
   /** [error e] returns the argument for [next] callback to be propagate 
@@ -74,8 +74,8 @@ module Next : {
 
   external castToContent : 'a => content = "%identity";
 
-  let router = 
-    Js.Undefined.return (castToContent "router");
+  let route = 
+    Js.Undefined.return (castToContent "route");
 
   let error (e:Error.t) =>
     Js.Undefined.return (castToContent e);
@@ -108,16 +108,17 @@ module Middleware = {
   external fromError: errorF => t = "%identity";
   /** [fromError f] creates a Middleware from an error function */ 
 
-  external fromArray : array t => t = "%identity";
-  /** [fromArray a] creates a Middleware from an array of Middleware */
 };
 
 /* Generate the common Middleware binding function for a given
  * type. This Functor is used for the Router and App classes. */
 module MakeBindFunctions (T: {type t;}) => {
   external use : T.t => Middleware.t => unit = "" [@@bs.send];
+  external useN : T.t => array Middleware.t => unit = "use" [@@bs.send];
   external useOnPath : T.t => path::string => Middleware.t => unit = "use" [@@bs.send];
+  external useOnPathN: T.t => path::string => array Middleware.t => unit = "use" [@@bs.send];
   external get : T.t => path::string => Middleware.t => unit = "" [@@bs.send];
+  external getN: T.t => path::string => array Middleware.t => unit = "" [@@bs.send];
 };
 
 module App = {

@@ -9,7 +9,7 @@ App.useOnPath app path::"/" @@ Middleware.from (fun _ _ next => {
      /* call the next middleware in the processing pipeline */
 });
 
-App.use app @@ Middleware.fromArray [|
+App.useN app [|
   Middleware.from (fun _ _ next => {
     Js.log "trace #1";
     next Next.undefined [@bs];
@@ -27,7 +27,7 @@ App.get app path::"/" @@ Middleware.from (fun _ res _ => {
   Response.sendJson res (Js_json.object_ json);
 });
 
-App.useOnPath app path::"/static" @@ Middleware.fromArray [| 
+App.useOnPathN app path::"/static" @@ [| 
   Middleware.from (fun _ _ next => {
     Js.log "trace #3";
     next Next.undefined [@bs]; 
