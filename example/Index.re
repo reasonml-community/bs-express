@@ -5,18 +5,18 @@ let app = express ();
 App.useOnPath app path::"/" @@ Middleware.from (fun _ _ next => {
   Js.log "Request received"; 
      /* This will be printed for every request */
-  next Js.undefined [@bs]
+  next Next.middleware
      /* call the next middleware in the processing pipeline */
 });
 
 App.useN app [|
   Middleware.from (fun _ _ next => {
     Js.log "trace #1";
-    next Next.undefined [@bs];
+    next Next.middleware
   }),
   Middleware.from (fun _ _ next => {
     Js.log "trace #2";
-    next Next.undefined [@bs];
+    next Next.middleware
   })
 |]; 
 
@@ -30,7 +30,7 @@ App.get app path::"/" @@ Middleware.from (fun _ res _ => {
 App.useOnPathN app path::"/static" @@ [| 
   Middleware.from (fun _ _ next => {
     Js.log "trace #3";
-    next Next.undefined [@bs]; 
+    next Next.middleware
   }), 
   {
     let options = Static.defaultOptions (); 

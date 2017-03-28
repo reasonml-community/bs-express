@@ -50,9 +50,9 @@ module Response = {
 module Next : {
   type content;
 
-  type t = (Js.undefined content => done_) [@bs];
+  type t = (Js.undefined content => done_);
 
-  let undefined : Js.undefined content;
+  let middleware : Js.undefined content;
   /** value to use as [next] callback argument to invoke the next 
       middleware */
 
@@ -68,9 +68,9 @@ module Next : {
 
   type content;
 
-  type t = (Js.undefined content => done_) [@bs];
+  type t = (Js.undefined content => done_);
 
-  let undefined  = Js.undefined;
+  let middleware = Js.undefined;
 
   external castToContent : 'a => content = "%identity";
 
