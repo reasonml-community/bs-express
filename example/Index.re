@@ -1,11 +1,41 @@
 open Express;
 
-let __dirname: option string = [%bs.node __dirname];
+let app = express ();
 
-let app = Express.express ();
+App.useOnPath app path::"/" @@ Middleware.from (fun _ _ next => {
+  Js.log "Request received"; 
+     /* This will be printed for every request */
+  next Next.middleware
+     /* call the next middleware in the processing pipeline */
+});
 
-Express.get app "/" (fun req res => Response.json res [%bs.obj {root: __dirname}]);
+App.useN app [|
+  Middleware.from (fun _ _ next => {
+    Js.log "trace #1";
+    next Next.middleware
+  }),
+  Middleware.from (fun _ _ next => {
+    Js.log "trace #2";
+    next Next.middleware
+  })
+|]; 
 
-Express.use app (Express.static path::"__dirname");
+App.get app path::"/" @@ Middleware.from (fun _ res _ => { 
+  let json = Js_dict.empty ();
+  Js_dict.set json "hello" (Js_json.string "World"); 
+    /* This only works with dev version of BuckleScript */
+  Response.sendJson res (Js_json.object_ json);
+});
 
-Express.listen app 3000;
+App.useOnPathN app path::"/static" @@ [| 
+  Middleware.from (fun _ _ next => {
+    Js.log "trace #3";
+    next Next.middleware
+  }), 
+  {
+    let options = Static.defaultOptions (); 
+    Static.make "static" options |> Static.asMiddleware 
+  }, 
+|]; 
+
+App.listen app port::3000 ;
