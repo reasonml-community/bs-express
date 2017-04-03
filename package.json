@@ -1,6 +1,6 @@
 {
   "name": "bs-express",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "Express bindings in Reason",
   "main": "index.js",
   "dependencies": {
@@ -16,7 +16,7 @@
     "refmt": "npm run refmt:src && npm run refmt:example",
     "refmt:src": "refmt --parse re --print ml src/express.re > _build/express/express.ml",
     "refmt:example": "refmt --parse re --print ml example/Index.re > _build/express/index.ml",
-    "build":  "cd _build/express && bsb -make-world",
+    "build": "cd _build/express && bsb -make-world",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -30,6 +30,5 @@
     "url": "https://github.com/BuckleTypes/bs-express/issues"
   },
   "homepage": "https://github.com/BuckleTypes/bs-express#readme",
-  "rebel": {
-  }
+  "rebel": {}
 }
