@@ -1,5 +1,4 @@
 {
-    "name" : "bs-express",
-    "sources" : ["src" , "example"]
+  "name" : "bs-express",
+  "sources" : ["src" , "example"],
 }
-
