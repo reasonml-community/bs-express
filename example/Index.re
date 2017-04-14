@@ -1,5 +1,17 @@
 open Express;
 
+/* The tests below relies upon the ability to store in the Request 
+   objects abritrary JSON properties. 
+
+   Each middleware will both check that previous middleware 
+   have been called by making properties exists in the Request object and 
+   upon success will themselves adds anothe property to the Request. 
+
+*/
+
+/* [check_property req next property k] makes sure [property] is 
+   present in [req]. If success then [k()] is invoked, otherwise 
+   [Next.route] is called with next */
 let check_property req next property k => {
   let reqData = Request.asJsonObject req; 
   switch (Js_dict.get reqData property) {
@@ -13,6 +25,7 @@ let check_property req next property k => {
   };
 };
 
+/* same as [check_property] but with a list of properties */
 let check_properties req next properties k => {
   let rec aux properties => {
     switch properties {
@@ -23,16 +36,20 @@ let check_properties req next properties k => {
   aux properties;
 };
 
+/* [set_property req property] sets the [property] in the [req] Request 
+   value */
+let set_property req property => { 
+  let reqData = Request.asJsonObject req; 
+  Js_dict.set reqData property (Js_json.boolean Js.true_);
+};
+
+/* sends a common JSON object representing success */
 let send_success_json res => {
   let json = Js_dict.empty (); 
   Js_dict.set json "success" (Js_json.boolean Js.true_); 
   Response.sendJson res (Js_json.object_ json);
 };
 
-let set_property req property => { 
-  let reqData = Request.asJsonObject req; 
-  Js_dict.set reqData property (Js_json.boolean Js.true_);
-};
 
 let app = express ();
 
@@ -41,7 +58,6 @@ App.useOnPath app path::"/" @@ Middleware.from (fun req _ next => {
   next Next.middleware
     /* call the next middleware in the processing pipeline */
 });
-
 
 App.useN app [|
   Middleware.from (fun req _ next => {
