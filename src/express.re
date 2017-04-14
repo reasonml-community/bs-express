@@ -115,10 +115,18 @@ module Middleware = {
 module MakeBindFunctions (T: {type t;}) => {
   external use : T.t => Middleware.t => unit = "" [@@bs.send];
   external useN : T.t => array Middleware.t => unit = "use" [@@bs.send];
-  external useOnPath : T.t => path::string => Middleware.t => unit = "use" [@@bs.send];
-  external useOnPathN: T.t => path::string => array Middleware.t => unit = "use" [@@bs.send];
-  external get : T.t => path::string => Middleware.t => unit = "" [@@bs.send];
-  external getN: T.t => path::string => array Middleware.t => unit = "" [@@bs.send];
+  external useOnPath : T.t => path::string => Middleware.t => unit 
+    = "use" [@@bs.send];
+  external useOnPathN: T.t => path::string => array Middleware.t => unit 
+    = "use" [@@bs.send];
+  external get : T.t => path::string => Middleware.t => unit 
+    = "" [@@bs.send];
+  external getN: T.t => path::string => array Middleware.t => unit 
+    = "get" [@@bs.send];
+  external post : T.t => path::string => Middleware.t => unit 
+    = "" [@@bs.send];
+  external postN: T.t => path::string => array Middleware.t => unit 
+    = "post" [@@bs.send];
 };
 
 module App = {
