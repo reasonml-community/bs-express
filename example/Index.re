@@ -84,8 +84,8 @@ App.useN app [|
 |]; 
 
 App.get app path::"/" @@ Middleware.from (fun req res next => { 
-  let prev_middlewares = [ "middleware0", "middleware1", "middleware2"];
-  checkProperties req next prev_middlewares (fun () => {
+  let previousMiddlewares = [ "middleware0", "middleware1", "middleware2"];
+  checkProperties req next previousMiddlewares (fun () => {
     Response.sendJson res (makeSuccessJson ());
   });
 });
@@ -97,8 +97,8 @@ App.useOnPath app path::"/static" {
 
 App.postN app path::"/:id/id" [|
   Middleware.from (fun req res next => {
-    let prev_middlewares = [ "middleware0", "middleware1", "middleware2"];
-    checkProperties req next prev_middlewares (fun () => {
+    let previousMiddlewares = [ "middleware0", "middleware1", "middleware2"];
+    checkProperties req next previousMiddlewares (fun () => {
       switch (getDictString (Request.params req) "id") {
         | Some "123" => Response.sendJson res (makeSuccessJson());
         | _ => next Next.route;
