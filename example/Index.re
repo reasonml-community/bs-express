@@ -9,15 +9,15 @@ open Express;
 
 */
 
-/* [check_property req next property k] makes sure [property] is 
+/* [checkProperty req next property k] makes sure [property] is 
    present in [req]. If success then [k()] is invoked, otherwise 
    [Next.route] is called with next */
-let check_property req next property k => {
+let checkProperty req next property k => {
   let reqData = Request.asJsonObject req; 
-  switch (Js_dict.get reqData property) {
+  switch (Js.Dict.get reqData property) {
     | None => next Next.route
     | Some x => {
-      switch (Js_json.decodeBoolean x) {
+      switch (Js.Json.decodeBoolean x) {
         | Some b when (b == Js.true_) => k ()
         | _ => next Next.route
       };
@@ -25,51 +25,59 @@ let check_property req next property k => {
   };
 };
 
-/* same as [check_property] but with a list of properties */
-let check_properties req next properties k => {
+/* same as [checkProperty] but with a list of properties */
+let checkProperties req next properties k => {
   let rec aux properties => {
     switch properties {
       | [] => k ();
-      | [p, ...tl] => check_property req next p (fun () => aux tl); 
+      | [p, ...tl] => checkProperty req next p (fun () => aux tl); 
     }; 
   };
   aux properties;
 };
 
-/* [set_property req property] sets the [property] in the [req] Request 
+/* [setProperty req property] sets the [property] in the [req] Request 
    value */
-let set_property req property => { 
+let setProperty req property => { 
   let reqData = Request.asJsonObject req; 
-  Js_dict.set reqData property (Js_json.boolean Js.true_);
+  Js.Dict.set reqData property (Js.Json.boolean Js.true_);
 };
 
-/* sends a common JSON object representing success */
-let send_success_json res => {
-  let json = Js_dict.empty (); 
-  Js_dict.set json "success" (Js_json.boolean Js.true_); 
-  Response.sendJson res (Js_json.object_ json);
+/* return the string value for [key], None if the key is not in [dict] 
+   TODO once BOption.map is released */
+let getDictString dict key => {
+  switch (Js.Dict.get dict key) {
+    | Some json => Js.Json.decodeString json
+    | _ => None
+  };
 };
 
+/* make a common JSON object representing success */
+let makeSuccessJson () => {
+  let json = Js.Dict.empty (); 
+  Js.Dict.set json "success" (Js.Json.boolean Js.true_); 
+  Js.Json.object_ json;
+};
 
 let app = express ();
 
 App.useOnPath app path::"/" @@ Middleware.from (fun req _ next => {
-  set_property req "middleware0";
+  setProperty req "middleware0";
   next Next.middleware
     /* call the next middleware in the processing pipeline */
 });
 
 App.useN app [|
   Middleware.from (fun req _ next => {
-    check_property req next "middleware0" (fun () => {
-      set_property req "middleware1";
+    checkProperty req next "middleware0" (fun () => {
+      setProperty req "middleware1";
       next Next.middleware;
     }); 
   }),
 
   Middleware.from (fun req _ next => {
-    check_properties req next ["middleware0", "middleware1"] (fun () => {
-      set_property req "middleware2";
+    checkProperties req next ["middleware0", "middleware1"] (fun () => {
+      setProperty req "middleware2";
       next Next.middleware;
     }); 
   })
@@ -77,8 +85,8 @@ App.useN app [|
 
 App.get app path::"/" @@ Middleware.from (fun req res next => { 
   let prev_middlewares = [ "middleware0", "middleware1", "middleware2"];
-  check_properties req next prev_middlewares (fun () => {
-    send_success_json res;
+  checkProperties req next prev_middlewares (fun () => {
+    Response.sendJson res (makeSuccessJson ());
   });
 });
 
@@ -90,12 +98,9 @@ App.useOnPath app path::"/static" {
 App.postN app path::"/:id/id" [|
   Middleware.from (fun req res next => {
     let prev_middlewares = [ "middleware0", "middleware1", "middleware2"];
-    check_properties req next prev_middlewares (fun () => {
-      switch (Js_dict.get (Request.params req) "id") {
-        | Some json => switch (Js_json.decodeString json) {
-          | Some "123" => send_success_json res
-          | _ => next Next.route;
-        };
+    checkProperties req next prev_middlewares (fun () => {
+      switch (getDictString (Request.params req) "id") {
+        | Some "123" => Response.sendJson res (makeSuccessJson());
         | _ => next Next.route;
       };
     });
