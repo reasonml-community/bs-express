@@ -95,7 +95,7 @@ App.useOnPath app path::"/static" {
     Static.make "static" options |> Static.asMiddleware 
 };
 
-App.postN app path::"/:id/id" [|
+App.postMany app path::"/:id/id" [|
   Middleware.from (fun req res next => {
     let previousMiddlewares = [ "middleware0", "middleware1", "middleware2"];
     checkProperties req next previousMiddlewares (fun () => {
