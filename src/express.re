@@ -33,6 +33,42 @@ module Request = {
       placeholder to maintain state through the various middleware which 
       are executed. */ 
 
+  external baseUrl: t => string = "" [@@bs.get];
+  /** [baseUrl request] returns the 'baseUrl' property */
+  
+  external hostname : t => string = "" [@@bs.get];
+  /** [hostname request] Contains the hostname derived from the Host 
+      HTTP header.*/
+
+  external ip : t => string = "" [@@bs.get];
+  /** [ip request] Contains the remote IP address of the request.*/
+
+  external method_ : t => string = "method" [@@bs.get];
+  /** [ip request] return a string corresponding to the HTTP 
+      method of the request: GET, POST, PUT, and so on */
+
+  /* TODO for reviewer, should we wrap this function 
+     a function which return a variant of | GET | POST ... */
+  
+  external originalUrl : t => string = "" [@@bs.get];
+  /** [originalUrl request] returns the original url. See
+      https://expressjs.com/en/4x/api.html#req.originalUrl */
+  
+  external path : t => string = "" [@@bs.get];
+  /** [path request] returns the path part of the request URL.*/
+  
+  external protocol : t => string = "" [@@bs.get];
+  /** [protocol request] returns the request protocol string: either http 
+      or (for TLS requests) https. */
+  
+  /* TODO for reviewer, should we wrap this function 
+     a function which return a variant of | HTTP | HTTPS ... */
+  
+  external query : t => Js.Dict.t Js.Json.t = "" [@@bs.get];
+  /** [query request] returns an object containing a property for each 
+      query string parameter in the route. If there is no query string, 
+      it returns the empty object, {} */
+
   /** more property method coming later */
 };
 

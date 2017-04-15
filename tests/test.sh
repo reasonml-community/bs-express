@@ -34,6 +34,14 @@ run_test 'Invalid path' 'GET' '/invalid-path'
 run_test 'Static middleware' 'GET' '/static/test.data'
 run_test 'POST + Query param (valid)' 'POST' '/123/id'
 run_test 'POST + Query param (invalid)' 'POST' '/999/id'
+run_test 'baseUrl property' 'GET' '/baseUrl'
+run_test 'hostname property' 'GET' '/hostname'
+# run_test 'ip property' 'GET' '/ip'
+run_test 'method property' 'GET' '/method'
+run_test 'method originalUrl' 'GET' '/originalUrl'
+run_test 'method path' 'GET' '/path'
+run_test 'method path' 'GET' '/protocol'
+run_test 'Query parameters' 'GET' '/query?key=value'
 
 # compare test output to reference data
 

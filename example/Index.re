@@ -18,8 +18,8 @@ let checkProperty req next property k => {
     | None => next Next.route
     | Some x => {
       switch (Js.Json.decodeBoolean x) {
-        | Some b when (b == Js.true_) => k ()
-        | _ => next Next.route
+        | Some b when (b == Js.true_) => k ();
+        | _ => next Next.route;
       };
     };
   };
@@ -106,6 +106,63 @@ App.postMany app path::"/:id/id" [|
     });
   })
 |];
+
+App.get app path::"/baseUrl" @@ Middleware.from (fun req res next => {
+  switch (Request.baseUrl req) {
+    | "" => Response.sendJson res (makeSuccessJson ());
+    | _ => next Next.route;
+  };
+});
+
+App.get app path::"/hostname" @@ Middleware.from (fun req res next => {
+  switch (Request.hostname req) {
+    | "localhost" => Response.sendJson res (makeSuccessJson ());
+    | _ => next Next.route;
+  };
+});
+
+App.get app path::"/ip" @@ Middleware.from (fun req res next => {
+  switch (Request.ip req) {
+    | "127.0.0.1" => Response.sendJson res (makeSuccessJson ());
+    | s => {Js.log s; next Next.route;}
+    /* TODO why is it printing ::1 */
+  };
+});
+
+App.get app path::"/method" @@ Middleware.from (fun req res next => {
+  switch (Request.method_ req) {
+    | "GET" => Response.sendJson res (makeSuccessJson ());
+    | s => {Js.log s; next Next.route;}
+  };
+});
+
+App.get app path::"/originalUrl" @@ Middleware.from (fun req res next => {
+  switch (Request.originalUrl req) {
+    | "/originalUrl" => Response.sendJson res (makeSuccessJson ());
+    | s => {Js.log s; next Next.route;}
+  };
+});
+
+App.get app path::"/path" @@ Middleware.from (fun req res next => {
+  switch (Request.path req) {
+    | "/path" => Response.sendJson res (makeSuccessJson ());
+    | s => {Js.log s; next Next.route;}
+  };
+});
+
+App.get app path::"/protocol" @@ Middleware.from (fun req res next => {
+  switch (Request.protocol req) {
+    | "http" => Response.sendJson res (makeSuccessJson ());
+    | s => {Js.log s; next Next.route;}
+  };
+});
+
+App.get app path::"/query" @@ Middleware.from (fun req res next => {
+  switch (getDictString (Request.query req) "key") {
+    | Some "value" => Response.sendJson res (makeSuccessJson ()); 
+    | _ => next Next.route;
+  };
+});
 
 App.listen app port::3000 ;
 
