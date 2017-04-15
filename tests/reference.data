@@ -1,0 +1,31 @@
+
+-- Root path--
+{"success":true}
+-- Invalid path--
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Error</title>
+</head>
+<body>
+<pre>Cannot GET /invalid-path</pre>
+</body>
+</html>
+
+-- Static middleware--
+This is the content of test.data a static file
+
+-- POST + Query param (valid)--
+{"success":true}
+-- POST + Query param (invalid)--
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Error</title>
+</head>
+<body>
+<pre>Cannot POST /999/id</pre>
+</body>
+</html>
