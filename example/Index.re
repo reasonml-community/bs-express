@@ -110,19 +110,5 @@ App.postMany app path::"/:id/id" [|
 App.listen app port::3000 ;
 
 /* -- Test the server --
- 
-Now run the following with to test the server:
-
-curl http://localhost:3000/
-> expect to see {"success":true}
-
-curl http://localhost:3000/static/test.data
-> expect to see the same output as `cat static/test.data`
-
-curl -X POST http://localhost:3000/123/id
-> expect to see {"success":true}
-
-curl -X POST http://localhost:3000/999/id
-> expect to see an error 
-
+npm run start && cd tests && ./test.sh
 */
