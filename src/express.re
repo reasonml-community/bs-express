@@ -121,11 +121,11 @@ module MakeBindFunctions (T: {type t;}) => {
     = "use" [@@bs.send];
   external get : T.t => path::string => Middleware.t => unit 
     = "" [@@bs.send];
-  external getMany: T.t => path::string => array Middleware.t => unit 
+  external getWithMany: T.t => path::string => array Middleware.t => unit 
     = "get" [@@bs.send];
   external post : T.t => path::string => Middleware.t => unit 
     = "" [@@bs.send];
-  external postMany: T.t => path::string => array Middleware.t => unit 
+  external postWithMany: T.t => path::string => array Middleware.t => unit 
     = "post" [@@bs.send];
 };
 
