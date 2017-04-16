@@ -67,7 +67,7 @@ App.useOnPath app path::"/" @@ Middleware.from (fun req _ next => {
     /* call the next middleware in the processing pipeline */
 });
 
-App.useN app [|
+App.useWithMany app [|
   Middleware.from (fun req _ next => {
     checkProperty req next "middleware0" (fun () => {
       setProperty req "middleware1";
