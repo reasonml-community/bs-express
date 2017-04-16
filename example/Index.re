@@ -67,7 +67,7 @@ App.useOnPath app path::"/" @@ Middleware.from (fun req _ next => {
     /* call the next middleware in the processing pipeline */
 });
 
-App.useN app [|
+App.useWithMany app [|
   Middleware.from (fun req _ next => {
     checkProperty req next "middleware0" (fun () => {
       setProperty req "middleware1";
@@ -95,7 +95,7 @@ App.useOnPath app path::"/static" {
     Static.make "static" options |> Static.asMiddleware 
 };
 
-App.postMany app path::"/:id/id" [|
+App.postWithMany app path::"/:id/id" [|
   Middleware.from (fun req res next => {
     let previousMiddlewares = [ "middleware0", "middleware1", "middleware2"];
     checkProperties req next previousMiddlewares (fun () => {

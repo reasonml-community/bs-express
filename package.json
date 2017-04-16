@@ -13,7 +13,7 @@
     "build": "bsb -clean-world && bsb -make-world",
     "start": "npm run-script build && node lib/js/example/",
     "clean-build": "bsb -clean-world",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "cd tests && ./test.sh"
   },
   "repository": {
     "type": "git",

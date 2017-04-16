@@ -150,18 +150,18 @@ module Middleware = {
  * type. This Functor is used for the Router and App classes. */
 module MakeBindFunctions (T: {type t;}) => {
   external use : T.t => Middleware.t => unit = "" [@@bs.send];
-  external useN : T.t => array Middleware.t => unit = "use" [@@bs.send];
+  external useWithMany : T.t => array Middleware.t => unit = "use" [@@bs.send];
   external useOnPath : T.t => path::string => Middleware.t => unit 
     = "use" [@@bs.send];
-  external useOnPathN: T.t => path::string => array Middleware.t => unit 
+  external useOnPathWithMany: T.t => path::string => array Middleware.t => unit 
     = "use" [@@bs.send];
   external get : T.t => path::string => Middleware.t => unit 
     = "" [@@bs.send];
-  external getMany: T.t => path::string => array Middleware.t => unit 
+  external getWithMany: T.t => path::string => array Middleware.t => unit 
     = "get" [@@bs.send];
   external post : T.t => path::string => Middleware.t => unit 
     = "" [@@bs.send];
-  external postMany: T.t => path::string => array Middleware.t => unit 
+  external postWithMany: T.t => path::string => array Middleware.t => unit 
     = "post" [@@bs.send];
 };
 
