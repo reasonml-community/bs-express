@@ -69,6 +69,21 @@ module Request = {
       query string parameter in the route. If there is no query string, 
       it returns the empty object, {} */
 
+  external acceptsRaw : t => array string => Js.Json.t = "accepts" [@@bs.send];
+  /** [acceptsRaw request types] checks if the specified content types 
+      are acceptable, based on the request's Accept HTTP header field. 
+      The method returns the best match, or if none of the specified 
+      content types is acceptable, returns [false] */
+
+  let accepts : t => array string => option string = fun req types => { 
+    let ret = acceptsRaw req types;
+    let (ty, x) = Js.Json.reifyType ret;
+    switch ty {
+    | Js_json.String => Some x 
+    | _ => None
+    };
+  };
+
   /** more property method coming later */
 };
 

@@ -19,7 +19,7 @@ function print_test_title() {
 }
 
 print_test_url() {
-  curl -X $1 http://localhost:3000$2 2>&1 >> test.data
+  curl -X $1 http://localhost:3000$2 2>&1 >> $TEST_DATA
 }
 
 run_test() {
@@ -42,6 +42,14 @@ run_test 'method originalUrl' 'GET' '/originalUrl'
 run_test 'method path' 'GET' '/path'
 run_test 'method path' 'GET' '/protocol'
 run_test 'Query parameters' 'GET' '/query?key=value'
+
+run_header_test() {
+  print_test_title "$1"
+  curl -X "$2" -H "$3" http://localhost:3000$4 2>&1 >> $TEST_DATA
+}
+
+run_header_test 'Accepts' 'GET' 'Accept: audio/*; q=0.2, audio/basic' \
+  '/accepts'
 
 # compare test output to reference data
 

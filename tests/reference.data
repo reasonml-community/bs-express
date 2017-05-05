@@ -44,3 +44,5 @@ This is the content of test.data a static file
 {"success":true}
 -- Query parameters--
 {"success":true}
+-- Accepts--
+{"success":true}

@@ -164,6 +164,21 @@ App.get app path::"/query" @@ Middleware.from (fun req res next => {
   };
 });
 
+App.getWithMany app path::"/accepts" [| 
+  Middleware.from (fun req _ next => {
+    switch (Request.accepts req [|"audio/whatever" , "audio/basic" |]) {
+      | Some "audio/basic" => next Next.middleware;
+      | _ => next Next.route;
+    };
+  }),
+  Middleware.from (fun req res next => {
+    switch (Request.accepts req [| "text/css" |]) {
+     | None => Response.sendJson res (makeSuccessJson ());
+     | _ => next Next.route;
+    };
+  })
+|];
+
 App.listen app port::3000 ;
 
 /* -- Test the server --
