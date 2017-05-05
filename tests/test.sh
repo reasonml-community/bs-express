@@ -2,8 +2,8 @@
 
 # Unit test to run again an Express server defined in examples/Index.re
 #
-# This test uses 'curl' to query the web server and output the 
-# HTTP response in 'test.data'. 
+# This test uses 'curl' to query the web server and output the
+# HTTP response in 'test.data'.
 #
 # It then makes a diff with the expected data stored in 'reference.data'
 
@@ -50,6 +50,9 @@ run_header_test() {
 
 run_header_test 'Accepts' 'GET' 'Accept: audio/*; q=0.2, audio/basic' \
   '/accepts'
+
+run_header_test 'Accepts Charsets' 'GET' 'Accept-Charset: UTF-8' \
+  '/accepts-charsets'
 
 # compare test output to reference data
 
