@@ -194,6 +194,49 @@ App.getWithMany app path::"/accepts-charsets" [|
   })
 |];
 
+App.get app path::"/get" @@ Middleware.from (fun req res next => {
+  switch (Request.get req "key") {
+    | Some "value" => Response.sendJson res (makeSuccessJson ());
+    | _ => next Next.route;
+  };
+});
+
+App.get app path::"/fresh" @@ Middleware.from (fun req res next => {
+  if(not @@ Request.fresh req) {
+    Response.sendJson res (makeSuccessJson ());
+  }
+  else {
+    next Next.route;
+  };
+});
+
+App.get app path::"/stale" @@ Middleware.from (fun req res next => {
+  if(Request.stale req) {
+    Response.sendJson res (makeSuccessJson ());
+  }
+  else {
+    next Next.route;
+  };
+});
+
+App.get app path::"/secure" @@ Middleware.from (fun req res next => {
+  if(not @@ Request.secure req) {
+    Response.sendJson res (makeSuccessJson ());
+  }
+  else {
+    next Next.route;
+  };
+});
+
+App.get app path::"/xhr" @@ Middleware.from (fun req res next => {
+  if(not @@ Request.xhr req) {
+    Response.sendJson res (makeSuccessJson ());
+  }
+  else {
+    next Next.route;
+  };
+});
+
 App.listen app port::3000 ;
 
 /* -- Test the server --

@@ -43,6 +43,12 @@ module Request = {
   external ip : t => string = "" [@@bs.get];
   /** [ip request] Contains the remote IP address of the request.*/
 
+  external fresh : t => bool =  "" [@@bs.get];
+  /** [fresh request] returns [true] whether the request is "fresh" */
+
+  external stale : t => bool =  "" [@@bs.get];
+  /** [stale request] returns [true] whether the request is "stale"*/
+
   external methodRaw : t => string = "method" [@@bs.get];
 
   type method_ =
@@ -92,6 +98,9 @@ module Request = {
   /** [protocol request] returns the request protocol string: either http
       or (for TLS requests) https. */
 
+  external secure : t => bool = "" [@@bs.get];
+  /** [secure request] returns [true] if a TLS connection is established */
+
   external query : t => Js.Dict.t Js.Json.t = "" [@@bs.get];
   /** [query request] returns an object containing a property for each
       query string parameter in the route. If there is no query string,
@@ -124,7 +133,15 @@ module Request = {
     };
   };
 
-  /** more property method coming later */
+  external get : t => string => option string = ""
+    [@@bs.send] [@@bs.return null_undefined_to_opt];
+  /** [get return field] returns the specified HTTP request header
+      field (case-insensitive match) */
+
+  external xhr : t => bool = "" [@@bs.get];
+  /** [xhr request] returns [true] if the request’s X-Requested-With
+      header field is "XMLHttpRequest", indicating that the request was
+      issued by a client library such as jQuery */
 };
 
 module Response = {

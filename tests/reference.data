@@ -44,7 +44,17 @@ This is the content of test.data a static file
 {"success":true}
 -- Query parameters--
 {"success":true}
+-- Fresh--
+{"success":true}
+-- Stale--
+{"success":true}
+-- Secure--
+{"success":true}
+-- XHR--
+{"success":true}
 -- Accepts--
 {"success":true}
 -- Accepts Charsets--
+{"success":true}
+-- Get--
 {"success":true}

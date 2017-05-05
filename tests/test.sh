@@ -42,6 +42,10 @@ run_test 'method originalUrl' 'GET' '/originalUrl'
 run_test 'method path' 'GET' '/path'
 run_test 'method path' 'GET' '/protocol'
 run_test 'Query parameters' 'GET' '/query?key=value'
+run_test 'Fresh' 'GET' '/fresh'
+run_test 'Stale' 'GET' '/stale'
+run_test 'Secure' 'GET' '/secure'
+run_test 'XHR' 'GET' '/xhr'
 
 run_header_test() {
   print_test_title "$1"
@@ -53,6 +57,16 @@ run_header_test 'Accepts' 'GET' 'Accept: audio/*; q=0.2, audio/basic' \
 
 run_header_test 'Accepts Charsets' 'GET' 'Accept-Charset: UTF-8' \
   '/accepts-charsets'
+
+run_header_test 'Get' 'GET' 'key: value' \
+  '/get'
+
+# run_cookie_test() {
+#   print_test_title "$1"
+#   curl -X "$2" --cookie "$3" http://localhost:3000$4 2>&1 >> $TEST_DATA
+# }
+# 
+# run_cookie_test 'Cookies' 'GET' 'key=value' '/cookies'
 
 # compare test output to reference data
 
