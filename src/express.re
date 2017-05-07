@@ -83,14 +83,16 @@ module Request = {
   external path : t => string = "" [@@bs.get];
   /** [path request] returns the path part of the request URL.*/
 
-  external protocolRaw : t => string = "protocol" [@@bs.get];
-
   type protocol =
     | Http
     | Https;
 
   let protocol : t => protocol = fun req => {
-    switch (protocolRaw req) {
+    let module Raw = {
+      external protocol : t => string = "protocol" [@@bs.get];
+    }; 
+
+    switch (Raw.protocol req) {
       | "http" => Http;
       | "https" => Https;
       | s => failwith ("Express.Request.protocol, Unexpected protocol: " ^ s)
@@ -106,26 +108,28 @@ module Request = {
       query string parameter in the route. If there is no query string,
       it returns the empty object, {} */
 
-  external acceptsRaw : t => array string => Js.Json.t = "accepts" [@@bs.send];
-  /** [acceptsRaw request types] checks if the specified content types
-      are acceptable, based on the request's Accept HTTP header field.
-      The method returns the best match, or if none of the specified
-      content types is acceptable, returns [false] */
-
   let accepts : t => array string => option string = fun req types => {
-    let ret = acceptsRaw req types;
+    let module Raw = {
+      external accepts : t => array string => Js.Json.t = "accepts" [@@bs.send];
+    };
+    let ret = Raw.accepts req types;
     let (ty, x) = Js.Json.reifyType ret;
     switch ty {
     | Js_json.String => Some x
     | _ => None
     };
   };
-
-  external acceptsCharsetsRaw : t => array string => Js.Json.t
-    = "acceptsCharsets" [@@bs.send];
+  /** [acceptsRaw accepts types] checks if the specified content types
+      are acceptable, based on the request's Accept HTTP header field.
+      The method returns the best match, or if none of the specified
+      content types is acceptable, returns [false] */
 
   let acceptsCharsets : t => array string => option string = fun req types => {
-    let ret = acceptsCharsetsRaw req types;
+    let module Raw = {
+      external acceptsCharsets : t => array string => Js.Json.t
+        = "acceptsCharsets" [@@bs.send];
+    };
+    let ret = Raw.acceptsCharsets req types;
     let (ty, x) = Js.Json.reifyType ret;
     switch ty {
     | Js_json.String => Some x
