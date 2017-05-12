@@ -29,3 +29,32 @@ This is the content of test.data a static file
 <pre>Cannot POST /999/id</pre>
 </body>
 </html>
+
+-- baseUrl property--
+{"success":true}
+-- hostname property--
+{"success":true}
+-- method property--
+{"success":true}
+-- method originalUrl--
+{"success":true}
+-- method path--
+{"success":true}
+-- method path--
+{"success":true}
+-- Query parameters--
+{"success":true}
+-- Fresh--
+{"success":true}
+-- Stale--
+{"success":true}
+-- Secure--
+{"success":true}
+-- XHR--
+{"success":true}
+-- Accepts--
+{"success":true}
+-- Accepts Charsets--
+{"success":true}
+-- Get--
+{"success":true}
