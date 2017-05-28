@@ -58,3 +58,9 @@ This is the content of test.data a static file
 {"success":true}
 -- Get--
 {"success":true}
+-- NullCookies--
+{"success":true}
+-- Cookies--
+{"success":true}
+-- NullSignedCookies--
+{"success":true}

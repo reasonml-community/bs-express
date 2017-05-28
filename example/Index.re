@@ -237,6 +237,36 @@ App.get app path::"/xhr" @@ Middleware.from (fun req res next => {
   };
 });
 
+App.get app path::"/nullCookies" @@ Middleware.from (fun req res next => {
+  switch (Request.cookies req) {
+    | None => Response.sendJson res (makeSuccessJson ());
+    | Some _ => next Next.route;
+  }
+});
+
+App.get app path::"/nullSignedCookies" @@ Middleware.from (fun req res next => {
+  switch (Request.signedCookies req) {
+    | None => Response.sendJson res (makeSuccessJson ());
+    | Some _ => next Next.route;
+  }
+});
+
+App.getWithMany app path::"/cookies" [| 
+  CookieParser.make (), 
+    /* This will enable cookie parsing on that path */
+
+  Middleware.from (fun req res next => {
+    switch (Request.cookies req) {
+      | Some kv => {
+        switch (getDictString kv "key") {
+          | Some "value" => Response.sendJson res (makeSuccessJson ());
+          | _ => next Next.route
+        };
+      }
+      | None => next Next.route;
+    }})
+  |];
+
 App.listen app port::3000 ;
 
 /* -- Test the server --

@@ -36,6 +36,15 @@ module Request = {
   external baseUrl: t => string = "" [@@bs.get];
   /** [baseUrl request] returns the 'baseUrl' property */
 
+  external cookies : t => option (Js.Dict.t Js.Json.t) = "" 
+    [@@bs.get][@@bs.return null_undefined_to_opt];
+  /** When using cookie-parser middleware, this property is an object 
+      that contains cookies sent by the request. If the request contains 
+      no cookies, it defaults to {}.*/ 
+
+  external signedCookies: t => option (Js.Dict.t Js.Json.t) = "" 
+    [@@bs.get][@@bs.return null_undefined_to_opt];
+
   external hostname : t => string = "" [@@bs.get];
   /** [hostname request] Contains the hostname derived from the Host
       HTTP header.*/
@@ -277,4 +286,20 @@ module Static = {
 
   external asMiddleware : t => Middleware.t = "%identity";
   /** [asMiddleware static] casts [static] to a Middleware type */
+};
+
+module CookieParser : {
+  let make : secret::string? => unit => Middleware.t;
+} = {
+  external make_no_arg : unit => Middleware.t = "cookie-parser" [@@bs.module];
+  external make_with_secret : string => Middleware.t = "cookie-parser" [@@bs.module];
+
+  let make ::secret=? () => {
+    switch secret {
+      | None => make_no_arg ();
+      | Some secret => make_with_secret secret;
+    };
+  };
+  /** [make ::secret ()] return the cookie parser middleware to be used 
+      with [App.use] */
 };

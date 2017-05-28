@@ -61,12 +61,14 @@ run_header_test 'Accepts Charsets' 'GET' 'Accept-Charset: UTF-8' \
 run_header_test 'Get' 'GET' 'key: value' \
   '/get'
 
-# run_cookie_test() {
-#   print_test_title "$1"
-#   curl -X "$2" --cookie "$3" http://localhost:3000$4 2>&1 >> $TEST_DATA
-# }
-# 
-# run_cookie_test 'Cookies' 'GET' 'key=value' '/cookies'
+run_cookie_test() {
+  print_test_title "$1"
+  curl -X "$2" --cookie "$3" http://localhost:3000$4 2>&1 >> $TEST_DATA
+}
+
+run_cookie_test 'NullCookies' 'GET' 'key=value' '/nullCookies'
+run_cookie_test 'Cookies' 'GET' 'key=value' '/cookies'
+run_cookie_test 'NullSignedCookies' 'GET' 'key=value' '/nullSignedCookies'
 
 # compare test output to reference data
 
