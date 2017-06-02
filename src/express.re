@@ -44,6 +44,13 @@ module Request = {
 
   external signedCookies: t => option (Js.Dict.t Js.Json.t) = "" 
     [@@bs.get][@@bs.return null_undefined_to_opt];
+  /** When using cookie-parser middleware, this property contains signed cookies 
+      sent by the request, unsigned and ready for use. Signed cookies reside in 
+      a different object to show developer intent; otherwise, a malicious attack 
+      could be placed on req.cookie values (which are easy to spoof). 
+      Note that signing a cookie does not make it “hidden” or encrypted; 
+      but simply prevents tampering (because the secret used to 
+      sign is private). **/
 
   external hostname : t => string = "" [@@bs.get];
   /** [hostname request] Contains the hostname derived from the Host
