@@ -5,7 +5,7 @@ open Express;
 
    Each middleware will both check that previous middleware
    have been called by making properties exists in the Request object and
-   upon success will themselves adds anothe property to the Request.
+   upon success will themselves adds another property to the Request.
 
 */
 
