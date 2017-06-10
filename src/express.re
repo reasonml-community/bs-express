@@ -294,19 +294,3 @@ module Static = {
   external asMiddleware : t => Middleware.t = "%identity";
   /** [asMiddleware static] casts [static] to a Middleware type */
 };
-
-module CookieParser : {
-  let make : secret::string? => unit => Middleware.t;
-} = {
-  external make_no_arg : unit => Middleware.t = "cookie-parser" [@@bs.module];
-  external make_with_secret : string => Middleware.t = "cookie-parser" [@@bs.module];
-
-  let make ::secret=? () => {
-    switch secret {
-      | None => make_no_arg ();
-      | Some secret => make_with_secret secret;
-    };
-  };
-  /** [make ::secret ()] return the cookie parser middleware to be used 
-      with [App.use] */
-};
