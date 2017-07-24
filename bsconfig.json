@@ -1,4 +1,7 @@
 {
   "name" : "bs-express",
-  "sources" : ["src" , "example"],
+  "sources" : [
+    "src",
+    { "dir": "example", "type": "dev" }
+  ]
 }
