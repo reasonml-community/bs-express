@@ -24,5 +24,6 @@ setup.log
 
 node_modules
 npm-debug.log
+lib/
 
 ./tests/test.data
