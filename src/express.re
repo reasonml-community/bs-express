@@ -268,7 +268,10 @@ module App = {
   external asMiddleware : t => Middleware.t = "%identity";
   /** [asMiddleware app] casts an App instance to a Middleware type */
 
-  external listen : t => port::int => onListen::(Js.Null_undefined.t Js.Exn.t => unit) [@bs.uncurry] => unit = "" [@@bs.send];
+  external listen_ : t => port::int => onListen::(Js.Null_undefined.t Js.Exn.t => unit) [@bs.uncurry] => unit = "" [@@bs.send];
+
+  let listen app ::port=3000 ::onListen=(fun _ => ()) => listen_ app ::port ::onListen;
+
 };
 
 let express = App.make;
