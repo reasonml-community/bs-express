@@ -17,14 +17,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/BuckleTypes/bs-express.git"
+    "url": "git+https://github.com/reasonml-community/bs-express.git"
   },
   "keywords": [],
   "author": "Ramana Venkata <idlike2dream@gmail.com>",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/BuckleTypes/bs-express/issues"
+    "url": "https://github.com/reasonml-community/bs-express/issues"
   },
-  "homepage": "https://github.com/BuckleTypes/bs-express#readme",
+  "homepage": "https://github.com/reasonml-community/bs-express#readme",
   "rebel": {}
 }
