@@ -241,12 +241,17 @@ let onListen port e =>
   switch e {
   | exception (Js.Exn.Error e) =>
     Js.log e;
-    Node.Process.exit 1
-  | _ => Js.log @@ "Listening at http://127.0.0.1:" ^ (string_of_int port) 
+    Node.Process.exit 1;
+  | _ => Js.log @@ "Listening at http://127.0.0.1:" ^ (string_of_int port);
   };
 
-let listening = onListen 3000;
-App.listen app port::3000 onListen::listening
+App.listen app onListen::(onListen 3000) ();
+
+/* Other examples are 
+App.listen app (); 
+App.listen app port::1000 ();
+App.listen app port::1000 onListen::(fun e => Js.log e) ();
+*/
 
 /* -- Test the server --
 npm run start && cd tests && ./test.sh
