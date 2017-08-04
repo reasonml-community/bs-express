@@ -21,7 +21,7 @@
   },
   "keywords": [],
   "author": "Ramana Venkata <idlike2dream@gmail.com>",
-  "license": "ISC",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/reasonml-community/bs-express/issues"
   },
