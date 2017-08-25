@@ -1,4 +1,5 @@
 {
-  "name" : "bs-express",
-  "sources" : ["src" , "example"],
+  "name": "bs-express",
+  "bsc-flags": ["-bs-super-errors"],
+  "sources": ["src" , "example"],
 }

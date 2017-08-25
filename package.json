@@ -7,12 +7,12 @@
     "express": "^4.14.0"
   },
   "devDependencies": {
-    "bs-platform": "^1.8.2"
+    "bs-platform": "^1.9.0"
   },
   "scripts": {
-    "build": "bsb -clean-world && bsb -make-world",
+    "build": "bsb -make-world",
     "start": "npm run-script build && node lib/js/example/",
-    "clean-build": "bsb -clean-world",
+    "clean": "bsb -clean-world",
     "test": "cd tests && ./test.sh"
   },
   "repository": {
