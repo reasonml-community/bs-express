@@ -237,6 +237,14 @@ App.get app path::"/xhr" @@ Middleware.from (fun req res next => {
   };
 });
 
+App.get app path::"/redir" @@ Middleware.from (fun _req res _next =>
+  Response.redirect res "/redir/target"
+);
+
+App.get app path::"/redircode" @@ Middleware.from (fun _req res _next =>
+  Response.redirectCode res 301 "/redir/target"
+);
+
 let onListen port e =>
   switch e {
   | exception (Js.Exn.Error e) =>
