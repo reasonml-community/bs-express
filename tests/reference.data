@@ -52,6 +52,10 @@ This is the content of test.data a static file
 {"success":true}
 -- XHR--
 {"success":true}
+-- Redirect--
+Found. Redirecting to /redir/target
+-- Redirect with Code--
+Moved Permanently. Redirecting to /redir/target
 -- Accepts--
 {"success":true}
 -- Accepts Charsets--

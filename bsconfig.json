@@ -1,6 +1,7 @@
 {
-  "name" : "bs-express",
-  "sources" : [
+  "name": "bs-express",
+  "bsc-flags": ["-bs-super-errors"],
+  "sources": [
     "src",
     { "dir": "example", "type": "dev" }
   ]

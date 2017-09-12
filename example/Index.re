@@ -237,7 +237,29 @@ App.get app path::"/xhr" @@ Middleware.from (fun req res next => {
   };
 });
 
-App.listen app port::3000 ;
+App.get app path::"/redir" @@ Middleware.from (fun _req res _next =>
+  Response.redirect res "/redir/target"
+);
+
+App.get app path::"/redircode" @@ Middleware.from (fun _req res _next =>
+  Response.redirectCode res 301 "/redir/target"
+);
+
+let onListen port e =>
+  switch e {
+  | exception (Js.Exn.Error e) =>
+    Js.log e;
+    Node.Process.exit 1;
+  | _ => Js.log @@ "Listening at http://127.0.0.1:" ^ (string_of_int port);
+  };
+
+App.listen app onListen::(onListen 3000) ();
+
+/* Other examples are 
+App.listen app (); 
+App.listen app port::1000 ();
+App.listen app port::1000 onListen::(fun e => Js.log e) ();
+*/
 
 /* -- Test the server --
 npm run start && cd tests && ./test.sh

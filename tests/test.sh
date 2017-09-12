@@ -46,6 +46,8 @@ run_test 'Fresh' 'GET' '/fresh'
 run_test 'Stale' 'GET' '/stale'
 run_test 'Secure' 'GET' '/secure'
 run_test 'XHR' 'GET' '/xhr'
+run_test 'Redirect' 'GET' '/redir'
+run_test 'Redirect with Code' 'GET' '/redircode'
 
 run_header_test() {
   print_test_title "$1"
