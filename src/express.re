@@ -129,9 +129,9 @@ module Request = {
       external accepts : t => array string => Js.Json.t = "accepts" [@@bs.send];
     };
     let ret = Raw.accepts req types;
-    let (ty, x) = Js.Json.reifyType ret;
-    switch ty {
-    | Js_json.String => Some x
+    let tagged_t = Js_json.classify ret;
+    switch tagged_t {
+    | JSONString x => Some x
     | _ => None
     };
   };
@@ -146,9 +146,9 @@ module Request = {
         = "acceptsCharsets" [@@bs.send];
     };
     let ret = Raw.acceptsCharsets req types;
-    let (ty, x) = Js.Json.reifyType ret;
-    switch ty {
-    | Js_json.String => Some x
+    let tagged_t = Js_json.classify ret;
+    switch tagged_t {
+    | JSONString x => Some x
     | _ => None
     };
   };
