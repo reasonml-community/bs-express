@@ -36,6 +36,30 @@ module Request = {
   external baseUrl: t => string = "" [@@bs.get];
   /** [baseUrl request] returns the 'baseUrl' property */
 
+  external bodyJSON : t => option Js.Json.t = "body"
+    [@@bs.get] [@@bs.return nullable];
+  /** When using the json body-parser middleware and receiving a request with a
+      content type of "application/json", this property is a Js.Json.t that
+      contains the body sent by the request. **/
+
+  external bodyRaw : t => option Node_buffer.t = "body"
+    [@@bs.get] [@@bs.return nullable];
+  /** When using the raw body-parser middleware and receiving a request with a
+      content type of "application/octet-stream", this property is a
+      Node_buffer.t that contains the body sent by the request. **/
+
+  external bodyText : t => option string = "body"
+    [@@bs.get] [@@bs.return nullable];
+  /** When using the text body-parser middleware and receiving a request with a
+      content type of "text/plain", this property is a string that
+      contains the body sent by the request. **/
+
+  external bodyURLEncoded : t => option (Js.Dict.t string) = "body"
+    [@@bs.get] [@@bs.return nullable];
+  /** When using the urlencoded body-parser middleware and receiving a request
+      with a content type of "application/x-www-form-urlencoded", this property
+      is a Js.Dict.t string that contains the body sent by the request. **/
+
   external cookies : t => option (Js.Dict.t Js.Json.t) = "" 
     [@@bs.get][@@bs.return null_undefined_to_opt];
   /** When using cookie-parser middleware, this property is an object 
