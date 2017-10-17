@@ -192,7 +192,7 @@ module Response = {
   type t;
   external sendFile : t => string => 'a => done_ = "" [@@bs.send];
   external sendString : t => string => done_ = "send" [@@bs.send];
-  external sendJson : t => Js.Json.t => done_ = "send" [@@bs.send];
+  external sendJson : t => Js.Json.t => done_ = "json" [@@bs.send];
   external sendBuffer : t => Buffer.t => done_ = "send" [@@bs.send];
   external sendArray : t => array 'a => done_ = "send" [@@bs.send];
   external json : t => Js.Json.t => done_ = ""
