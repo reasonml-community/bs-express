@@ -173,6 +173,7 @@ module Response = {
   external sendArray : t => array 'a => done_ = "send" [@@bs.send];
   external json : t => Js.Json.t => done_ = ""
     [@@bs.send] [@@ocaml.deprecated "Use sendJson instead`"];
+    
   external redirectCode : t => int => string => done_ = "redirect" [@@bs.send];
   external redirect : t => string => done_ = "redirect" [@@bs.send];
 };
