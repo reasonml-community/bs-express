@@ -200,6 +200,9 @@ module Response = {
 
   external redirectCode : t => int => string => done_ = "redirect" [@@bs.send];
   external redirect : t => string => done_ = "redirect" [@@bs.send];
+
+  external status : t => int => t = "status" [@@bs.send];
+  external sendStatus : t => int => done_ = "sendStatus" [@@bs.send];
 };
 
 module Next : {
