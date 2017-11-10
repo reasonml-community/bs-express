@@ -7,7 +7,7 @@
     "express": "^4.14.0"
   },
   "devDependencies": {
-    "bs-platform": "^1.9.0"
+    "bs-platform": "^2.0.0"
   },
   "scripts": {
     "build": "bsb -make-world",

@@ -4,5 +4,6 @@
   "sources": [
     "src",
     { "dir": "example", "type": "dev" }
-  ]
+  ],
+  "refmt": 3
 }
