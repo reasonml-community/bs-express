@@ -1,0 +1,126 @@
+
+-- Root path--
+{"success":true}
+-- Invalid path--
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Error</title>
+</head>
+<body>
+<pre>Cannot GET /invalid-path</pre>
+</body>
+</html>
+
+-- Static middleware--
+This is the content of test.data a static file
+
+-- POST + Query param (valid)--
+{"success":true}
+-- POST + Query param (invalid)--
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Error</title>
+</head>
+<body>
+<pre>Cannot POST /999/id</pre>
+</body>
+</html>
+
+-- PUT + Query param (valid)--
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Error</title>
+</head>
+<body>
+<pre>Cannot PUT /123/id</pre>
+</body>
+</html>
+
+-- PUT + Query param (invalid)--
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Error</title>
+</head>
+<body>
+<pre>Cannot PUT /999/id</pre>
+</body>
+</html>
+
+-- PUT + Query param (valid)--
+{"success":true}
+-- PUT + Query param (invalid)--
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Error</title>
+</head>
+<body>
+<pre>Cannot PATCH /999/id</pre>
+</body>
+</html>
+
+-- DELETE + Query param (valid)--
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Error</title>
+</head>
+<body>
+<pre>Cannot DELETE /123/id</pre>
+</body>
+</html>
+
+-- DELETE + Query param (invalid)--
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Error</title>
+</head>
+<body>
+<pre>Cannot DELETE /999/id</pre>
+</body>
+</html>
+
+-- baseUrl property--
+{"success":true}
+-- hostname property--
+{"success":true}
+-- method property--
+{"success":true}
+-- method originalUrl--
+{"success":true}
+-- method path--
+{"success":true}
+-- method path--
+{"success":true}
+-- Query parameters--
+{"success":true}
+-- Fresh--
+{"success":true}
+-- Stale--
+{"success":true}
+-- Secure--
+{"success":true}
+-- XHR--
+{"success":true}
+-- Redirect--
+Found. Redirecting to /redir/target
+-- Redirect with Code--
+Moved Permanently. Redirecting to /redir/target
+-- Accepts--
+{"success":true}
+-- Accepts Charsets--
+{"success":true}
+-- Get--
+{"success":true}
