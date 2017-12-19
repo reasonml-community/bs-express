@@ -140,6 +140,72 @@ App.postWithMany(
   |]
 );
 
+App.patchWithMany(
+  app,
+  ~path="/:id/id",
+  [|
+    Middleware.from(
+      (req, res, next) => {
+        let previousMiddlewares = ["middleware0", "middleware1", "middleware2"];
+        checkProperties(
+          req,
+          next,
+          previousMiddlewares,
+          () =>
+            switch (getDictString(Request.params(req), "id")) {
+            | Some("123") => Response.sendJson(res, makeSuccessJson())
+            | _ => next(Next.route)
+            }
+        )
+      }
+    )
+  |]
+);
+
+App.putWithMany(
+  app,
+  ~path="/:id/id",
+  [|
+    Middleware.from(
+      (req, res, next) => {
+        let previousMiddlewares = ["middleware0", "middleware1", "middleware2"];
+        checkProperties(
+          req,
+          next,
+          previousMiddlewares,
+          () =>
+            switch (getDictString(Request.params(req), "id")) {
+            | Some("123") => Response.sendJson(res, makeSuccessJson())
+            | _ => next(Next.route)
+            }
+        )
+      }
+    )
+  |]
+);
+
+App.deleteWithMany(
+  app,
+  ~path="/:id/id",
+  [|
+    Middleware.from(
+      (req, res, next) => {
+        let previousMiddlewares = ["middleware0", "middleware1", "middleware2"];
+        checkProperties(
+          req,
+          next,
+          previousMiddlewares,
+          () =>
+            switch (getDictString(Request.params(req), "id")) {
+            | Some("123") => Response.sendJson(res, makeSuccessJson())
+            | _ => next(Next.route)
+            }
+        )
+      }
+    )
+  |]
+);
+
 App.get(app, ~path="/baseUrl") @@
 Middleware.from(
   (req, res, next) =>

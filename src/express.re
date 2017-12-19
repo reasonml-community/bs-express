@@ -253,6 +253,13 @@ module MakeBindFunctions = (T: {type t;}) => {
   [@bs.send] external getWithMany : (T.t, ~path: string, array(Middleware.t)) => unit = "get";
   [@bs.send] external post : (T.t, ~path: string, Middleware.t) => unit = "";
   [@bs.send] external postWithMany : (T.t, ~path: string, array(Middleware.t)) => unit = "post";
+  [@bs.send] external put : (T.t, ~path: string, Middleware.t) => unit = "";
+  [@bs.send] external putWithMany : (T.t, ~path: string, array(Middleware.t)) => unit = "put";
+  [@bs.send] external patch : (T.t, ~path: string, Middleware.t) => unit = "";
+  [@bs.send] external patchWithMany : (T.t, ~path: string, array(Middleware.t)) => unit = "patch";
+  [@bs.send] external delete : (T.t, ~path: string, Middleware.t) => unit = "";
+  [@bs.send] external deleteWithMany : (T.t, ~path: string, array(Middleware.t)) => unit =
+    "delete";
 };
 
 module App = {
