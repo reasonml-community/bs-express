@@ -19,7 +19,14 @@
     "type": "git",
     "url": "git+https://github.com/reasonml-community/bs-express.git"
   },
-  "keywords": [],
+  "keywords": [
+    "reasonml",
+    "bucklescript",
+    "expressjs",
+    "web",
+    "server",
+    "nodejs"
+  ],
   "author": "Ramana Venkata <idlike2dream@gmail.com>",
   "license": "MIT",
   "bugs": {
