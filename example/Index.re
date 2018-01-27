@@ -289,6 +289,18 @@ Middleware.from(
     }
 );
 
+App.get(app, ~path="/not-found") @@
+Middleware.from((req, res, next) => Response.sendStatus(res, Response.StatusCode.NotFound));
+
+App.get(app, ~path="/error") @@
+Middleware.from(
+  (req, res, next) =>
+    Response.sendJson(
+      Response.status(res, Response.StatusCode.InternalServerError),
+      makeSuccessJson()
+    )
+);
+
 App.getWithMany(
   app,
   ~path="/accepts",

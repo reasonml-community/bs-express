@@ -86,7 +86,7 @@ module Request = {
 
   /*** [stale request] returns [true] whether the request is "stale"*/
   [@bs.get] external methodRaw : t => string = "method";
-  type method_ =
+  type method =
     | Get
     | Post
     | Put
@@ -95,7 +95,7 @@ module Request = {
     | Options
     | Trace
     | Connect;
-  let method: t => method_ =
+  let method: t => method =
     (req) =>
       switch (methodRaw(req)) {
       | "GET" => Get
@@ -184,11 +184,79 @@ module Request = {
 
 module Response = {
   type t;
+  module StatusCode = {
+    [@bs.deriving jsConverter]
+    type t =
+      [@bs.as 200] | Ok
+      [@bs.as 201] | Created
+      [@bs.as 202] | Accepted
+      [@bs.as 203] | NonAuthoritativeInformation
+      [@bs.as 204] | NoContent
+      [@bs.as 205] | ResetContent
+      [@bs.as 206] | PartialContent
+      [@bs.as 207] | MultiStatus
+      [@bs.as 208] | AleadyReported
+      [@bs.as 226] | IMUsed
+      [@bs.as 300] | MultipleChoises
+      [@bs.as 301] | MovedPermanently
+      [@bs.as 302] | Found
+      [@bs.as 303] | SeeOther
+      [@bs.as 304] | NotModified
+      [@bs.as 305] | UseProxy
+      [@bs.as 306] | SwitchProxy
+      [@bs.as 307] | TemporaryRedirect
+      [@bs.as 308] | PermanentRedirect
+      [@bs.as 400] | BadRequest
+      [@bs.as 401] | Unauthorized
+      [@bs.as 402] | PaymentRequired
+      [@bs.as 403] | Forbidden
+      [@bs.as 404] | NotFound
+      [@bs.as 405] | MethodNotAllowed
+      [@bs.as 406] | NotAcceptable
+      [@bs.as 407] | ProxyAuthenticationRequired
+      [@bs.as 408] | RequestTimeout
+      [@bs.as 409] | Conflict
+      [@bs.as 410] | Gone
+      [@bs.as 411] | LengthRequired
+      [@bs.as 412] | PreconditionFailed
+      [@bs.as 413] | PayloadTooLarge
+      [@bs.as 414] | UriTooLong
+      [@bs.as 415] | UnsupportedMediaType
+      [@bs.as 416] | RangeNotSatisfiable
+      [@bs.as 417] | ExpectationFailed
+      [@bs.as 418] | ImATeapot
+      [@bs.as 421] | MisdirectedRequest
+      [@bs.as 422] | UnprocessableEntity
+      [@bs.as 423] | Locked
+      [@bs.as 424] | FailedDependency
+      [@bs.as 426] | UpgradeRequired
+      [@bs.as 428] | PreconditionRequired
+      [@bs.as 429] | TooManyRequests
+      [@bs.as 431] | RequestHeaderFieldsTooLarge
+      [@bs.as 451] | UnavailableForLegalReasons
+      [@bs.as 500] | InternalServerError
+      [@bs.as 501] | NotImplemented
+      [@bs.as 502] | BadGateway
+      [@bs.as 503] | ServiceUnavailable
+      [@bs.as 504] | GatewayTimeout
+      [@bs.as 505] | HttpVersionNotSupported
+      [@bs.as 506] | VariantAlsoNegotiates
+      [@bs.as 507] | InsufficientStorage
+      [@bs.as 508] | LoopDetected
+      [@bs.as 510] | NotExtended
+      [@bs.as 511] | NetworkAuthenticationRequired;
+    let fromInt = tFromJs;
+    let toInt = tToJs;
+  };
   [@bs.send] external sendFile : (t, string, 'a) => done_ = "";
   [@bs.send] external sendString : (t, string) => done_ = "send";
   [@bs.send] external sendJson : (t, Js.Json.t) => done_ = "json";
   [@bs.send] external sendBuffer : (t, Buffer.t) => done_ = "send";
   [@bs.send] external sendArray : (t, array('a)) => done_ = "send";
+  [@bs.send] external sendRawStatus : (t, int) => done_ = "sendStatus";
+  let sendStatus = (res, statusCode) => sendRawStatus(res, StatusCode.toInt(statusCode));
+  [@bs.send] external rawStatus : (t, int) => t = "status";
+  let status = (res, statusCode) => rawStatus(res, StatusCode.toInt(statusCode));
   [@bs.send] [@ocaml.deprecated "Use sendJson instead`"] external json : (t, Js.Json.t) => done_ =
     "";
   [@bs.send] external redirectCode : (t, int, string) => done_ = "redirect";
