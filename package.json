@@ -17,8 +17,12 @@
     "watch-run": "nodemon lib/js/example/",
     "watch": "bsb -make-world -w",
     "clean": "bsb -clean-world",
-    "pre-push": "npm run-script start && sleep 1 && npm run-script test",
     "test": "cd tests && ./test.sh"
+  },
+  "husky": {
+    "hooks": {
+      "pre-push": "npm run-script start && sleep 1 && npm run-script test"
+    }
   },
   "repository": {
     "type": "git",
