@@ -1,20 +1,11 @@
-type done_;
+type complete;
 
-
-/*** abstract type which ensure middleware function must either
-     call the [next] function or one of the [send] function on the
-     response object.
-
-     This should be a great argument for OCaml, the type system
-     prevents silly error which in this case would make the server hang */
-
-/*** TODO : maybe this should be a more common module like bs-error */
 module Error = {
-  type t;
+  type t = exn;
 
   /*** Error type */
-  [@bs.send] [@bs.return null_undefined_to_opt] external message : t => option(string) = "";
-  [@bs.send] [@bs.return null_undefined_to_opt] external name : t => option(string) = "";
+  [@bs.send] [@bs.return null_undefined_to_opt] external message : Js_exn.t => option(string) = "";
+  [@bs.send] [@bs.return null_undefined_to_opt] external name : Js_exn.t => option(string) = "";
 };
 
 module Request = {
@@ -248,24 +239,25 @@ module Response = {
     let fromInt = tFromJs;
     let toInt = tToJs;
   };
-  [@bs.send] external sendFile : (t, string, 'a) => done_ = "";
-  [@bs.send] external sendString : (t, string) => done_ = "send";
-  [@bs.send] external sendJson : (t, Js.Json.t) => done_ = "json";
-  [@bs.send] external sendBuffer : (t, Buffer.t) => done_ = "send";
-  [@bs.send] external sendArray : (t, array('a)) => done_ = "send";
-  [@bs.send] external sendRawStatus : (t, int) => done_ = "sendStatus";
+  [@bs.send] external sendFile : (t, string, 'a) => complete = "";
+  [@bs.send] external sendString : (t, string) => complete = "send";
+  [@bs.send] external sendJson : (t, Js.Json.t) => complete = "json";
+  [@bs.send] external sendBuffer : (t, Buffer.t) => complete = "send";
+  [@bs.send] external sendArray : (t, array('a)) => complete = "send";
+  [@bs.send] external sendRawStatus : (t, int) => complete = "sendStatus";
   let sendStatus = (res, statusCode) => sendRawStatus(res, StatusCode.toInt(statusCode));
   [@bs.send] external rawStatus : (t, int) => t = "status";
   let status = (res, statusCode) => rawStatus(res, StatusCode.toInt(statusCode));
-  [@bs.send] [@ocaml.deprecated "Use sendJson instead`"] external json : (t, Js.Json.t) => done_ =
+  [@bs.send] [@ocaml.deprecated "Use sendJson instead`"]
+  external json : (t, Js.Json.t) => complete =
     "";
-  [@bs.send] external redirectCode : (t, int, string) => done_ = "redirect";
-  [@bs.send] external redirect : (t, string) => done_ = "redirect";
+  [@bs.send] external redirectCode : (t, int, string) => complete = "redirect";
+  [@bs.send] external redirect : (t, string) => complete = "redirect";
 };
 
 module Next: {
   type content;
-  type t = Js.undefined(content) => done_;
+  type t = Js.undefined(content) => complete;
   let middleware: Js.undefined(content);
 
   /*** value to use as [next] callback argument to invoke the next
@@ -279,7 +271,7 @@ module Next: {
        error [e] through the chain of middleware. */
 } = {
   type content;
-  type t = Js.undefined(content) => done_;
+  type t = Js.undefined(content) => complete;
   let middleware = Js.undefined;
   external castToContent : 'a => content = "%identity";
   let route = Js.Undefined.return(castToContent("route"));
@@ -289,28 +281,89 @@ module Next: {
 module Middleware = {
   type next = Next.t;
   type t;
-  /* Middleware abstract type which unified the various way an
-     Express middleware can be constructed:
-     {ul
-     {- from a {b function} using the [ofFunction]}
-     {- from a Router class}
-     {- from an App class}
-     {- from the third party middleware modules}
-     }
-     For each of the class which implements the middleware interface
-     is JavaScript, one can use the "%identity" function to cast
-     it to this type [t] */
-  type f = (Request.t, Response.t, next) => done_;
-  external from : f => t = "%identity";
-
-  /*** [from f] creates a Middleware from a function */
-  type errorF = (Error.t, Request.t, Response.t, next) => done_;
-  external fromError : errorF => t = "%identity";
-  /*** [fromError f] creates a Middleware from an error function */
+  module type S = {
+    type result;
+    type f = (Request.t, Response.t, next) => result;
+    let from: f => t;
+    /* Generate the common Middleware binding function for a given
+     * type. This Functor is used for the Router and App classes. */
+    type errorF = (Error.t, Request.t, Response.t, next) => result;
+    let fromError: errorF => t;
+  };
+  module type ApplyMiddleware = {
+    type t;
+    let apply: ((Request.t, Response.t, next) => t, Request.t, Response.t, next) => unit;
+    let applyWithError:
+      ((Error.t, Request.t, Response.t, next) => t, Error.t, Request.t, Response.t, next) => unit;
+  };
+  module Make = (A: ApplyMiddleware) : (S with type result = A.t) => {
+    type result = A.t;
+    type f = (Request.t, Response.t, next) => result;
+    external unsafeFrom : 'a => t = "%identity";
+    let from: f => t =
+      (middleware) => unsafeFrom((req, res, next) => A.apply(middleware, req, res, next));
+    type errorF = (Error.t, Request.t, Response.t, next) => result;
+    let fromError = (middleware) =>
+      unsafeFrom((err, req, res, next) => A.applyWithError(middleware, err, req, res, next));
+  };
+  include
+    Make(
+      {
+        type t = complete;
+        let apply = (f, req, res, next) =>
+          (
+            try (f(req, res, next)) {
+            | e => next(Next.error(e))
+            }
+          )
+          |> ignore;
+        let applyWithError = (f, err, req, res, next) =>
+          (
+            try (f(err, req, res, next)) {
+            | e => next(Next.error(e))
+            }
+          )
+          |> ignore;
+      }
+    );
 };
 
-/* Generate the common Middleware binding function for a given
- * type. This Functor is used for the Router and App classes. */
+module PromiseMiddleware =
+  Middleware.Make(
+    {
+      type t = Js.Promise.t(complete);
+      external castToErr : Js.Promise.error => Error.t = "%identity";
+      let apply = (f, req, res, next) => {
+        let promise: Js.Promise.t(complete) =
+          try (f(req, res, next)) {
+          | e => Js.Promise.resolve(next(Next.error(e)))
+          };
+        promise
+        |> Js.Promise.catch(
+             (err) => {
+               let err = castToErr(err);
+               Js.Promise.resolve(next(Next.error(err)))
+             }
+           )
+        |> ignore
+      };
+      let applyWithError = (f, err, req, res, next) => {
+        let promise: Js.Promise.t(complete) =
+          try (f(err, req, res, next)) {
+          | e => Js.Promise.resolve(next(Next.error(e)))
+          };
+        promise
+        |> Js.Promise.catch(
+             (err) => {
+               let err = castToErr(err);
+               Js.Promise.resolve(next(Next.error(err)))
+             }
+           )
+        |> ignore
+      };
+    }
+  );
+
 module MakeBindFunctions = (T: {type t;}) => {
   [@bs.send] external use : (T.t, Middleware.t) => unit = "";
   [@bs.send] external useWithMany : (T.t, array(Middleware.t)) => unit = "use";

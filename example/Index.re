@@ -17,7 +17,7 @@ let checkProperty = (req, next, property, k) => {
   | None => next(Next.route)
   | Some(x) =>
     switch (Js.Json.decodeBoolean(x)) {
-    | Some(b) when b == Js.true_ => k()
+    | Some(b) when true == Js.to_bool(b) => k()
     | _ => next(Next.route)
     }
   }
@@ -290,11 +290,11 @@ Middleware.from(
 );
 
 App.get(app, ~path="/not-found") @@
-Middleware.from((req, res, next) => Response.sendStatus(res, Response.StatusCode.NotFound));
+Middleware.from((_, res, _) => Response.sendStatus(res, Response.StatusCode.NotFound));
 
 App.get(app, ~path="/error") @@
 Middleware.from(
-  (req, res, next) =>
+  (_, res, _) =>
     Response.sendJson(
       Response.status(res, Response.StatusCode.InternalServerError),
       makeSuccessJson()
@@ -397,6 +397,38 @@ Middleware.from((_req, res, _next) => Response.redirect(res, "/redir/target"));
 
 App.get(app, ~path="/redircode") @@
 Middleware.from((_req, res, _next) => Response.redirectCode(res, 301, "/redir/target"));
+
+App.getWithMany(app, ~path="/ocaml-exception") @@
+[|
+  Middleware.from((_, _, _next) => raise(Failure("Elvis has left the building!"))),
+  Middleware.fromError(
+    (err, _, res, _) =>
+      switch err {
+      | Failure(f) =>
+        Response.sendString(Response.status(res, Response.StatusCode.PaymentRequired), f)
+      | _ => Response.sendStatus(res, Response.StatusCode.NotFound)
+      }
+  )
+|];
+
+App.get(app, ~path="/promise") @@
+PromiseMiddleware.from(
+  (_req, res, _next) => Js.Promise.resolve(Response.sendStatus(res, Response.StatusCode.NoContent))
+);
+
+App.getWithMany(app, ~path="/failing-promise") @@
+[|
+  PromiseMiddleware.from((_, _, _next) => Js.Promise.reject(Not_found)),
+  PromiseMiddleware.fromError(
+    (_, _req, res, _next) =>
+      Js.Promise.resolve(
+        Response.sendString(
+          Response.status(res, Response.StatusCode.InternalServerError),
+          "Caught Failing Promise"
+        )
+      )
+  )
+|];
 
 let onListen = (port, e) =>
   switch e {

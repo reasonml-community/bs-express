@@ -56,6 +56,9 @@ run_test 'Redirect' 'GET' '/redir'
 run_test 'Redirect with Code' 'GET' '/redircode'
 run_test 'Non 200 Http status' 'GET' '/not-found'
 run_test 'Non 200 Http status' 'GET' '/error'
+run_test 'Promise Middleware' 'GET' '/promise'
+run_test 'Failing Promise Middleware' 'GET' '/failing-promise'
+run_test 'Can catch Ocaml Exception' 'GET' '/ocaml-exception'
 
 run_header_test() {
   print_test_title "$1"

@@ -4,16 +4,20 @@
   "description": "Express bindings in Reason",
   "main": "index.js",
   "dependencies": {
-    "express": "^4.14.0"
+    "express": "^4.14.0",
+    "nodemon": "^1.14.11"
   },
   "devDependencies": {
-    "bs-platform": "^2.1.0"
+    "bs-platform": "^2.1.0",
+    "husky": "^0.15.0-rc.3"
   },
   "scripts": {
     "build": "bsb -make-world",
     "start": "npm run-script build && node lib/js/example/",
+    "watch-run": "nodemon lib/js/example/",
     "watch": "bsb -make-world -w",
     "clean": "bsb -clean-world",
+    "pre-push": "npm run-script start && sleep 1 && npm run-script test",
     "test": "cd tests && ./test.sh"
   },
   "repository": {

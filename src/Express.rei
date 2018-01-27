@@ -1,24 +1,87 @@
-type done_;
+type complete;
 
-module Error: {type t; let message: t => option(string); let name: t => option(string);};
+
+/*** abstract type which ensure middleware function must either
+     call the [next] function or one of the [send] function on the
+     response object.
+
+     This should be a great argument for OCaml, the type system
+     prevents silly error which in this case would make the server hang */
+module Error: {
+  type t = exn;
+
+  /*** Error type */
+  let message: Js_exn.t => option(string);
+  let name: Js_exn.t => option(string);
+};
 
 module Request: {
   type t;
   type params = Js.Dict.t(Js.Json.t);
   let params: t => params;
+
+  /*** [params request] return the JSON object filled with the
+       request parameters */
   let asJsonObject: t => Js.Dict.t(Js.Json.t);
+
+  /*** [asJsonObject request] casts a [request] to a JSON object. It is
+       common in Express application to use the Request object as a
+       placeholder to maintain state through the various middleware which
+       are executed. */
   let baseUrl: t => string;
+
+  /*** [baseUrl request] returns the 'baseUrl' property */
   let bodyJSON: t => option(Js.Json.t);
+
+  /*** When using the json body-parser middleware and receiving a request with a
+       content type of "application/json", this property is a Js.Json.t that
+       contains the body sent by the request. **/
   let bodyRaw: t => option(Node_buffer.t);
+
+  /*** When using the raw body-parser middleware and receiving a request with a
+       content type of "application/octet-stream", this property is a
+       Node_buffer.t that contains the body sent by the request. **/
   let bodyText: t => option(string);
+
+  /*** When using the text body-parser middleware and receiving a request with a
+       content type of "text/plain", this property is a string that
+       contains the body sent by the request. **/
   let bodyURLEncoded: t => option(Js.Dict.t(string));
+
+  /*** When using the urlencoded body-parser middleware and receiving a request
+       with a content type of "application/x-www-form-urlencoded", this property
+       is a Js.Dict.t string that contains the body sent by the request. **/
   let cookies: t => option(Js.Dict.t(Js.Json.t));
+
+  /*** When using cookie-parser middleware, this property is an object
+       that contains cookies sent by the request. If the request contains
+       no cookies, it defaults to {}.*/
   let signedCookies: t => option(Js.Dict.t(Js.Json.t));
+
+  /*** When using cookie-parser middleware, this property contains signed cookies
+       sent by the request, unsigned and ready for use. Signed cookies reside in
+       a different object to show developer intent; otherwise, a malicious attack
+       could be placed on req.cookie values (which are easy to spoof).
+       Note that signing a cookie does not make it “hidden” or encrypted;
+       but simply prevents tampering (because the secret used to
+       sign is private). **/
   let hostname: t => string;
+
+  /*** [hostname request] Contains the hostname derived from the Host
+       HTTP header.*/
   let ip: t => string;
+
+  /*** [ip request] Contains the remote IP address of the request.*/
   let fresh: t => bool;
+
+  /*** [fresh request] returns [true] whether the request is "fresh" */
   let stale: t => bool;
+
+  /*** [stale request] returns [true] whether the request is "stale"*/
   let methodRaw: t => string;
+
+  /*** [method_ request] return a string corresponding to the HTTP
+       method of the request: GET, POST, PUT, and so on */
   type httpMethod =
     | Get
     | Post
@@ -29,18 +92,46 @@ module Request: {
     | Trace
     | Connect;
   let httpMethod: t => httpMethod;
+
+  /*** [method_ request] return a variant corresponding to the HTTP
+       method of the request: Get, Post, Put, and so on */
   let originalUrl: t => string;
+
+  /*** [originalUrl request] returns the original url. See
+       https://expressjs.com/en/4x/api.html#req.originalUrl */
   let path: t => string;
+
+  /*** [path request] returns the path part of the request URL.*/
   type protocol =
     | Http
     | Https;
   let protocol: t => protocol;
+
+  /*** [protocol request] returns the request protocol string: either http
+       or (for TLS requests) https. */
   let secure: t => bool;
+
+  /*** [secure request] returns [true] if a TLS connection is established */
   let query: t => Js.Dict.t(Js.Json.t);
+
+  /*** [query request] returns an object containing a property for each
+       query string parameter in the route. If there is no query string,
+       it returns the empty object, {} */
   let accepts: (t, array(string)) => option(string);
+
+  /*** [acceptsRaw accepts types] checks if the specified content types
+       are acceptable, based on the request's Accept HTTP header field.
+       The method returns the best match, or if none of the specified
+       content types is acceptable, returns [false] */
   let acceptsCharsets: (t, array(string)) => option(string);
   let get: (t, string) => option(string);
+
+  /*** [get return field] returns the specified HTTP request header
+       field (case-insensitive match) */
   let xhr: t => bool;
+  /*** [xhr request] returns [true] if the request’s X-Requested-With
+       header field is "XMLHttpRequest", indicating that the request was
+       issued by a client library such as jQuery */
 };
 
 module Response: {
@@ -108,36 +199,57 @@ module Response: {
     let fromInt: int => option(t);
     let toInt: t => int;
   };
-  let sendFile: (t, string, 'a) => done_;
-  let sendString: (t, string) => done_;
-  let sendJson: (t, Js.Json.t) => done_;
-  let sendBuffer: (t, Buffer.t) => done_;
-  let sendArray: (t, array('a)) => done_;
-  let sendRawStatus: (t, int) => done_;
-  let sendStatus: (t, StatusCode.t) => done_;
+  let sendFile: (t, string, 'a) => complete;
+  let sendString: (t, string) => complete;
+  let sendJson: (t, Js.Json.t) => complete;
+  let sendBuffer: (t, Buffer.t) => complete;
+  let sendArray: (t, array('a)) => complete;
+  let sendRawStatus: (t, int) => complete;
+  let sendStatus: (t, StatusCode.t) => complete;
   let rawStatus: (t, int) => t;
   let status: (t, StatusCode.t) => t;
-  let json: (t, Js.Json.t) => done_;
-  let redirectCode: (t, int, string) => done_;
-  let redirect: (t, string) => done_;
+  let json: (t, Js.Json.t) => complete;
+  let redirectCode: (t, int, string) => complete;
+  let redirect: (t, string) => complete;
 };
 
 module Next: {
   type content;
-  type t = Js.undefined(content) => done_;
+  type t = Js.undefined(content) => complete;
   let middleware: Js.undefined(content);
+
+  /*** value to use as [next] callback argument to invoke the next
+       middleware */
   let route: Js.undefined(content);
+
+  /*** value to use as [next] callback argument to skip middleware
+       processing for the current route.*/
   let error: Error.t => Js.undefined(content);
+  /*** [error e] returns the argument for [next] callback to be propagate
+       error [e] through the chain of middleware. */
 };
 
 module Middleware: {
-  type next = Next.t;
   type t;
-  type f = (Request.t, Response.t, next) => done_;
-  let from: f => t;
-  type errorF = (Error.t, Request.t, Response.t, next) => done_;
-  let fromError: errorF => t;
+  type next = Next.t;
+  module type S = {
+    type result;
+    type f = (Request.t, Response.t, next) => result;
+    let from: f => t;
+    type errorF = (Error.t, Request.t, Response.t, next) => result;
+    let fromError: errorF => t;
+  };
+  module type ApplyMiddleware = {
+    type t;
+    let apply: ((Request.t, Response.t, next) => t, Request.t, Response.t, next) => unit;
+    let applyWithError:
+      ((Error.t, Request.t, Response.t, next) => t, Error.t, Request.t, Response.t, next) => unit;
+  };
+  module Make: (A: ApplyMiddleware) => S with type result = A.t;
+  include S with type result = complete;
 };
+
+module PromiseMiddleware: Middleware.S with type result = Js.Promise.t(complete);
 
 module MakeBindFunctions:
   (T: {type t;}) =>
@@ -176,17 +288,24 @@ module App: {
   let deleteWithMany: (t, ~path: string, array(Middleware.t)) => unit;
   let make: unit => t;
   let asMiddleware: t => Middleware.t;
-  let listen: (t, ~port: int=?, ~onListen: Js.Null_undefined.t(Js.Exn.t) => unit=?, unit) => unit;
+  let listen: (t, ~port: int=?, ~onListen: Js.null_undefined(Js.Exn.t) => unit=?, unit) => unit;
 };
 
 let express: unit => App.t;
 
+
+/*** [express ()] creates an instance of the App class.
+     Alias for [App.make ()] */
 module Static: {
   type options;
   let defaultOptions: unit => options;
   let dotfiles: (options, string) => unit;
   let etag: (options, Js.boolean) => unit;
+  /* ... add all the other options */
   type t;
   let make: (string, options) => t;
+
+  /*** [make directory] creates a static middleware for [directory] */
   let asMiddleware: t => Middleware.t;
+  /*** [asMiddleware static] casts [static] to a Middleware type */
 };

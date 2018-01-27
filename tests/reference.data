@@ -128,6 +128,15 @@ status: 404
 -- Non 200 Http status--
 {"success":true}
 status: 500
+-- Promise Middleware--
+
+status: 204
+-- Failing Promise Middleware--
+Caught Failing Promise
+status: 500
+-- Can catch Ocaml Exception--
+Elvis has left the building!
+status: 402
 -- Accepts--
 {"success":true}
 -- Accepts Charsets--
