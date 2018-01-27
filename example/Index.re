@@ -239,7 +239,7 @@ Middleware.from(
 App.get(app, ~path="/method") @@
 Middleware.from(
   (req, res, next) =>
-    switch (Request.method(req)) {
+    switch (Request.httpMethod(req)) {
     | Request.Get => Response.sendJson(res, makeSuccessJson())
     | s =>
       Js.log(s);

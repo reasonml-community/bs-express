@@ -86,7 +86,7 @@ module Request = {
 
   /*** [stale request] returns [true] whether the request is "stale"*/
   [@bs.get] external methodRaw : t => string = "method";
-  type method =
+  type httpMethod =
     | Get
     | Post
     | Put
@@ -95,7 +95,7 @@ module Request = {
     | Options
     | Trace
     | Connect;
-  let method: t => method =
+  let httpMethod: t => httpMethod =
     (req) =>
       switch (methodRaw(req)) {
       | "GET" => Get

@@ -19,7 +19,7 @@ module Request: {
   let fresh: t => bool;
   let stale: t => bool;
   let methodRaw: t => string;
-  type method =
+  type httpMethod =
     | Get
     | Post
     | Put
@@ -28,7 +28,7 @@ module Request: {
     | Options
     | Trace
     | Connect;
-  let method: t => method;
+  let httpMethod: t => httpMethod;
   let originalUrl: t => string;
   let path: t => string;
   type protocol =
