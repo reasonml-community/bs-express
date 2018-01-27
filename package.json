@@ -19,11 +19,6 @@
     "clean": "bsb -clean-world",
     "test": "cd tests && ./test.sh"
   },
-  "husky": {
-    "hooks": {
-      "pre-push": "npm run-script start && sleep 1 && npm run-script test"
-    }
-  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/reasonml-community/bs-express.git"
