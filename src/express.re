@@ -239,25 +239,25 @@ module Response = {
     let fromInt = tFromJs;
     let toInt = tToJs;
   };
-  [@bs.send] external sendFile : (t, string, 'a) => complete = "";
-  [@bs.send] external sendString : (t, string) => complete = "send";
-  [@bs.send] external sendJson : (t, Js.Json.t) => complete = "json";
-  [@bs.send] external sendBuffer : (t, Buffer.t) => complete = "send";
-  [@bs.send] external sendArray : (t, array('a)) => complete = "send";
-  [@bs.send] external sendRawStatus : (t, int) => complete = "sendStatus";
-  let sendStatus = (res, statusCode) => sendRawStatus(res, StatusCode.toInt(statusCode));
-  [@bs.send] external rawStatus : (t, int) => t = "status";
-  let status = (res, statusCode) => rawStatus(res, StatusCode.toInt(statusCode));
-  [@bs.send] [@ocaml.deprecated "Use sendJson instead`"]
-  external json : (t, Js.Json.t) => complete =
+  [@bs.send.pipe : t] external sendFile : (string, 'a) => complete = "";
+  [@bs.send.pipe : t] external sendString : string => complete = "send";
+  [@bs.send.pipe : t] external sendJson : Js.Json.t => complete = "json";
+  [@bs.send.pipe : t] external sendBuffer : Buffer.t => complete = "send";
+  [@bs.send.pipe : t] external sendArray : array('a) => complete = "send";
+  [@bs.send.pipe : t] external sendRawStatus : int => complete = "sendStatus";
+  let sendStatus = (statusCode) => sendRawStatus(StatusCode.toInt(statusCode));
+  [@bs.send.pipe : t] external rawStatus : int => t = "status";
+  let status = (statusCode) => rawStatus(StatusCode.toInt(statusCode));
+  [@bs.send.pipe : t] [@ocaml.deprecated "Use sendJson instead`"]
+  external json : Js.Json.t => complete =
     "";
-  [@bs.send] external redirectCode : (t, int, string) => complete = "redirect";
-  [@bs.send] external redirect : (t, string) => complete = "redirect";
+  [@bs.send.pipe : t] external redirectCode : (int, string) => complete = "redirect";
+  [@bs.send.pipe : t] external redirect : string => complete = "redirect";
 };
 
 module Next: {
   type content;
-  type t = Js.undefined(content) => complete;
+  type t = (Js.undefined(content), Response.t) => complete;
   let middleware: Js.undefined(content);
 
   /*** value to use as [next] callback argument to invoke the next
@@ -271,7 +271,7 @@ module Next: {
        error [e] through the chain of middleware. */
 } = {
   type content;
-  type t = Js.undefined(content) => complete;
+  type t = (Js.undefined(content), Response.t) => complete;
   let middleware = Js.undefined;
   external castToContent : 'a => content = "%identity";
   let route = Js.Undefined.return(castToContent("route"));
@@ -283,44 +283,48 @@ module Middleware = {
   type t;
   module type S = {
     type result;
-    type f = (Request.t, Response.t, next) => result;
+    type f = (Request.t, next, Response.t) => result;
     let from: f => t;
     /* Generate the common Middleware binding function for a given
      * type. This Functor is used for the Router and App classes. */
-    type errorF = (Error.t, Request.t, Response.t, next) => result;
+    type errorF = (Error.t, Request.t, next, Response.t) => result;
     let fromError: errorF => t;
   };
   module type ApplyMiddleware = {
     type t;
-    let apply: ((Request.t, Response.t, next) => t, Request.t, Response.t, next) => unit;
+    let apply: ((Request.t, next, Response.t) => t, Request.t, next, Response.t) => unit;
     let applyWithError:
-      ((Error.t, Request.t, Response.t, next) => t, Error.t, Request.t, Response.t, next) => unit;
+      ((Error.t, Request.t, next, Response.t) => t, Error.t, Request.t, next, Response.t) => unit;
   };
   module Make = (A: ApplyMiddleware) : (S with type result = A.t) => {
     type result = A.t;
-    type f = (Request.t, Response.t, next) => result;
+    type f = (Request.t, next, Response.t) => result;
     external unsafeFrom : 'a => t = "%identity";
-    let from: f => t =
-      (middleware) => unsafeFrom((req, res, next) => A.apply(middleware, req, res, next));
-    type errorF = (Error.t, Request.t, Response.t, next) => result;
-    let fromError = (middleware) =>
-      unsafeFrom((err, req, res, next) => A.applyWithError(middleware, err, req, res, next));
+    let from = (middleware) => {
+      let aux = (next, content, _) => next(content);
+      unsafeFrom((req, res, next) => A.apply(middleware, req, aux(next), res))
+    };
+    type errorF = (Error.t, Request.t, next, Response.t) => result;
+    let fromError = (middleware) => {
+      let aux = (next, content, _) => next(content);
+      unsafeFrom((err, req, res, next) => A.applyWithError(middleware, err, req, aux(next), res))
+    };
   };
   include
     Make(
       {
         type t = complete;
-        let apply = (f, req, res, next) =>
+        let apply = (f, req, next, res) =>
           (
-            try (f(req, res, next)) {
-            | e => next(Next.error(e))
+            try (f(req, next, res)) {
+            | e => next(Next.error(e), res)
             }
           )
           |> ignore;
-        let applyWithError = (f, err, req, res, next) =>
+        let applyWithError = (f, err, req, next, res) =>
           (
-            try (f(err, req, res, next)) {
-            | e => next(Next.error(e))
+            try (f(err, req, next, res)) {
+            | e => next(Next.error(e), res)
             }
           )
           |> ignore;
@@ -333,30 +337,30 @@ module PromiseMiddleware =
     {
       type t = Js.Promise.t(complete);
       external castToErr : Js.Promise.error => Error.t = "%identity";
-      let apply = (f, req, res, next) => {
+      let apply = (f, req, next, res) => {
         let promise: Js.Promise.t(complete) =
-          try (f(req, res, next)) {
-          | e => Js.Promise.resolve(next(Next.error(e)))
+          try (f(req, next, res)) {
+          | e => Js.Promise.resolve(next(Next.error(e), res))
           };
         promise
         |> Js.Promise.catch(
              (err) => {
                let err = castToErr(err);
-               Js.Promise.resolve(next(Next.error(err)))
+               Js.Promise.resolve(next(Next.error(err), res))
              }
            )
         |> ignore
       };
-      let applyWithError = (f, err, req, res, next) => {
+      let applyWithError = (f, err, req, next, res) => {
         let promise: Js.Promise.t(complete) =
-          try (f(err, req, res, next)) {
-          | e => Js.Promise.resolve(next(Next.error(e)))
+          try (f(err, req, next, res)) {
+          | e => Js.Promise.resolve(next(Next.error(e), res))
           };
         promise
         |> Js.Promise.catch(
              (err) => {
                let err = castToErr(err);
-               Js.Promise.resolve(next(Next.error(err)))
+               Js.Promise.resolve(next(Next.error(err), res))
              }
            )
         |> ignore

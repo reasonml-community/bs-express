@@ -1,5 +1,7 @@
 open Express;
 
+let (>>=) = (f, g, x) => g(f(x));
+
 /* The tests below relies upon the ability to store in the Request
       objects abritrary JSON properties.
 
@@ -11,33 +13,34 @@ open Express;
 /* [checkProperty req next property k] makes sure [property] is
    present in [req]. If success then [k()] is invoked, otherwise
    [Next.route] is called with next */
-let checkProperty = (req, next, property, k) => {
+let checkProperty = (req, next, property, k, res) => {
   let reqData = Request.asJsonObject(req);
   switch (Js.Dict.get(reqData, property)) {
-  | None => next(Next.route)
+  | None => next(Next.route, res)
   | Some(x) =>
     switch (Js.Json.decodeBoolean(x)) {
-    | Some(b) when true == Js.to_bool(b) => k()
-    | _ => next(Next.route)
+    | Some(b) when true == Js.to_bool(b) => k(res)
+    | _ => next(Next.route, res)
     }
   }
 };
 
 /* same as [checkProperty] but with a list of properties */
-let checkProperties = (req, next, properties, k) => {
+let checkProperties = (req, next, properties, k, res) => {
   let rec aux = (properties) =>
     switch properties {
-    | [] => k()
-    | [p, ...tl] => checkProperty(req, next, p, () => aux(tl))
+    | [] => k(res)
+    | [p, ...tl] => checkProperty(req, next, p, (_) => aux(tl), res)
     };
   aux(properties)
 };
 
 /* [setProperty req property] sets the [property] in the [req] Request
    value */
-let setProperty = (req, property) => {
+let setProperty = (req, property, res) => {
   let reqData = Request.asJsonObject(req);
-  Js.Dict.set(reqData, property, Js.Json.boolean(Js.true_))
+  Js.Dict.set(reqData, property, Js.Json.boolean(Js.true_));
+  res
 };
 
 /* return the string value for [key], None if the key is not in [dict]
@@ -58,39 +61,27 @@ let makeSuccessJson = () => {
 let app = express();
 
 App.useOnPath(app, ~path="/") @@
-Middleware.from(
-  (req, _, next) => {
-    setProperty(req, "middleware0");
-    next(Next.middleware)
-    /* call the next middleware in the processing pipeline */
-  }
-);
+Middleware.from((req, next) => setProperty(req, "middleware0") >>= next(Next.middleware)) /* call the next middleware in the processing pipeline */;
 
 App.useWithMany(
   app,
   [|
     Middleware.from(
-      (req, _, next) =>
+      (req, next) =>
         checkProperty(
           req,
           next,
           "middleware0",
-          () => {
-            setProperty(req, "middleware1");
-            next(Next.middleware)
-          }
+          setProperty(req, "middleware1") >>= next(Next.middleware)
         )
     ),
     Middleware.from(
-      (req, _, next) =>
+      (req, next) =>
         checkProperties(
           req,
           next,
           ["middleware0", "middleware1"],
-          () => {
-            setProperty(req, "middleware2");
-            next(Next.middleware)
-          }
+          setProperty(req, "middleware2") >>= next(Next.middleware)
         )
     )
   |]
@@ -98,14 +89,9 @@ App.useWithMany(
 
 App.get(app, ~path="/") @@
 Middleware.from(
-  (req, res, next) => {
+  (req, next) => {
     let previousMiddlewares = ["middleware0", "middleware1", "middleware2"];
-    checkProperties(
-      req,
-      next,
-      previousMiddlewares,
-      () => Response.sendJson(res, makeSuccessJson())
-    )
+    checkProperties(req, next, previousMiddlewares, Response.sendJson(makeSuccessJson()))
   }
 );
 
@@ -123,16 +109,16 @@ App.postWithMany(
   ~path="/:id/id",
   [|
     Middleware.from(
-      (req, res, next) => {
+      (req, next) => {
         let previousMiddlewares = ["middleware0", "middleware1", "middleware2"];
         checkProperties(
           req,
           next,
           previousMiddlewares,
-          () =>
+          (res) =>
             switch (getDictString(Request.params(req), "id")) {
-            | Some("123") => Response.sendJson(res, makeSuccessJson())
-            | _ => next(Next.route)
+            | Some("123") => Response.sendJson(makeSuccessJson(), res)
+            | _ => next(Next.route, res)
             }
         )
       }
@@ -145,16 +131,16 @@ App.patchWithMany(
   ~path="/:id/id",
   [|
     Middleware.from(
-      (req, res, next) => {
+      (req, next) => {
         let previousMiddlewares = ["middleware0", "middleware1", "middleware2"];
         checkProperties(
           req,
           next,
           previousMiddlewares,
-          () =>
+          (res) =>
             switch (getDictString(Request.params(req), "id")) {
-            | Some("123") => Response.sendJson(res, makeSuccessJson())
-            | _ => next(Next.route)
+            | Some("123") => Response.sendJson(makeSuccessJson(), res)
+            | _ => next(Next.route, res)
             }
         )
       }
@@ -167,16 +153,16 @@ App.putWithMany(
   ~path="/:id/id",
   [|
     Middleware.from(
-      (req, res, next) => {
+      (req, next) => {
         let previousMiddlewares = ["middleware0", "middleware1", "middleware2"];
         checkProperties(
           req,
           next,
           previousMiddlewares,
-          () =>
+          (res) =>
             switch (getDictString(Request.params(req), "id")) {
-            | Some("123") => Response.sendJson(res, makeSuccessJson())
-            | _ => next(Next.route)
+            | Some("123") => Response.sendJson(makeSuccessJson(), res)
+            | _ => next(Next.route, res)
             }
         )
       }
@@ -189,16 +175,16 @@ App.deleteWithMany(
   ~path="/:id/id",
   [|
     Middleware.from(
-      (req, res, next) => {
+      (req, next) => {
         let previousMiddlewares = ["middleware0", "middleware1", "middleware2"];
         checkProperties(
           req,
           next,
           previousMiddlewares,
-          () =>
+          (res) =>
             switch (getDictString(Request.params(req), "id")) {
-            | Some("123") => Response.sendJson(res, makeSuccessJson())
-            | _ => next(Next.route)
+            | Some("123") => Response.sendJson(makeSuccessJson(), res)
+            | _ => next(Next.route, res)
             }
         )
       }
@@ -208,27 +194,27 @@ App.deleteWithMany(
 
 App.get(app, ~path="/baseUrl") @@
 Middleware.from(
-  (req, res, next) =>
+  (req, next) =>
     switch (Request.baseUrl(req)) {
-    | "" => Response.sendJson(res, makeSuccessJson())
+    | "" => Response.sendJson(makeSuccessJson())
     | _ => next(Next.route)
     }
 );
 
 App.get(app, ~path="/hostname") @@
 Middleware.from(
-  (req, res, next) =>
+  (req, next) =>
     switch (Request.hostname(req)) {
-    | "localhost" => Response.sendJson(res, makeSuccessJson())
+    | "localhost" => Response.sendJson(makeSuccessJson())
     | _ => next(Next.route)
     }
 );
 
 App.get(app, ~path="/ip") @@
 Middleware.from(
-  (req, res, next) =>
+  (req, next) =>
     switch (Request.ip(req)) {
-    | "127.0.0.1" => Response.sendJson(res, makeSuccessJson())
+    | "127.0.0.1" => Response.sendJson(makeSuccessJson())
     | s =>
       Js.log(s);
       next(Next.route)
@@ -238,9 +224,9 @@ Middleware.from(
 
 App.get(app, ~path="/method") @@
 Middleware.from(
-  (req, res, next) =>
+  (req, next) =>
     switch (Request.httpMethod(req)) {
-    | Request.Get => Response.sendJson(res, makeSuccessJson())
+    | Request.Get => Response.sendJson(makeSuccessJson())
     | s =>
       Js.log(s);
       next(Next.route)
@@ -249,9 +235,9 @@ Middleware.from(
 
 App.get(app, ~path="/originalUrl") @@
 Middleware.from(
-  (req, res, next) =>
+  (req, next) =>
     switch (Request.originalUrl(req)) {
-    | "/originalUrl" => Response.sendJson(res, makeSuccessJson())
+    | "/originalUrl" => Response.sendJson(makeSuccessJson())
     | s =>
       Js.log(s);
       next(Next.route)
@@ -260,9 +246,9 @@ Middleware.from(
 
 App.get(app, ~path="/path") @@
 Middleware.from(
-  (req, res, next) =>
+  (req, next) =>
     switch (Request.path(req)) {
-    | "/path" => Response.sendJson(res, makeSuccessJson())
+    | "/path" => Response.sendJson(makeSuccessJson())
     | s =>
       Js.log(s);
       next(Next.route)
@@ -271,9 +257,9 @@ Middleware.from(
 
 App.get(app, ~path="/protocol") @@
 Middleware.from(
-  (req, res, next) =>
+  (req, next) =>
     switch (Request.protocol(req)) {
-    | Request.Http => Response.sendJson(res, makeSuccessJson())
+    | Request.Http => Response.sendJson(makeSuccessJson())
     | s =>
       Js.log(s);
       next(Next.route)
@@ -282,23 +268,21 @@ Middleware.from(
 
 App.get(app, ~path="/query") @@
 Middleware.from(
-  (req, res, next) =>
+  (req, next) =>
     switch (getDictString(Request.query(req), "key")) {
-    | Some("value") => Response.sendJson(res, makeSuccessJson())
+    | Some("value") => Response.sendJson(makeSuccessJson())
     | _ => next(Next.route)
     }
 );
 
 App.get(app, ~path="/not-found") @@
-Middleware.from((_, res, _) => Response.sendStatus(res, Response.StatusCode.NotFound));
+Middleware.from((_, _) => Response.sendStatus(Response.StatusCode.NotFound));
 
 App.get(app, ~path="/error") @@
 Middleware.from(
-  (_, res, _) =>
-    Response.sendJson(
-      Response.status(res, Response.StatusCode.InternalServerError),
-      makeSuccessJson()
-    )
+  (_, _) =>
+    Response.status(Response.StatusCode.InternalServerError)
+    >>= Response.sendJson(makeSuccessJson())
 );
 
 App.getWithMany(
@@ -306,16 +290,16 @@ App.getWithMany(
   ~path="/accepts",
   [|
     Middleware.from(
-      (req, _, next) =>
+      (req, next) =>
         switch (Request.accepts(req, [|"audio/whatever", "audio/basic"|])) {
         | Some("audio/basic") => next(Next.middleware)
         | _ => next(Next.route)
         }
     ),
     Middleware.from(
-      (req, res, next) =>
+      (req, next) =>
         switch (Request.accepts(req, [|"text/css"|])) {
-        | None => Response.sendJson(res, makeSuccessJson())
+        | None => Response.sendJson(makeSuccessJson())
         | _ => next(Next.route)
         }
     )
@@ -327,16 +311,16 @@ App.getWithMany(
   ~path="/accepts-charsets",
   [|
     Middleware.from(
-      (req, _, next) =>
+      (req, next) =>
         switch (Request.acceptsCharsets(req, [|"UTF-8", "UTF-16"|])) {
         | Some("UTF-8") => next(Next.middleware)
         | _ => next(Next.route)
         }
     ),
     Middleware.from(
-      (req, res, next) =>
+      (req, next) =>
         switch (Request.acceptsCharsets(req, [|"UTF-16"|])) {
-        | None => Response.sendJson(res, makeSuccessJson())
+        | None => Response.sendJson(makeSuccessJson())
         | _ => next(Next.route)
         }
     )
@@ -345,18 +329,18 @@ App.getWithMany(
 
 App.get(app, ~path="/get") @@
 Middleware.from(
-  (req, res, next) =>
+  (req, next) =>
     switch (Request.get(req, "key")) {
-    | Some("value") => Response.sendJson(res, makeSuccessJson())
+    | Some("value") => Response.sendJson(makeSuccessJson())
     | _ => next(Next.route)
     }
 );
 
 App.get(app, ~path="/fresh") @@
 Middleware.from(
-  (req, res, next) =>
+  (req, next) =>
     if ((!) @@ Request.fresh(req)) {
-      Response.sendJson(res, makeSuccessJson())
+      Response.sendJson(makeSuccessJson())
     } else {
       next(Next.route)
     }
@@ -364,9 +348,9 @@ Middleware.from(
 
 App.get(app, ~path="/stale") @@
 Middleware.from(
-  (req, res, next) =>
+  (req, next) =>
     if (Request.stale(req)) {
-      Response.sendJson(res, makeSuccessJson())
+      Response.sendJson(makeSuccessJson())
     } else {
       next(Next.route)
     }
@@ -374,9 +358,9 @@ Middleware.from(
 
 App.get(app, ~path="/secure") @@
 Middleware.from(
-  (req, res, next) =>
+  (req, next) =>
     if ((!) @@ Request.secure(req)) {
-      Response.sendJson(res, makeSuccessJson())
+      Response.sendJson(makeSuccessJson())
     } else {
       next(Next.route)
     }
@@ -384,49 +368,45 @@ Middleware.from(
 
 App.get(app, ~path="/xhr") @@
 Middleware.from(
-  (req, res, next) =>
+  (req, next) =>
     if ((!) @@ Request.xhr(req)) {
-      Response.sendJson(res, makeSuccessJson())
+      Response.sendJson(makeSuccessJson())
     } else {
       next(Next.route)
     }
 );
 
-App.get(app, ~path="/redir") @@
-Middleware.from((_req, res, _next) => Response.redirect(res, "/redir/target"));
+App.get(app, ~path="/redir") @@ Middleware.from((_, _) => Response.redirect("/redir/target"));
 
 App.get(app, ~path="/redircode") @@
-Middleware.from((_req, res, _next) => Response.redirectCode(res, 301, "/redir/target"));
+Middleware.from((_, _) => Response.redirectCode(301, "/redir/target"));
 
 App.getWithMany(app, ~path="/ocaml-exception") @@
 [|
   Middleware.from((_, _, _next) => raise(Failure("Elvis has left the building!"))),
   Middleware.fromError(
-    (err, _, res, _) =>
+    (err, _, _) =>
       switch err {
       | Failure(f) =>
-        Response.sendString(Response.status(res, Response.StatusCode.PaymentRequired), f)
-      | _ => Response.sendStatus(res, Response.StatusCode.NotFound)
+        Response.status(Response.StatusCode.PaymentRequired) >>= Response.sendString(f)
+      | _ => Response.sendStatus(Response.StatusCode.NotFound)
       }
   )
 |];
 
 App.get(app, ~path="/promise") @@
 PromiseMiddleware.from(
-  (_req, res, _next) => Js.Promise.resolve(Response.sendStatus(res, Response.StatusCode.NoContent))
+  (_req, _next) => Response.sendStatus(Response.StatusCode.NoContent) >>= Js.Promise.resolve
 );
 
 App.getWithMany(app, ~path="/failing-promise") @@
 [|
   PromiseMiddleware.from((_, _, _next) => Js.Promise.reject(Not_found)),
   PromiseMiddleware.fromError(
-    (_, _req, res, _next) =>
-      Js.Promise.resolve(
-        Response.sendString(
-          Response.status(res, Response.StatusCode.InternalServerError),
-          "Caught Failing Promise"
-        )
-      )
+    (_, _req, _next) =>
+      Response.status(Response.StatusCode.InternalServerError)
+      >>= Response.sendString("Caught Failing Promise")
+      >>= Js.Promise.resolve
   )
 |];
 

@@ -199,23 +199,23 @@ module Response: {
     let fromInt: int => option(t);
     let toInt: t => int;
   };
-  let sendFile: (t, string, 'a) => complete;
-  let sendString: (t, string) => complete;
-  let sendJson: (t, Js.Json.t) => complete;
-  let sendBuffer: (t, Buffer.t) => complete;
-  let sendArray: (t, array('a)) => complete;
-  let sendRawStatus: (t, int) => complete;
-  let sendStatus: (t, StatusCode.t) => complete;
-  let rawStatus: (t, int) => t;
-  let status: (t, StatusCode.t) => t;
-  let json: (t, Js.Json.t) => complete;
-  let redirectCode: (t, int, string) => complete;
-  let redirect: (t, string) => complete;
+  let sendFile: (string, 'a, t) => complete;
+  let sendString: (string, t) => complete;
+  let sendJson: (Js.Json.t, t) => complete;
+  let sendBuffer: (Buffer.t, t) => complete;
+  let sendArray: (array('a), t) => complete;
+  let sendRawStatus: (int, t) => complete;
+  let sendStatus: (StatusCode.t, t) => complete;
+  let rawStatus: (int, t) => t;
+  let status: (StatusCode.t, t) => t;
+  let json: (Js.Json.t, t) => complete;
+  let redirectCode: (int, string, t) => complete;
+  let redirect: (string, t) => complete;
 };
 
 module Next: {
   type content;
-  type t = Js.undefined(content) => complete;
+  type t = (Js.undefined(content), Response.t) => complete;
   let middleware: Js.undefined(content);
 
   /*** value to use as [next] callback argument to invoke the next
@@ -234,16 +234,16 @@ module Middleware: {
   type next = Next.t;
   module type S = {
     type result;
-    type f = (Request.t, Response.t, next) => result;
+    type f = (Request.t, next, Response.t) => result;
     let from: f => t;
-    type errorF = (Error.t, Request.t, Response.t, next) => result;
+    type errorF = (Error.t, Request.t, next, Response.t) => result;
     let fromError: errorF => t;
   };
   module type ApplyMiddleware = {
     type t;
-    let apply: ((Request.t, Response.t, next) => t, Request.t, Response.t, next) => unit;
+    let apply: ((Request.t, next, Response.t) => t, Request.t, next, Response.t) => unit;
     let applyWithError:
-      ((Error.t, Request.t, Response.t, next) => t, Error.t, Request.t, Response.t, next) => unit;
+      ((Error.t, Request.t, next, Response.t) => t, Error.t, Request.t, next, Response.t) => unit;
   };
   module Make: (A: ApplyMiddleware) => S with type result = A.t;
   include S with type result = complete;
