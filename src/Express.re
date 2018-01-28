@@ -1,20 +1,11 @@
-type done_;
+type complete;
 
-
-/*** abstract type which ensure middleware function must either
-     call the [next] function or one of the [send] function on the
-     response object.
-
-     This should be a great argument for OCaml, the type system
-     prevents silly error which in this case would make the server hang */
-
-/*** TODO : maybe this should be a more common module like bs-error */
 module Error = {
-  type t;
+  type t = exn;
 
   /*** Error type */
-  [@bs.send] [@bs.return null_undefined_to_opt] external message : t => option(string) = "";
-  [@bs.send] [@bs.return null_undefined_to_opt] external name : t => option(string) = "";
+  [@bs.send] [@bs.return null_undefined_to_opt] external message : Js_exn.t => option(string) = "";
+  [@bs.send] [@bs.return null_undefined_to_opt] external name : Js_exn.t => option(string) = "";
 };
 
 module Request = {
@@ -86,7 +77,7 @@ module Request = {
 
   /*** [stale request] returns [true] whether the request is "stale"*/
   [@bs.get] external methodRaw : t => string = "method";
-  type method_ =
+  type httpMethod =
     | Get
     | Post
     | Put
@@ -95,7 +86,7 @@ module Request = {
     | Options
     | Trace
     | Connect;
-  let method: t => method_ =
+  let httpMethod: t => httpMethod =
     (req) =>
       switch (methodRaw(req)) {
       | "GET" => Get
@@ -184,20 +175,89 @@ module Request = {
 
 module Response = {
   type t;
-  [@bs.send] external sendFile : (t, string, 'a) => done_ = "";
-  [@bs.send] external sendString : (t, string) => done_ = "send";
-  [@bs.send] external sendJson : (t, Js.Json.t) => done_ = "json";
-  [@bs.send] external sendBuffer : (t, Buffer.t) => done_ = "send";
-  [@bs.send] external sendArray : (t, array('a)) => done_ = "send";
-  [@bs.send] [@ocaml.deprecated "Use sendJson instead`"] external json : (t, Js.Json.t) => done_ =
+  module StatusCode = {
+    [@bs.deriving jsConverter]
+    type t =
+      [@bs.as 200] | Ok
+      [@bs.as 201] | Created
+      [@bs.as 202] | Accepted
+      [@bs.as 203] | NonAuthoritativeInformation
+      [@bs.as 204] | NoContent
+      [@bs.as 205] | ResetContent
+      [@bs.as 206] | PartialContent
+      [@bs.as 207] | MultiStatus
+      [@bs.as 208] | AleadyReported
+      [@bs.as 226] | IMUsed
+      [@bs.as 300] | MultipleChoises
+      [@bs.as 301] | MovedPermanently
+      [@bs.as 302] | Found
+      [@bs.as 303] | SeeOther
+      [@bs.as 304] | NotModified
+      [@bs.as 305] | UseProxy
+      [@bs.as 306] | SwitchProxy
+      [@bs.as 307] | TemporaryRedirect
+      [@bs.as 308] | PermanentRedirect
+      [@bs.as 400] | BadRequest
+      [@bs.as 401] | Unauthorized
+      [@bs.as 402] | PaymentRequired
+      [@bs.as 403] | Forbidden
+      [@bs.as 404] | NotFound
+      [@bs.as 405] | MethodNotAllowed
+      [@bs.as 406] | NotAcceptable
+      [@bs.as 407] | ProxyAuthenticationRequired
+      [@bs.as 408] | RequestTimeout
+      [@bs.as 409] | Conflict
+      [@bs.as 410] | Gone
+      [@bs.as 411] | LengthRequired
+      [@bs.as 412] | PreconditionFailed
+      [@bs.as 413] | PayloadTooLarge
+      [@bs.as 414] | UriTooLong
+      [@bs.as 415] | UnsupportedMediaType
+      [@bs.as 416] | RangeNotSatisfiable
+      [@bs.as 417] | ExpectationFailed
+      [@bs.as 418] | ImATeapot
+      [@bs.as 421] | MisdirectedRequest
+      [@bs.as 422] | UnprocessableEntity
+      [@bs.as 423] | Locked
+      [@bs.as 424] | FailedDependency
+      [@bs.as 426] | UpgradeRequired
+      [@bs.as 428] | PreconditionRequired
+      [@bs.as 429] | TooManyRequests
+      [@bs.as 431] | RequestHeaderFieldsTooLarge
+      [@bs.as 451] | UnavailableForLegalReasons
+      [@bs.as 500] | InternalServerError
+      [@bs.as 501] | NotImplemented
+      [@bs.as 502] | BadGateway
+      [@bs.as 503] | ServiceUnavailable
+      [@bs.as 504] | GatewayTimeout
+      [@bs.as 505] | HttpVersionNotSupported
+      [@bs.as 506] | VariantAlsoNegotiates
+      [@bs.as 507] | InsufficientStorage
+      [@bs.as 508] | LoopDetected
+      [@bs.as 510] | NotExtended
+      [@bs.as 511] | NetworkAuthenticationRequired;
+    let fromInt = tFromJs;
+    let toInt = tToJs;
+  };
+  [@bs.send.pipe : t] external sendFile : (string, 'a) => complete = "";
+  [@bs.send.pipe : t] external sendString : string => complete = "send";
+  [@bs.send.pipe : t] external sendJson : Js.Json.t => complete = "json";
+  [@bs.send.pipe : t] external sendBuffer : Buffer.t => complete = "send";
+  [@bs.send.pipe : t] external sendArray : array('a) => complete = "send";
+  [@bs.send.pipe : t] external sendRawStatus : int => complete = "sendStatus";
+  let sendStatus = (statusCode) => sendRawStatus(StatusCode.toInt(statusCode));
+  [@bs.send.pipe : t] external rawStatus : int => t = "status";
+  let status = (statusCode) => rawStatus(StatusCode.toInt(statusCode));
+  [@bs.send.pipe : t] [@ocaml.deprecated "Use sendJson instead`"]
+  external json : Js.Json.t => complete =
     "";
-  [@bs.send] external redirectCode : (t, int, string) => done_ = "redirect";
-  [@bs.send] external redirect : (t, string) => done_ = "redirect";
+  [@bs.send.pipe : t] external redirectCode : (int, string) => complete = "redirect";
+  [@bs.send.pipe : t] external redirect : string => complete = "redirect";
 };
 
 module Next: {
   type content;
-  type t = Js.undefined(content) => done_;
+  type t = (Js.undefined(content), Response.t) => complete;
   let middleware: Js.undefined(content);
 
   /*** value to use as [next] callback argument to invoke the next
@@ -211,7 +271,7 @@ module Next: {
        error [e] through the chain of middleware. */
 } = {
   type content;
-  type t = Js.undefined(content) => done_;
+  type t = (Js.undefined(content), Response.t) => complete;
   let middleware = Js.undefined;
   external castToContent : 'a => content = "%identity";
   let route = Js.Undefined.return(castToContent("route"));
@@ -221,28 +281,93 @@ module Next: {
 module Middleware = {
   type next = Next.t;
   type t;
-  /* Middleware abstract type which unified the various way an
-     Express middleware can be constructed:
-     {ul
-     {- from a {b function} using the [ofFunction]}
-     {- from a Router class}
-     {- from an App class}
-     {- from the third party middleware modules}
-     }
-     For each of the class which implements the middleware interface
-     is JavaScript, one can use the "%identity" function to cast
-     it to this type [t] */
-  type f = (Request.t, Response.t, next) => done_;
-  external from : f => t = "%identity";
-
-  /*** [from f] creates a Middleware from a function */
-  type errorF = (Error.t, Request.t, Response.t, next) => done_;
-  external fromError : errorF => t = "%identity";
-  /*** [fromError f] creates a Middleware from an error function */
+  module type S = {
+    type result;
+    type f = (Request.t, next, Response.t) => result;
+    let from: f => t;
+    /* Generate the common Middleware binding function for a given
+     * type. This Functor is used for the Router and App classes. */
+    type errorF = (Error.t, Request.t, next, Response.t) => result;
+    let fromError: errorF => t;
+  };
+  module type ApplyMiddleware = {
+    type t;
+    let apply: ((Request.t, next, Response.t) => t, Request.t, next, Response.t) => unit;
+    let applyWithError:
+      ((Error.t, Request.t, next, Response.t) => t, Error.t, Request.t, next, Response.t) => unit;
+  };
+  module Make = (A: ApplyMiddleware) : (S with type result = A.t) => {
+    type result = A.t;
+    type f = (Request.t, next, Response.t) => result;
+    external unsafeFrom : 'a => t = "%identity";
+    let from = (middleware) => {
+      let aux = (next, content, _) => next(content);
+      unsafeFrom((req, res, next) => A.apply(middleware, req, aux(next), res))
+    };
+    type errorF = (Error.t, Request.t, next, Response.t) => result;
+    let fromError = (middleware) => {
+      let aux = (next, content, _) => next(content);
+      unsafeFrom((err, req, res, next) => A.applyWithError(middleware, err, req, aux(next), res))
+    };
+  };
+  include
+    Make(
+      {
+        type t = complete;
+        let apply = (f, req, next, res) =>
+          (
+            try (f(req, next, res)) {
+            | e => next(Next.error(e), res)
+            }
+          )
+          |> ignore;
+        let applyWithError = (f, err, req, next, res) =>
+          (
+            try (f(err, req, next, res)) {
+            | e => next(Next.error(e), res)
+            }
+          )
+          |> ignore;
+      }
+    );
 };
 
-/* Generate the common Middleware binding function for a given
- * type. This Functor is used for the Router and App classes. */
+module PromiseMiddleware =
+  Middleware.Make(
+    {
+      type t = Js.Promise.t(complete);
+      external castToErr : Js.Promise.error => Error.t = "%identity";
+      let apply = (f, req, next, res) => {
+        let promise: Js.Promise.t(complete) =
+          try (f(req, next, res)) {
+          | e => Js.Promise.resolve(next(Next.error(e), res))
+          };
+        promise
+        |> Js.Promise.catch(
+             (err) => {
+               let err = castToErr(err);
+               Js.Promise.resolve(next(Next.error(err), res))
+             }
+           )
+        |> ignore
+      };
+      let applyWithError = (f, err, req, next, res) => {
+        let promise: Js.Promise.t(complete) =
+          try (f(err, req, next, res)) {
+          | e => Js.Promise.resolve(next(Next.error(e), res))
+          };
+        promise
+        |> Js.Promise.catch(
+             (err) => {
+               let err = castToErr(err);
+               Js.Promise.resolve(next(Next.error(err), res))
+             }
+           )
+        |> ignore
+      };
+    }
+  );
+
 module MakeBindFunctions = (T: {type t;}) => {
   [@bs.send] external use : (T.t, Middleware.t) => unit = "";
   [@bs.send] external useWithMany : (T.t, array(Middleware.t)) => unit = "use";

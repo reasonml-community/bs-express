@@ -1,6 +1,7 @@
 
 -- Root path--
 {"success":true}
+status: 200
 -- Invalid path--
 <!DOCTYPE html>
 <html lang="en">
@@ -13,11 +14,14 @@
 </body>
 </html>
 
+status: 404
 -- Static middleware--
 This is the content of test.data a static file
 
+status: 200
 -- POST + Query param (valid)--
 {"success":true}
+status: 200
 -- POST + Query param (invalid)--
 <!DOCTYPE html>
 <html lang="en">
@@ -30,18 +34,10 @@ This is the content of test.data a static file
 </body>
 </html>
 
+status: 404
 -- PUT + Query param (valid)--
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<title>Error</title>
-</head>
-<body>
-<pre>Cannot PUT /123/id</pre>
-</body>
-</html>
-
+{"success":true}
+status: 200
 -- PUT + Query param (invalid)--
 <!DOCTYPE html>
 <html lang="en">
@@ -54,8 +50,10 @@ This is the content of test.data a static file
 </body>
 </html>
 
+status: 404
 -- PUT + Query param (valid)--
 {"success":true}
+status: 200
 -- PUT + Query param (invalid)--
 <!DOCTYPE html>
 <html lang="en">
@@ -68,18 +66,10 @@ This is the content of test.data a static file
 </body>
 </html>
 
+status: 404
 -- DELETE + Query param (valid)--
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<title>Error</title>
-</head>
-<body>
-<pre>Cannot DELETE /123/id</pre>
-</body>
-</html>
-
+{"success":true}
+status: 200
 -- DELETE + Query param (invalid)--
 <!DOCTYPE html>
 <html lang="en">
@@ -92,32 +82,58 @@ This is the content of test.data a static file
 </body>
 </html>
 
+status: 404
 -- baseUrl property--
 {"success":true}
+status: 200
 -- hostname property--
 {"success":true}
+status: 200
 -- method property--
 {"success":true}
+status: 200
 -- method originalUrl--
 {"success":true}
+status: 200
 -- method path--
 {"success":true}
+status: 200
 -- method path--
 {"success":true}
+status: 200
 -- Query parameters--
 {"success":true}
+status: 200
 -- Fresh--
 {"success":true}
+status: 200
 -- Stale--
 {"success":true}
+status: 200
 -- Secure--
 {"success":true}
+status: 200
 -- XHR--
 {"success":true}
+status: 200
 -- Redirect--
 Found. Redirecting to /redir/target
+status: 302
 -- Redirect with Code--
 Moved Permanently. Redirecting to /redir/target
+status: 301
+-- Non 200 Http status--
+Not Found
+status: 404
+-- Non 200 Http status--
+{"success":true}
+status: 500
+-- Promise Middleware--
+
+status: 204
+-- Failing Promise Middleware--
+Caught Failing Promise
+status: 500
 -- Accepts--
 {"success":true}
 -- Accepts Charsets--

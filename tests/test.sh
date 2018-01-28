@@ -19,7 +19,7 @@ function print_test_title() {
 }
 
 print_test_url() {
-  curl -X $1 http://localhost:3000$2 2>&1 >> $TEST_DATA
+  curl  -X $1 -w "\nstatus: %{http_code}" http://localhost:3000$2 2>&1 >> $TEST_DATA
 }
 
 run_test() {
@@ -54,6 +54,11 @@ run_test 'Secure' 'GET' '/secure'
 run_test 'XHR' 'GET' '/xhr'
 run_test 'Redirect' 'GET' '/redir'
 run_test 'Redirect with Code' 'GET' '/redircode'
+run_test 'Non 200 Http status' 'GET' '/not-found'
+run_test 'Non 200 Http status' 'GET' '/error'
+run_test 'Promise Middleware' 'GET' '/promise'
+run_test 'Failing Promise Middleware' 'GET' '/failing-promise'
+run_test 'Can catch Ocaml Exception' 'GET' '/ocaml-exception'
 
 run_header_test() {
   print_test_title "$1"
