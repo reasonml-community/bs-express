@@ -1,7 +1,5 @@
 open Express;
 
-let (>>=) = (f, g, x) => g(f(x));
-
 /* The tests below relies upon the ability to store in the Request
       objects abritrary JSON properties.
 
@@ -61,7 +59,7 @@ let makeSuccessJson = () => {
 let app = express();
 
 App.useOnPath(app, ~path="/") @@
-Middleware.from((req, next) => setProperty(req, "middleware0") >>= next(Next.middleware)) /* call the next middleware in the processing pipeline */;
+Middleware.from((req, next, res) => res |> setProperty(req, "middleware0") |> next(Next.middleware)) /* call the next middleware in the processing pipeline */;
 
 App.useWithMany(
   app,
@@ -72,7 +70,10 @@ App.useWithMany(
           req,
           next,
           "middleware0",
-          setProperty(req, "middleware1") >>= next(Next.middleware)
+          res => 
+            res 
+            |> setProperty(req, "middleware1") 
+            |> next(Next.middleware)
         )
     ),
     Middleware.from(
@@ -81,7 +82,7 @@ App.useWithMany(
           req,
           next,
           ["middleware0", "middleware1"],
-          setProperty(req, "middleware2") >>= next(Next.middleware)
+          res => next(Next.middleware,setProperty(req, "middleware2", res))          
         )
     )
   |]
@@ -280,9 +281,10 @@ Middleware.from((_, _) => Response.sendStatus(Response.StatusCode.NotFound));
 
 App.get(app, ~path="/error") @@
 Middleware.from(
-  (_, _) =>
-    Response.status(Response.StatusCode.InternalServerError)
-    >>= Response.sendJson(makeSuccessJson())
+  (_, _, res) =>
+    res
+    |> Response.status(Response.StatusCode.InternalServerError)
+    |> Response.sendJson(makeSuccessJson())
 );
 
 App.getWithMany(
@@ -385,28 +387,29 @@ App.getWithMany(app, ~path="/ocaml-exception") @@
 [|
   Middleware.from((_, _, _next) => raise(Failure("Elvis has left the building!"))),
   Middleware.fromError(
-    (err, _, _) =>
+    (err, _, _, res) =>
       switch err {
       | Failure(f) =>
-        Response.status(Response.StatusCode.PaymentRequired) >>= Response.sendString(f)
-      | _ => Response.sendStatus(Response.StatusCode.NotFound)
+        res |> Response.status(Response.StatusCode.PaymentRequired) |> Response.sendString(f)
+      | _ => res |> Response.sendStatus(Response.StatusCode.NotFound)
       }
   )
 |];
 
 App.get(app, ~path="/promise") @@
 PromiseMiddleware.from(
-  (_req, _next) => Response.sendStatus(Response.StatusCode.NoContent) >>= Js.Promise.resolve
+  (_req, _next, res) => res |> Response.sendStatus(Response.StatusCode.NoContent) |> Js.Promise.resolve
 );
 
 App.getWithMany(app, ~path="/failing-promise") @@
 [|
   PromiseMiddleware.from((_, _, _next) => Js.Promise.reject(Not_found)),
   PromiseMiddleware.fromError(
-    (_, _req, _next) =>
-      Response.status(Response.StatusCode.InternalServerError)
-      >>= Response.sendString("Caught Failing Promise")
-      >>= Js.Promise.resolve
+    (_, _req, _next, res) =>
+      res
+      |> Response.status(Response.StatusCode.InternalServerError)
+      |> Response.sendString("Caught Failing Promise")
+      |> Js.Promise.resolve
   )
 |];
 
