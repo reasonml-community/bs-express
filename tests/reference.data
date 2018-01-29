@@ -137,6 +137,9 @@ status: 500
 -- Can catch Ocaml Exception--
 Elvis has left the building!
 status: 402
+-- Can use express router--
+Created
+status: 201
 -- Accepts--
 {"success":true}
 -- Accepts Charsets--

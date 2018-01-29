@@ -117,14 +117,14 @@ module Request: {
   /*** [query request] returns an object containing a property for each
        query string parameter in the route. If there is no query string,
        it returns the empty object, {} */
-  let accepts: (t, array(string)) => option(string);
+  let accepts: (array(string), t) => option(string);
 
   /*** [acceptsRaw accepts types] checks if the specified content types
        are acceptable, based on the request's Accept HTTP header field.
        The method returns the best match, or if none of the specified
        content types is acceptable, returns [false] */
-  let acceptsCharsets: (t, array(string)) => option(string);
-  let get: (t, string) => option(string);
+  let acceptsCharsets: (array(string), t) => option(string);
+  let get: (string, t) => option(string);
 
   /*** [get return field] returns the specified HTTP request header
        field (case-insensitive match) */
@@ -232,45 +232,26 @@ module Next: {
 module Middleware: {
   type t;
   type next = Next.t;
-  module type S = {
-    type result;
-    type f = (Request.t, next, Response.t) => result;
-    let from: f => t;
-    type errorF = (Error.t, Request.t, next, Response.t) => result;
-    let fromError: errorF => t;
-  };
+  module type S = {type f; let from: f => t; type errorF; let fromError: errorF => t;};
   module type ApplyMiddleware = {
-    type t;
-    let apply: ((Request.t, next, Response.t) => t, Request.t, next, Response.t) => unit;
-    let applyWithError:
-      ((Error.t, Request.t, next, Response.t) => t, Error.t, Request.t, next, Response.t) => unit;
+    type f;
+    let apply: (f, next, Request.t, Response.t) => unit;
+    type errorF;
+    let applyWithError: (errorF, next, Error.t, Request.t, Response.t) => unit;
   };
-  module Make: (A: ApplyMiddleware) => S with type result = A.t;
-  include S with type result = complete;
+  module Make: (A: ApplyMiddleware) => S with type f = A.f and type errorF = A.errorF;
+  include
+    S with
+      type f = (next, Request.t, Response.t) => complete and
+      type errorF = (next, Error.t, Request.t, Response.t) => complete;
 };
 
-module PromiseMiddleware: Middleware.S with type result = Js.Promise.t(complete);
+module PromiseMiddleware:
+  Middleware.S with
+    type f = (Middleware.next, Request.t, Response.t) => Js.Promise.t(complete) and
+    type errorF = (Middleware.next, Error.t, Request.t, Response.t) => Js.Promise.t(complete);
 
-module MakeBindFunctions:
-  (T: {type t;}) =>
-  {
-    let use: (T.t, Middleware.t) => unit;
-    let useWithMany: (T.t, array(Middleware.t)) => unit;
-    let useOnPath: (T.t, ~path: string, Middleware.t) => unit;
-    let useOnPathWithMany: (T.t, ~path: string, array(Middleware.t)) => unit;
-    let get: (T.t, ~path: string, Middleware.t) => unit;
-    let getWithMany: (T.t, ~path: string, array(Middleware.t)) => unit;
-    let post: (T.t, ~path: string, Middleware.t) => unit;
-    let postWithMany: (T.t, ~path: string, array(Middleware.t)) => unit;
-    let put: (T.t, ~path: string, Middleware.t) => unit;
-    let putWithMany: (T.t, ~path: string, array(Middleware.t)) => unit;
-    let patch: (T.t, ~path: string, Middleware.t) => unit;
-    let patchWithMany: (T.t, ~path: string, array(Middleware.t)) => unit;
-    let delete: (T.t, ~path: string, Middleware.t) => unit;
-    let deleteWithMany: (T.t, ~path: string, array(Middleware.t)) => unit;
-  };
-
-module App: {
+module type Routable = {
   type t;
   let use: (t, Middleware.t) => unit;
   let useWithMany: (t, array(Middleware.t)) => unit;
@@ -286,8 +267,20 @@ module App: {
   let patchWithMany: (t, ~path: string, array(Middleware.t)) => unit;
   let delete: (t, ~path: string, Middleware.t) => unit;
   let deleteWithMany: (t, ~path: string, array(Middleware.t)) => unit;
+};
+
+module MakeBindFunctions: (T: {type t;}) => Routable with type t = T.t;
+
+module Router: {include Routable; let make: unit => t; let asMiddleware: t => Middleware.t;};
+
+let router: unit => Router.t;
+
+module App: {
+  include Routable;
   let make: unit => t;
   let asMiddleware: t => Middleware.t;
+  let useRouter: (t, Router.t) => unit;
+  let useRouterOnPath: (t, ~path: string, Router.t) => unit;
   let listen: (t, ~port: int=?, ~onListen: Js.null_undefined(Js.Exn.t) => unit=?, unit) => unit;
 };
 

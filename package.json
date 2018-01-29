@@ -31,7 +31,6 @@
     "server",
     "nodejs"
   ],
-  "author": "Ramana Venkata <idlike2dream@gmail.com>",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/reasonml-community/bs-express/issues"
