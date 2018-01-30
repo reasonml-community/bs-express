@@ -59,6 +59,7 @@ run_test 'Non 200 Http status' 'GET' '/error'
 run_test 'Promise Middleware' 'GET' '/promise'
 run_test 'Failing Promise Middleware' 'GET' '/failing-promise'
 run_test 'Can catch Ocaml Exception' 'GET' '/ocaml-exception'
+run_test 'Can use express router' 'GET' '/testing/testing/123'
 
 run_header_test() {
   print_test_title "$1"

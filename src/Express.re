@@ -134,8 +134,8 @@ module Request = {
   /*** [query request] returns an object containing a property for each
        query string parameter in the route. If there is no query string,
        it returns the empty object, {} */
-  let accepts: (t, array(string)) => option(string) =
-    (req, types) => {
+  let accepts: (array(string), t) => option(string) =
+    (types, req) => {
       module Raw = {
         [@bs.send] external accepts : (t, array(string)) => Js.Json.t = "accepts";
       };
@@ -151,8 +151,8 @@ module Request = {
        are acceptable, based on the request's Accept HTTP header field.
        The method returns the best match, or if none of the specified
        content types is acceptable, returns [false] */
-  let acceptsCharsets: (t, array(string)) => option(string) =
-    (req, types) => {
+  let acceptsCharsets: (array(string), t) => option(string) =
+    (types, req) => {
       module Raw = {
         [@bs.send] external acceptsCharsets : (t, array(string)) => Js.Json.t = "acceptsCharsets";
       };
@@ -163,7 +163,8 @@ module Request = {
       | _ => None
       }
     };
-  [@bs.send] [@bs.return null_undefined_to_opt] external get : (t, string) => option(string) = "";
+  [@bs.send.pipe : t] [@bs.return null_undefined_to_opt] external get : string => option(string) =
+    "";
 
   /*** [get return field] returns the specified HTTP request header
        field (case-insensitive match) */
@@ -282,48 +283,47 @@ module Middleware = {
   type next = Next.t;
   type t;
   module type S = {
-    type result;
-    type f = (Request.t, next, Response.t) => result;
+    type f;
+    type errorF;
     let from: f => t;
     /* Generate the common Middleware binding function for a given
      * type. This Functor is used for the Router and App classes. */
-    type errorF = (Error.t, Request.t, next, Response.t) => result;
     let fromError: errorF => t;
   };
   module type ApplyMiddleware = {
-    type t;
-    let apply: ((Request.t, next, Response.t) => t, Request.t, next, Response.t) => unit;
-    let applyWithError:
-      ((Error.t, Request.t, next, Response.t) => t, Error.t, Request.t, next, Response.t) => unit;
+    type f;
+    let apply: (f, next, Request.t, Response.t) => unit;
+    type errorF;
+    let applyWithError: (errorF, next, Error.t, Request.t, Response.t) => unit;
   };
-  module Make = (A: ApplyMiddleware) : (S with type result = A.t) => {
-    type result = A.t;
-    type f = (Request.t, next, Response.t) => result;
+  module Make = (A: ApplyMiddleware) : (S with type f = A.f and type errorF = A.errorF) => {
+    type f = A.f;
     external unsafeFrom : 'a => t = "%identity";
     let from = (middleware) => {
       let aux = (next, content, _) => next(content);
-      unsafeFrom((req, res, next) => A.apply(middleware, req, aux(next), res))
+      unsafeFrom((req, res, next) => A.apply(middleware, aux(next), req, res))
     };
-    type errorF = (Error.t, Request.t, next, Response.t) => result;
+    type errorF = A.errorF;
     let fromError = (middleware) => {
       let aux = (next, content, _) => next(content);
-      unsafeFrom((err, req, res, next) => A.applyWithError(middleware, err, req, aux(next), res))
+      unsafeFrom((err, req, res, next) => A.applyWithError(middleware, aux(next), err, req, res))
     };
   };
   include
     Make(
       {
-        type t = complete;
-        let apply = (f, req, next, res) =>
+        type f = (next, Request.t, Response.t) => complete;
+        type errorF = (next, Error.t, Request.t, Response.t) => complete;
+        let apply = (f, next, req, res) =>
           (
-            try (f(req, next, res)) {
+            try (f(next, req, res)) {
             | e => next(Next.error(e), res)
             }
           )
           |> ignore;
-        let applyWithError = (f, err, req, next, res) =>
+        let applyWithError = (f, next, err, req, res) =>
           (
-            try (f(err, req, next, res)) {
+            try (f(next, err, req, res)) {
             | e => next(Next.error(e), res)
             }
           )
@@ -335,11 +335,12 @@ module Middleware = {
 module PromiseMiddleware =
   Middleware.Make(
     {
-      type t = Js.Promise.t(complete);
+      type f = (Middleware.next, Request.t, Response.t) => Js.Promise.t(complete);
+      type errorF = (Middleware.next, Error.t, Request.t, Response.t) => Js.Promise.t(complete);
       external castToErr : Js.Promise.error => Error.t = "%identity";
-      let apply = (f, req, next, res) => {
+      let apply = (f, next, req, res) => {
         let promise: Js.Promise.t(complete) =
-          try (f(req, next, res)) {
+          try (f(next, req, res)) {
           | e => Js.Promise.resolve(next(Next.error(e), res))
           };
         promise
@@ -351,9 +352,9 @@ module PromiseMiddleware =
            )
         |> ignore
       };
-      let applyWithError = (f, err, req, next, res) => {
+      let applyWithError = (f, next, err, req, res) => {
         let promise: Js.Promise.t(complete) =
-          try (f(err, req, next, res)) {
+          try (f(next, err, req, res)) {
           | e => Js.Promise.resolve(next(Next.error(e), res))
           };
         promise
@@ -368,7 +369,26 @@ module PromiseMiddleware =
     }
   );
 
-module MakeBindFunctions = (T: {type t;}) => {
+module type Routable = {
+  type t;
+  let use: (t, Middleware.t) => unit;
+  let useWithMany: (t, array(Middleware.t)) => unit;
+  let useOnPath: (t, ~path: string, Middleware.t) => unit;
+  let useOnPathWithMany: (t, ~path: string, array(Middleware.t)) => unit;
+  let get: (t, ~path: string, Middleware.t) => unit;
+  let getWithMany: (t, ~path: string, array(Middleware.t)) => unit;
+  let post: (t, ~path: string, Middleware.t) => unit;
+  let postWithMany: (t, ~path: string, array(Middleware.t)) => unit;
+  let put: (t, ~path: string, Middleware.t) => unit;
+  let putWithMany: (t, ~path: string, array(Middleware.t)) => unit;
+  let patch: (t, ~path: string, Middleware.t) => unit;
+  let patchWithMany: (t, ~path: string, array(Middleware.t)) => unit;
+  let delete: (t, ~path: string, Middleware.t) => unit;
+  let deleteWithMany: (t, ~path: string, array(Middleware.t)) => unit;
+};
+
+module MakeBindFunctions = (T: {type t;}) : (Routable with type t = T.t) => {
+  type t = T.t;
   [@bs.send] external use : (T.t, Middleware.t) => unit = "";
   [@bs.send] external useWithMany : (T.t, array(Middleware.t)) => unit = "use";
   [@bs.send] external useOnPath : (T.t, ~path: string, Middleware.t) => unit = "use";
@@ -387,14 +407,29 @@ module MakeBindFunctions = (T: {type t;}) => {
     "delete";
 };
 
-module App = {
-  type t;
+module Router = {
   include
     MakeBindFunctions(
       {
-        type nonrec t = t;
+        type t;
       }
     );
+  [@bs.module "express"] [@bs.val] external make : unit => t = "Router";
+  external asMiddleware : t => Middleware.t = "%identity";
+};
+
+let router = Router.make;
+
+module App = {
+  include
+    MakeBindFunctions(
+      {
+        type t;
+      }
+    );
+  let useRouter = (app, router) => Router.asMiddleware(router) |> use(app);
+  let useRouterOnPath = (app, ~path, router) =>
+    Router.asMiddleware(router) |> useOnPath(app, ~path);
   [@bs.module] external make : unit => t = "express";
 
   /*** [make ()] creates an instance of the App class. */
