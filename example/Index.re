@@ -413,11 +413,31 @@ App.getWithMany(app, ~path="/failing-promise") @@
   )
 |];
 
-let router = router();
+let router1 = router();
 
-Router.get(router, ~path="/123") @@ Middleware.from((_, _) => Response.sendStatus(Created));
+Router.get(router1, ~path="/123") @@ Middleware.from((_, _) => Response.sendStatus(Created));
 
-App.useRouterOnPath(app, ~path="/testing/testing", router);
+App.useRouterOnPath(app, ~path="/testing/testing", router1);
+
+let router2 = router(~caseSensitive=true, ~strict=true, ());
+
+Router.get(router2, ~path="/Case-sensitive") @@ Middleware.from((_, _) => Response.sendStatus(Ok));
+
+Router.get(router2, ~path="/strict/") @@ Middleware.from((_, _) => Response.sendStatus(Ok));
+
+App.useRouterOnPath(app, ~path="/router-options", router2);
+
+let router3 = router(~caseSensitive=true, ~strict=true, ());
+
+Router.use(router3, Express.json());
+
+Router.use(router3, Express.urlencoded());
+
+Router.get(router3, ~path="/json") @@ Middleware.from((_, _) => Response.sendStatus(Ok));
+
+Router.get(router3, ~path="/urlencoded") @@ Middleware.from((_, _) => Response.sendStatus(Created));
+
+App.useRouterOnPath(app, ~path="/builtin-middleware", router3);
 
 let onListen = (port, e) =>
   switch e {

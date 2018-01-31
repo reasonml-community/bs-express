@@ -60,6 +60,10 @@ run_test 'Promise Middleware' 'GET' '/promise'
 run_test 'Failing Promise Middleware' 'GET' '/failing-promise'
 run_test 'Can catch Ocaml Exception' 'GET' '/ocaml-exception'
 run_test 'Can use express router' 'GET' '/testing/testing/123'
+run_test 'Can specify that a router behaves in a case sensitive manner' 'GET' '/router-options/case-sensitive'
+run_test 'Can specify that a router behaves in a case sensitive manner' 'GET' '/router-options/Case-sensitive'
+run_test 'Can specify that a router behaves in a strict manner' 'GET' '/router-options/strict'
+run_test 'Can specify that a router behaves in a strict manner' 'GET' '/router-options/strict/'
 
 run_header_test() {
   print_test_title "$1"

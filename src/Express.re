@@ -1,5 +1,10 @@
 type complete;
 
+let defaultTo = (default) =>
+  fun
+  | Some(value) => value
+  | None => default;
+
 module Error = {
   type t = exn;
 
@@ -332,6 +337,51 @@ module Middleware = {
     );
 };
 
+[@bs.deriving accessors]
+type byteLimit =
+  | B(int)
+  | KB(float)
+  | MB(float)
+  | GB(float);
+
+type jsonOptions = {. "inflate": Js.boolean, "strict": Js.boolean, "limit": Js.nullable(int)};
+
+type urlEncodedOptions = {
+  .
+  "extended": Js.boolean,
+  "inflate": Js.boolean,
+  "limit": Js.nullable(int),
+  "parameterLimit": Js.nullable(int)
+};
+
+[@bs.module "express"] [@bs.val] external json_ : jsonOptions => Middleware.t = "json";
+
+[@bs.module "express"] [@bs.val] external urlencoded_ : urlEncodedOptions => Middleware.t =
+  "urlencoded";
+
+let mapLimit =
+  fun
+  | Some(B(b)) => Js.Nullable.return(b)
+  | Some(KB(kb)) => Js.Nullable.return(int_of_float(1024.0 *. kb))
+  | Some(MB(mb)) => Js.Nullable.return(int_of_float(1024.0 *. 1024.0 *. mb))
+  | Some(GB(gb)) => Js.Nullable.return(int_of_float(1024.0 *. 1024.0 *. 1024.0 *. gb))
+  | None => Js.Nullable.undefined;
+
+let json = (~inflate=?, ~strict=?, ~limit=?, ()) =>
+  json_({
+    "inflate": inflate |> defaultTo(true) |> Js.Boolean.to_js_boolean,
+    "strict": strict |> defaultTo(true) |> Js.Boolean.to_js_boolean,
+    "limit": mapLimit(limit)
+  });
+
+let urlencoded = (~extended=?, ~inflate=?, ~limit=?, ~parameterLimit=?, ()) =>
+  urlencoded_({
+    "inflate": inflate |> defaultTo(true) |> Js.Boolean.to_js_boolean,
+    "extended": extended |> defaultTo(false) |> Js.Boolean.to_js_boolean,
+    "parameterLimit": parameterLimit |> Js.Nullable.from_opt,
+    "limit": mapLimit(limit)
+  });
+
 module PromiseMiddleware =
   Middleware.Make(
     {
@@ -414,7 +464,17 @@ module Router = {
         type t;
       }
     );
-  [@bs.module "express"] [@bs.val] external make : unit => t = "Router";
+  type routerArgs = {
+    .
+    "caseSensitive": Js.boolean, "mergeParams": Js.boolean, "strict": Js.boolean
+  };
+  [@bs.module "express"] [@bs.val] external make_ : routerArgs => t = "Router";
+  let make = (~caseSensitive=?, ~mergeParams=?, ~strict=?, ()) =>
+    make_({
+      "caseSensitive": caseSensitive |> defaultTo(false) |> Js.Boolean.to_js_boolean,
+      "mergeParams": mergeParams |> defaultTo(false) |> Js.Boolean.to_js_boolean,
+      "strict": strict |> defaultTo(false) |> Js.Boolean.to_js_boolean
+    });
   external asMiddleware : t => Middleware.t = "%identity";
 };
 

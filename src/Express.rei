@@ -246,6 +246,19 @@ module Middleware: {
       type errorF = (next, Error.t, Request.t, Response.t) => complete;
 };
 
+[@bs.deriving accessors]
+type byteLimit =
+  | B(int)
+  | KB(float)
+  | MB(float)
+  | GB(float);
+
+let json: (~inflate: bool=?, ~strict: bool=?, ~limit: byteLimit=?, unit) => Middleware.t;
+
+let urlencoded:
+  (~extended: bool=?, ~inflate: bool=?, ~limit: byteLimit=?, ~parameterLimit: int=?, unit) =>
+  Middleware.t;
+
 module PromiseMiddleware:
   Middleware.S with
     type f = (Middleware.next, Request.t, Response.t) => Js.Promise.t(complete) and
@@ -271,9 +284,13 @@ module type Routable = {
 
 module MakeBindFunctions: (T: {type t;}) => Routable with type t = T.t;
 
-module Router: {include Routable; let make: unit => t; let asMiddleware: t => Middleware.t;};
+module Router: {
+  include Routable;
+  let make: (~caseSensitive: bool=?, ~mergeParams: bool=?, ~strict: bool=?, unit) => t;
+  let asMiddleware: t => Middleware.t;
+};
 
-let router: unit => Router.t;
+let router: (~caseSensitive: bool=?, ~mergeParams: bool=?, ~strict: bool=?, unit) => Router.t;
 
 module App: {
   include Routable;
