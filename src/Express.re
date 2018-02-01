@@ -1,5 +1,10 @@
 type complete;
 
+let defaultTo = (default) =>
+  fun
+  | Some(value) => value
+  | None => default;
+
 module Error = {
   type t = exn;
 
@@ -279,9 +284,48 @@ module Next: {
   let error = (e: Error.t) => Js.Undefined.return(castToContent(e));
 };
 
+module ByteLimit = {
+  [@bs.deriving accessors]
+  type t =
+    | B(int)
+    | Kb(float)
+    | Mb(float)
+    | Gb(float);
+  let toBytes =
+    fun
+    | Some(B(b)) => Js.Nullable.return(b)
+    | Some(Kb(kb)) => Js.Nullable.return(int_of_float(1024.0 *. kb))
+    | Some(Mb(mb)) => Js.Nullable.return(int_of_float(1024.0 *. 1024.0 *. mb))
+    | Some(Gb(gb)) => Js.Nullable.return(int_of_float(1024.0 *. 1024.0 *. 1024.0 *. gb))
+    | None => Js.Nullable.undefined;
+};
+
 module Middleware = {
   type next = Next.t;
   type t;
+  type jsonOptions = {. "inflate": Js.boolean, "strict": Js.boolean, "limit": Js.nullable(int)};
+  type urlEncodedOptions = {
+    .
+    "extended": Js.boolean,
+    "inflate": Js.boolean,
+    "limit": Js.nullable(int),
+    "parameterLimit": Js.nullable(int)
+  };
+  [@bs.module "express"] [@bs.val] external json_ : jsonOptions => t = "json";
+  [@bs.module "express"] [@bs.val] external urlencoded_ : urlEncodedOptions => t = "urlencoded";
+  let json = (~inflate=?, ~strict=?, ~limit=?, ()) =>
+    json_({
+      "inflate": inflate |> defaultTo(true) |> Js.Boolean.to_js_boolean,
+      "strict": strict |> defaultTo(true) |> Js.Boolean.to_js_boolean,
+      "limit": ByteLimit.toBytes(limit)
+    });
+  let urlencoded = (~extended=?, ~inflate=?, ~limit=?, ~parameterLimit=?, ()) =>
+    urlencoded_({
+      "inflate": inflate |> defaultTo(true) |> Js.Boolean.to_js_boolean,
+      "extended": extended |> defaultTo(false) |> Js.Boolean.to_js_boolean,
+      "parameterLimit": parameterLimit |> Js.Nullable.from_opt,
+      "limit": ByteLimit.toBytes(limit)
+    });
   module type S = {
     type f;
     type errorF;
@@ -377,6 +421,7 @@ module type Routable = {
   let useOnPathWithMany: (t, ~path: string, array(Middleware.t)) => unit;
   let get: (t, ~path: string, Middleware.t) => unit;
   let getWithMany: (t, ~path: string, array(Middleware.t)) => unit;
+  let param: (t, ~name: string, Middleware.t) => unit;
   let post: (t, ~path: string, Middleware.t) => unit;
   let postWithMany: (t, ~path: string, array(Middleware.t)) => unit;
   let put: (t, ~path: string, Middleware.t) => unit;
@@ -396,6 +441,7 @@ module MakeBindFunctions = (T: {type t;}) : (Routable with type t = T.t) => {
     "use";
   [@bs.send] external get : (T.t, ~path: string, Middleware.t) => unit = "";
   [@bs.send] external getWithMany : (T.t, ~path: string, array(Middleware.t)) => unit = "get";
+  [@bs.send] external param : (T.t, ~name: string, Middleware.t) => unit = "param";
   [@bs.send] external post : (T.t, ~path: string, Middleware.t) => unit = "";
   [@bs.send] external postWithMany : (T.t, ~path: string, array(Middleware.t)) => unit = "post";
   [@bs.send] external put : (T.t, ~path: string, Middleware.t) => unit = "";
@@ -414,7 +460,17 @@ module Router = {
         type t;
       }
     );
-  [@bs.module "express"] [@bs.val] external make : unit => t = "Router";
+  type routerArgs = {
+    .
+    "caseSensitive": Js.boolean, "mergeParams": Js.boolean, "strict": Js.boolean
+  };
+  [@bs.module "express"] [@bs.val] external make_ : routerArgs => t = "Router";
+  let make = (~caseSensitive=?, ~mergeParams=?, ~strict=?, ()) =>
+    make_({
+      "caseSensitive": caseSensitive |> defaultTo(false) |> Js.Boolean.to_js_boolean,
+      "mergeParams": mergeParams |> defaultTo(false) |> Js.Boolean.to_js_boolean,
+      "strict": strict |> defaultTo(false) |> Js.Boolean.to_js_boolean
+    });
   external asMiddleware : t => Middleware.t = "%identity";
 };
 

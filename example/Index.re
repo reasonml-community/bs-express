@@ -413,11 +413,67 @@ App.getWithMany(app, ~path="/failing-promise") @@
   )
 |];
 
-let router = router();
+let router1 = router();
 
-Router.get(router, ~path="/123") @@ Middleware.from((_, _) => Response.sendStatus(Created));
+Router.get(router1, ~path="/123") @@ Middleware.from((_, _) => Response.sendStatus(Created));
 
-App.useRouterOnPath(app, ~path="/testing/testing", router);
+App.useRouterOnPath(app, ~path="/testing/testing", router1);
+
+let router2 = router(~caseSensitive=true, ~strict=true, ());
+
+Router.get(router2, ~path="/Case-sensitive") @@ Middleware.from((_, _) => Response.sendStatus(Ok));
+
+Router.get(router2, ~path="/strict/") @@ Middleware.from((_, _) => Response.sendStatus(Ok));
+
+App.useRouterOnPath(app, ~path="/router-options", router2);
+
+App.param(app, ~name="identifier") @@
+Middleware.from((_next, _req) => Response.sendStatus(Created));
+
+App.get(app, ~path="/param-test/:identifier") @@
+Middleware.from((_next, _req) => Response.sendStatus(BadRequest));
+
+let router3 = router(~caseSensitive=true, ~strict=true, ());
+
+open ByteLimit;
+
+Router.use(router3, Middleware.json(~limit=5.0 |> mb, ()));
+
+Router.use(router3, Middleware.urlencoded(~extended=true, ()));
+
+module Body = {
+  type payload = {. "number": int};
+  let jsonDecoder = (json) => Json.Decode.({"number": json |> field("number", int)});
+  let urlEncodedDecoder = (dict) => {"number": Js.Dict.unsafeGet(dict, "number") |> int_of_string};
+  let encoder = (body) => Json.Encode.(object_([("number", body##number |> int)]));
+};
+
+let raiseIfNone =
+  fun
+  | Some(value) => value
+  | None => failwith("Body is none");
+
+Router.post(router3, ~path="/json-doubler") @@
+Middleware.from(
+  (_next) =>
+    Request.bodyJSON
+    >> raiseIfNone
+    >> Body.jsonDecoder
+    >> ((req) => {"number": req##number * 2} |> Body.encoder |> Response.sendJson)
+);
+
+let (>>) = (f, g, x) => x |> f |> g;
+
+Router.post(router3, ~path="/urlencoded-doubler") @@
+Middleware.from(
+  (_next) =>
+    Request.bodyURLEncoded
+    >> raiseIfNone
+    >> Body.urlEncodedDecoder
+    >> ((req) => {"number": req##number * 2} |> Body.encoder |> Response.sendJson)
+);
+
+App.useRouterOnPath(app, ~path="/builtin-middleware", router3);
 
 let onListen = (port, e) =>
   switch e {

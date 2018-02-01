@@ -24,8 +24,10 @@ print_test_url() {
 
 run_test() {
   print_test_title "$1"
-  print_test_url "$2" "$3"
+  print_test_url "$2" "$3" "$4"
 }
+
+
 
 clean_previous_test;
 
@@ -60,6 +62,24 @@ run_test 'Promise Middleware' 'GET' '/promise'
 run_test 'Failing Promise Middleware' 'GET' '/failing-promise'
 run_test 'Can catch Ocaml Exception' 'GET' '/ocaml-exception'
 run_test 'Can use express router' 'GET' '/testing/testing/123'
+run_test 'Can specify that a router behaves in a case sensitive manner' 'GET' '/router-options/case-sensitive'
+run_test 'Can specify that a router behaves in a case sensitive manner' 'GET' '/router-options/Case-sensitive'
+run_test 'Can specify that a router behaves in a strict manner' 'GET' '/router-options/strict'
+run_test 'Can specify that a router behaves in a strict manner' 'GET' '/router-options/strict/'
+run_test 'Can bind middleware to a particular param' 'GET' '/param-test/123'
+
+run_json_test() {
+  print_test_title "$1"    
+  curl  -X POST -H "Content-Type: application/json" -w "\nstatus: %{http_code}" -d "$3" http://localhost:3000$2 2>&1 >> $TEST_DATA  
+}
+run_json_test 'Can accept JSON using builtin middleware' '/builtin-middleware/json-doubler' '{ "number": 4 }'
+
+run_urlencoded_test() {
+  print_test_title "$1"    
+  curl  -X POST -H "Content-Type: application/x-www-form-urlencoded" -w "\nstatus: %{http_code}" -d "$3" http://localhost:3000$2 2>&1 >> $TEST_DATA  
+}
+
+run_urlencoded_test 'Can accept UrlEncoded body using builtin middleware' '/builtin-middleware/urlencoded-doubler' 'number=4'
 
 run_header_test() {
   print_test_title "$1"

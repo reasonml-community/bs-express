@@ -140,6 +140,47 @@ status: 402
 -- Can use express router--
 Created
 status: 201
+-- Can specify that a router behaves in a case sensitive manner--
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Error</title>
+</head>
+<body>
+<pre>Cannot GET /router-options/case-sensitive</pre>
+</body>
+</html>
+
+status: 404
+-- Can specify that a router behaves in a case sensitive manner--
+OK
+status: 200
+-- Can specify that a router behaves in a strict manner--
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Error</title>
+</head>
+<body>
+<pre>Cannot GET /router-options/strict</pre>
+</body>
+</html>
+
+status: 404
+-- Can specify that a router behaves in a strict manner--
+OK
+status: 200
+-- Can bind middleware to a particular param--
+Created
+status: 201
+-- Can accept JSON using builtin middleware--
+{"number":8}
+status: 200
+-- Can accept UrlEncoded body using builtin middleware--
+{"number":8}
+status: 200
 -- Accepts--
 {"success":true}
 -- Accepts Charsets--

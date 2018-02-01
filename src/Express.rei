@@ -229,9 +229,24 @@ module Next: {
        error [e] through the chain of middleware. */
 };
 
+module ByteLimit: {
+  type t =
+    | B(int)
+    | Kb(float)
+    | Mb(float)
+    | Gb(float);
+  let b: int => t;
+  let kb: float => t;
+  let mb: float => t;
+  let gb: float => t;
+};
+
 module Middleware: {
   type t;
   type next = Next.t;
+  let json: (~inflate: bool=?, ~strict: bool=?, ~limit: ByteLimit.t=?, unit) => t;
+  let urlencoded:
+    (~extended: bool=?, ~inflate: bool=?, ~limit: ByteLimit.t=?, ~parameterLimit: int=?, unit) => t;
   module type S = {type f; let from: f => t; type errorF; let fromError: errorF => t;};
   module type ApplyMiddleware = {
     type f;
@@ -259,6 +274,7 @@ module type Routable = {
   let useOnPathWithMany: (t, ~path: string, array(Middleware.t)) => unit;
   let get: (t, ~path: string, Middleware.t) => unit;
   let getWithMany: (t, ~path: string, array(Middleware.t)) => unit;
+  let param: (t, ~name: string, Middleware.t) => unit;
   let post: (t, ~path: string, Middleware.t) => unit;
   let postWithMany: (t, ~path: string, array(Middleware.t)) => unit;
   let put: (t, ~path: string, Middleware.t) => unit;
@@ -271,9 +287,13 @@ module type Routable = {
 
 module MakeBindFunctions: (T: {type t;}) => Routable with type t = T.t;
 
-module Router: {include Routable; let make: unit => t; let asMiddleware: t => Middleware.t;};
+module Router: {
+  include Routable;
+  let make: (~caseSensitive: bool=?, ~mergeParams: bool=?, ~strict: bool=?, unit) => t;
+  let asMiddleware: t => Middleware.t;
+};
 
-let router: unit => Router.t;
+let router: (~caseSensitive: bool=?, ~mergeParams: bool=?, ~strict: bool=?, unit) => Router.t;
 
 module App: {
   include Routable;
