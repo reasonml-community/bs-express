@@ -208,6 +208,35 @@ module Response: {
   let sendStatus: (StatusCode.t, t) => complete;
   let rawStatus: (int, t) => t;
   let status: (StatusCode.t, t) => t;
+  let cookie:
+    (
+      ~name: string,
+      ~maxAge: int=?,
+      ~expiresGMT: Js.Date.t=?,
+      ~httpOnly: bool=?,
+      ~secure: bool=?,
+      ~signed: bool=?,
+      ~path: string=?,
+      ~sameSite: [ | `Lax | `Strict]=?,
+      Js.Json.t,
+      t
+    ) =>
+    t;
+  let clearCookie:
+    (
+      ~name: string,
+      ~httpOnly: bool=?,
+      ~secure: bool=?,
+      ~signed: bool=?,
+      ~path: string=?,
+      ~sameSite: [ | `Lax | `Strict]=?,
+      t
+    ) =>
+    t;
+
+  /***
+   Web browsers and other compliant clients will only clear the cookie if the given options is identical to those given to res.cookie(), excluding expires and maxAge.
+    */
   let json: (Js.Json.t, t) => complete;
   let redirectCode: (int, string, t) => complete;
   let redirect: (string, t) => complete;

@@ -19,7 +19,7 @@ function print_test_title() {
 }
 
 print_test_url() {
-  curl  -X $1 -w "\nstatus: %{http_code}" http://localhost:3000$2 2>&1 >> $TEST_DATA
+  curl --cookie-jar - -X $1  -w "\nstatus: %{http_code}" http://localhost:3000$2 2>&1 >> $TEST_DATA
 }
 
 run_test() {
@@ -67,6 +67,16 @@ run_test 'Can specify that a router behaves in a case sensitive manner' 'GET' '/
 run_test 'Can specify that a router behaves in a strict manner' 'GET' '/router-options/strict'
 run_test 'Can specify that a router behaves in a strict manner' 'GET' '/router-options/strict/'
 run_test 'Can bind middleware to a particular param' 'GET' '/param-test/123'
+run_test 'Can set cookies' 'GET' '/cookie-set-test'
+
+run_cookie_clear_test() {
+  print_test_title "$1"
+  curl -i -X $2  -w "\nstatus: %{http_code}\n" http://localhost:3000$3 2>&1 | grep -Fi Set-Cookie >> $TEST_DATA
+  # curl -X $2  -w "\nstatus: %{http_code}\n" http://localhost:3000$3 2>&1 >> $TEST_DATA
+}
+
+run_cookie_clear_test 'Can clear cookies' 'GET' '/cookie-clear-test'
+
 
 run_json_test() {
   print_test_title "$1"    

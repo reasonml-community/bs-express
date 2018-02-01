@@ -1,10 +1,5 @@
 type complete;
 
-let defaultTo = (default) =>
-  fun
-  | Some(value) => value
-  | None => default;
-
 module Error = {
   type t = exn;
 
@@ -245,6 +240,94 @@ module Response = {
     let fromInt = tFromJs;
     let toInt = tToJs;
   };
+  [@bs.send.pipe : t] external cookie_ : (string, Js.Json.t, 'a) => unit = "cookie";
+  [@bs.send.pipe : t] external clearCookie_ : (string, 'a) => unit = "clearCookie";
+  [@bs.deriving jsConverter]
+  type sameSite = [ [@bs.as "lax"] | `Lax [@bs.as "strict"] | `Strict];
+  external toDict : 'a => Js.Dict.t(Js.nullable('b)) = "%identity";
+  let filterKeys = (obj) => {
+    let result = toDict(obj);
+    result
+    |> Js.Dict.entries
+    |> Js.Array.filter(((_key, value)) => ! Js.Nullable.test(value))
+    |> Js.Dict.fromArray
+  };
+  let cookie =
+      (
+        ~name,
+        ~maxAge=?,
+        ~expiresGMT=?,
+        ~httpOnly=?,
+        ~secure=?,
+        ~signed=?,
+        ~path=?,
+        ~sameSite: option(sameSite)=?,
+        value,
+        response
+      ) => {
+    cookie_(
+      name,
+      value,
+      {
+        "maxAge": maxAge |> Js.Nullable.from_opt,
+        "expires": expiresGMT |> Js.Nullable.from_opt,
+        "path": path |> Js.Nullable.from_opt,
+        "httpOnly":
+          httpOnly
+          |> Js.Option.map([@bs] ((x) => Js.Boolean.to_js_boolean(x)))
+          |> Js.Nullable.from_opt,
+        "secure":
+          secure
+          |> Js.Option.map([@bs] ((x) => Js.Boolean.to_js_boolean(x)))
+          |> Js.Nullable.from_opt,
+        "sameSite":
+          sameSite |> Js.Option.map([@bs] ((x) => sameSiteToJs(x))) |> Js.Nullable.from_opt,
+        "signed":
+          signed
+          |> Js.Option.map([@bs] ((x) => Js.Boolean.to_js_boolean(x)))
+          |> Js.Nullable.from_opt
+      }
+      |> filterKeys,
+      response
+    );
+    response
+  };
+  let clearCookie =
+      (
+        ~name,
+        ~httpOnly=?,
+        ~secure=?,
+        ~signed=?,
+        ~path="/",
+        ~sameSite: option(sameSite)=?,
+        response
+      ) => {
+    clearCookie_(
+      name,
+      {
+        "maxAge": Js.Nullable.undefined,
+        "expires": Js.Nullable.undefined,
+        "path": path,
+        "httpOnly":
+          httpOnly
+          |> Js.Option.map([@bs] ((x) => Js.Boolean.to_js_boolean(x)))
+          |> Js.Nullable.from_opt,
+        "secure":
+          secure
+          |> Js.Option.map([@bs] ((x) => Js.Boolean.to_js_boolean(x)))
+          |> Js.Nullable.from_opt,
+        "sameSite":
+          sameSite |> Js.Option.map([@bs] ((x) => sameSiteToJs(x))) |> Js.Nullable.from_opt,
+        "signed":
+          signed
+          |> Js.Option.map([@bs] ((x) => Js.Boolean.to_js_boolean(x)))
+          |> Js.Nullable.from_opt
+      }
+      |> filterKeys,
+      response
+    );
+    response
+  };
   [@bs.send.pipe : t] external sendFile : (string, 'a) => complete = "";
   [@bs.send.pipe : t] external sendString : string => complete = "send";
   [@bs.send.pipe : t] external sendJson : Js.Json.t => complete = "json";
@@ -313,16 +396,16 @@ module Middleware = {
   };
   [@bs.module "express"] [@bs.val] external json_ : jsonOptions => t = "json";
   [@bs.module "express"] [@bs.val] external urlencoded_ : urlEncodedOptions => t = "urlencoded";
-  let json = (~inflate=?, ~strict=?, ~limit=?, ()) =>
+  let json = (~inflate=true, ~strict=true, ~limit=?, ()) =>
     json_({
-      "inflate": inflate |> defaultTo(true) |> Js.Boolean.to_js_boolean,
-      "strict": strict |> defaultTo(true) |> Js.Boolean.to_js_boolean,
+      "inflate": inflate |> Js.Boolean.to_js_boolean,
+      "strict": strict |> Js.Boolean.to_js_boolean,
       "limit": ByteLimit.toBytes(limit)
     });
-  let urlencoded = (~extended=?, ~inflate=?, ~limit=?, ~parameterLimit=?, ()) =>
+  let urlencoded = (~extended=false, ~inflate=true, ~limit=?, ~parameterLimit=?, ()) =>
     urlencoded_({
-      "inflate": inflate |> defaultTo(true) |> Js.Boolean.to_js_boolean,
-      "extended": extended |> defaultTo(false) |> Js.Boolean.to_js_boolean,
+      "inflate": inflate |> Js.Boolean.to_js_boolean,
+      "extended": extended |> Js.Boolean.to_js_boolean,
       "parameterLimit": parameterLimit |> Js.Nullable.from_opt,
       "limit": ByteLimit.toBytes(limit)
     });
@@ -465,11 +548,11 @@ module Router = {
     "caseSensitive": Js.boolean, "mergeParams": Js.boolean, "strict": Js.boolean
   };
   [@bs.module "express"] [@bs.val] external make_ : routerArgs => t = "Router";
-  let make = (~caseSensitive=?, ~mergeParams=?, ~strict=?, ()) =>
+  let make = (~caseSensitive=false, ~mergeParams=false, ~strict=false, ()) =>
     make_({
-      "caseSensitive": caseSensitive |> defaultTo(false) |> Js.Boolean.to_js_boolean,
-      "mergeParams": mergeParams |> defaultTo(false) |> Js.Boolean.to_js_boolean,
-      "strict": strict |> defaultTo(false) |> Js.Boolean.to_js_boolean
+      "caseSensitive": caseSensitive |> Js.Boolean.to_js_boolean,
+      "mergeParams": mergeParams |> Js.Boolean.to_js_boolean,
+      "strict": strict |> Js.Boolean.to_js_boolean
     });
   external asMiddleware : t => Middleware.t = "%identity";
 };

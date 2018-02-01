@@ -433,6 +433,17 @@ Middleware.from((_next, _req) => Response.sendStatus(Created));
 App.get(app, ~path="/param-test/:identifier") @@
 Middleware.from((_next, _req) => Response.sendStatus(BadRequest));
 
+App.get(app, ~path="/cookie-set-test") @@
+Middleware.from(
+  (_next, _req) =>
+    Response.cookie(~name="test-cookie", Js.Json.string("cool-cookie")) >> Response.sendStatus(Ok)
+);
+
+App.get(app, ~path="/cookie-clear-test") @@
+Middleware.from(
+  (_next, _req) => Response.clearCookie(~name="test-cookie2") >> Response.sendStatus(Ok)
+);
+
 let router3 = router(~caseSensitive=true, ~strict=true, ());
 
 open ByteLimit;
@@ -461,8 +472,6 @@ Middleware.from(
     >> Body.jsonDecoder
     >> ((req) => {"number": req##number * 2} |> Body.encoder |> Response.sendJson)
 );
-
-let (>>) = (f, g, x) => x |> f |> g;
 
 Router.post(router3, ~path="/urlencoded-doubler") @@
 Middleware.from(
