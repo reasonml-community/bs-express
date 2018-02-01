@@ -229,9 +229,24 @@ module Next: {
        error [e] through the chain of middleware. */
 };
 
+module ByteLimit: {
+  type t =
+    | B(int)
+    | Kb(float)
+    | Mb(float)
+    | Gb(float);
+  let b: int => t;
+  let kb: float => t;
+  let mb: float => t;
+  let gb: float => t;
+};
+
 module Middleware: {
   type t;
   type next = Next.t;
+  let json: (~inflate: bool=?, ~strict: bool=?, ~limit: ByteLimit.t=?, unit) => t;
+  let urlencoded:
+    (~extended: bool=?, ~inflate: bool=?, ~limit: ByteLimit.t=?, ~parameterLimit: int=?, unit) => t;
   module type S = {type f; let from: f => t; type errorF; let fromError: errorF => t;};
   module type ApplyMiddleware = {
     type f;
@@ -246,19 +261,6 @@ module Middleware: {
       type errorF = (next, Error.t, Request.t, Response.t) => complete;
 };
 
-[@bs.deriving accessors]
-type byteLimit =
-  | B(int)
-  | KB(float)
-  | MB(float)
-  | GB(float);
-
-let json: (~inflate: bool=?, ~strict: bool=?, ~limit: byteLimit=?, unit) => Middleware.t;
-
-let urlencoded:
-  (~extended: bool=?, ~inflate: bool=?, ~limit: byteLimit=?, ~parameterLimit: int=?, unit) =>
-  Middleware.t;
-
 module PromiseMiddleware:
   Middleware.S with
     type f = (Middleware.next, Request.t, Response.t) => Js.Promise.t(complete) and
@@ -272,6 +274,7 @@ module type Routable = {
   let useOnPathWithMany: (t, ~path: string, array(Middleware.t)) => unit;
   let get: (t, ~path: string, Middleware.t) => unit;
   let getWithMany: (t, ~path: string, array(Middleware.t)) => unit;
+  let param: (t, ~name: string, Middleware.t) => unit;
   let post: (t, ~path: string, Middleware.t) => unit;
   let postWithMany: (t, ~path: string, array(Middleware.t)) => unit;
   let put: (t, ~path: string, Middleware.t) => unit;

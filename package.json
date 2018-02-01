@@ -4,10 +4,10 @@
   "description": "Express bindings in Reason",
   "main": "index.js",
   "dependencies": {
-    "express": "^4.16.2",
-    "nodemon": "^1.14.11"
+    "express": "^4.16.2"
   },
   "devDependencies": {
+    "@glennsl/bs-json": "^1.1.2",
     "bs-platform": "^2.1.0",
     "husky": "^0.15.0-rc.3"
   },

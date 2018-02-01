@@ -427,15 +427,51 @@ Router.get(router2, ~path="/strict/") @@ Middleware.from((_, _) => Response.send
 
 App.useRouterOnPath(app, ~path="/router-options", router2);
 
+App.param(app, ~name="identifier") @@
+Middleware.from((_next, _req) => Response.sendStatus(Created));
+
+App.get(app, ~path="/param-test/:identifier") @@
+Middleware.from((_next, _req) => Response.sendStatus(BadRequest));
+
 let router3 = router(~caseSensitive=true, ~strict=true, ());
 
-Router.use(router3, Express.json());
+open ByteLimit;
 
-Router.use(router3, Express.urlencoded());
+Router.use(router3, Middleware.json(~limit=5.0 |> mb, ()));
 
-Router.get(router3, ~path="/json") @@ Middleware.from((_, _) => Response.sendStatus(Ok));
+Router.use(router3, Middleware.urlencoded(~extended=true, ()));
 
-Router.get(router3, ~path="/urlencoded") @@ Middleware.from((_, _) => Response.sendStatus(Created));
+module Body = {
+  type payload = {. "number": int};
+  let jsonDecoder = (json) => Json.Decode.({"number": json |> field("number", int)});
+  let urlEncodedDecoder = (dict) => {"number": Js.Dict.unsafeGet(dict, "number") |> int_of_string};
+  let encoder = (body) => Json.Encode.(object_([("number", body##number |> int)]));
+};
+
+let raiseIfNone =
+  fun
+  | Some(value) => value
+  | None => failwith("Body is none");
+
+Router.post(router3, ~path="/json-doubler") @@
+Middleware.from(
+  (_next) =>
+    Request.bodyJSON
+    >> raiseIfNone
+    >> Body.jsonDecoder
+    >> ((req) => {"number": req##number * 2} |> Body.encoder |> Response.sendJson)
+);
+
+let (>>) = (f, g, x) => x |> f |> g;
+
+Router.post(router3, ~path="/urlencoded-doubler") @@
+Middleware.from(
+  (_next) =>
+    Request.bodyURLEncoded
+    >> raiseIfNone
+    >> Body.urlEncodedDecoder
+    >> ((req) => {"number": req##number * 2} |> Body.encoder |> Response.sendJson)
+);
 
 App.useRouterOnPath(app, ~path="/builtin-middleware", router3);
 

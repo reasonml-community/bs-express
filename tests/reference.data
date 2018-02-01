@@ -172,6 +172,15 @@ status: 404
 -- Can specify that a router behaves in a strict manner--
 OK
 status: 200
+-- Can bind middleware to a particular param--
+Created
+status: 201
+-- Can accept JSON using builtin middleware--
+{"number":8}
+status: 200
+-- Can accept UrlEncoded body using builtin middleware--
+{"number":8}
+status: 200
 -- Accepts--
 {"success":true}
 -- Accepts Charsets--
