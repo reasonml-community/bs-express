@@ -90,7 +90,9 @@ module Request: {
     | Head
     | Options
     | Trace
-    | Connect;
+    | Connect
+    | Patch;
+
   let httpMethod: t => httpMethod;
 
   /*** [method_ request] return a variant corresponding to the HTTP
@@ -148,7 +150,7 @@ module Response: {
       | MultiStatus
       | AleadyReported
       | IMUsed
-      | MultipleChoises
+      | MultipleChoices
       | MovedPermanently
       | Found
       | SeeOther

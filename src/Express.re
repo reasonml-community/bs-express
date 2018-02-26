@@ -85,13 +85,15 @@ module Request = {
     | Head
     | Options
     | Trace
-    | Connect;
+    | Connect
+    | Patch;
   let httpMethod: t => httpMethod =
     (req) =>
       switch (methodRaw(req)) {
       | "GET" => Get
       | "POST" => Post
       | "PUT" => Put
+      | "PATCH" => Patch
       | "DELETE" => Delete
       | "HEAD" => Head
       | "OPTIONS" => Options
@@ -189,7 +191,7 @@ module Response = {
       [@bs.as 207] | MultiStatus
       [@bs.as 208] | AleadyReported
       [@bs.as 226] | IMUsed
-      [@bs.as 300] | MultipleChoises
+      [@bs.as 300] | MultipleChoices
       [@bs.as 301] | MovedPermanently
       [@bs.as 302] | Found
       [@bs.as 303] | SeeOther
