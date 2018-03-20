@@ -1,0 +1,13 @@
+language: node_js
+cache: yarn
+node_js:
+- '9'
+script: yarn run build
+deploy:
+  provider: npm
+  email: nick@cuthbert.co.za
+  api_key:
+    secure: nWiz7Wvgvmw/9tn7YUgi4ei0zuEVcXJDlqE3xomBbevI66nX/l3WTNcXmpHAQ/lIlQjGeCe/ul20CRqYV+D259UcpkjdFRMAtwaMsWwJXrxlMpbOndJovrd0qUQ6VUeJokU2OUGtrIsV0VGzyhyoOYWToHzfIfZnYhDevsKHI0pfuQ6Sx3miG6OIgQad1jgU0bAx+YxHfuXdSjXWolfnLzTrpsBODkZzvY46h7NJNUUW5GjpA+trRjKH4KIkuZdW0FaBwJa05QE4MqWDdc6LCtPCmrHwJTwOoHcX0CmS2ZTIUjRaOgNCgSVQJ80G3Rsb96ekp7HjO7J7U9neFnm8N8e4ddHm5VnuGmC57msIFVSnNoXPdHYHZTtS4Ipz50vVtVVLWe7JkcGvytf5/ekACLt2Y9A5RaEnK/dlZhCfBN8nkDMXxRJko1qL9Ing0/lu15msahAl4nPICSJNfD5ZFf/QZ88UxlBEVBNFv8WxMUDodBeU6G3bTeYR6EZ73/4v6MNDHIKBSqDXyBreScQ32Kah39I8UvY9NIyyOXz/REOGyelIYNjVfdX2GJE6GRU+/YOFBQZugwzYdv2ABWMktX9upai9yw47QY2QmThpAX/LTSPb2khaOzu9qxvz1kTKiLCTQfBZFTo9XUdlMql6B1/EyiLdig0SZ2pyhZUy9dw=
+  on:
+    tags: true
+    repo: reasonml-community/bs-express
