@@ -82,6 +82,7 @@ run_json_test() {
   print_test_title "$1"    
   curl  -X POST -H "Content-Type: application/json" -w "\nstatus: %{http_code}" -d "$3" http://localhost:3000$2 2>&1 >> $TEST_DATA  
 }
+
 run_json_test 'Can accept JSON using builtin middleware' '/builtin-middleware/json-doubler' '{ "number": 4 }'
 
 run_urlencoded_test() {
@@ -104,6 +105,14 @@ run_header_test 'Accepts Charsets' 'GET' 'Accept-Charset: UTF-8' \
 
 run_header_test 'Get' 'GET' 'key: value' \
   '/get'
+
+run_text_test() {
+  print_test_title "$1"    
+  curl -X POST -H "Content-Type: text/plain" -d "$3" http://localhost:3000$2 2>&1 >> $TEST_DATA
+}
+
+run_text_test "Can parse text using bodyparser middleware" "/router4/text-body" 'This is a test body'
+
 
 # compare test output to reference data
 

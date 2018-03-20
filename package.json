@@ -1,14 +1,15 @@
 {
   "name": "bs-express",
-  "version": "0.4.1",
+  "version": "0.5.0",
   "description": "Express bindings in Reason",
   "main": "index.js",
   "dependencies": {
-    "express": "^4.16.2"
+    "express": "^4.16.3"
   },
   "devDependencies": {
     "@glennsl/bs-json": "^1.1.2",
-    "bs-platform": "^2.1.0",
+    "body-parser": "^1.18.2",
+    "bs-platform": "^2.2.3",
     "husky": "^0.15.0-rc.3"
   },
   "scripts": {

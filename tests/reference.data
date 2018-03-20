@@ -198,3 +198,5 @@ status: 200
 {"success":true}
 -- Get--
 {"success":true}
+-- Can parse text using bodyparser middleware--
+This is a test body
