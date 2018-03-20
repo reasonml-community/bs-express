@@ -9,6 +9,6 @@ deploy:
   api_key:
     secure: ig1zTAhHwX8XpP0jJx22zMnJc4t2l8/3tuwt5JoA/duPDJAgrz53xVn2fIfHEGX0ZRv2f5O3tB40QFgt3Zde9gqKY9ETluObaBmZ6/5KwttndxD9gGMjRhRFY0Y4/v5RauxbRF7Zq7bgOQr9FqjP+VgK/kabcDE++HRZ2pb5EipuO3IPiDgJJngd3eP1koVXYWXSuXBBCNhh5ZTI999sBq217zhtJz76DjT5qDtVcdCgRcrQ/0LaXmqjGZuqWvncO4Bq5uR9Brl4RZg86LpMCgmlncRPZv1kxE4+b3cpTZnWQ0u3C4oUON6fuQOWWt3FAs832I7pDa+bhawNAqZR8flzn0iPl6fgxPTDMX9xWA/l/rwbgf6o8w2lYTBtXT5reasr79vCmMq2tVPMa36bGndDBfAaI4JTuRDxr+KCMB+Su2pWLuKR5fRv/+IPs37IndUfGZJNZXq12iXY7YZWDVUPf+duLQi3JdVKUZrWPUspQXOu9K3LskwLu23XgoflSd5i2mxWrgAPxdTh9b/0xbSJ/UqLJO8T7aACp76ZAC9REgIeofsjQfuMD2fD8oidER8sb89MXo+PlujOBVk4kJQtXCa1CLyilbsF1gJc0DSoWhG7EyaaJNZsLLwGP78zeFYhokmJI7OQZJpxdBoUmBNGqt16h46epmi1hxYqzNI=
   on:
-    # tags: true
+    tags: true
     branch: master
     repo: reasonml-community/bs-express
