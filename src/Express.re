@@ -381,6 +381,7 @@ module Response = {
   [@bs.send.pipe: t]
   external redirectCode : (int, string) => complete = "redirect";
   [@bs.send.pipe: t] external redirect : string => complete = "redirect";
+  [@bs.send.pipe: t] external setHeader : (string, string) => t = "set";
 };
 
 module Next: {

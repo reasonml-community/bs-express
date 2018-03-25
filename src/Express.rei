@@ -242,6 +242,7 @@ module Response: {
   let json: (Js.Json.t, t) => complete;
   let redirectCode: (int, string, t) => complete;
   let redirect: (string, t) => complete;
+  let setHeader: (string, string, t) => t;
 };
 
 module Next: {
