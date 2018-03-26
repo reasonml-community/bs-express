@@ -406,6 +406,13 @@ Middleware.from((_next, _req) =>
   Response.clearCookie(~name="test-cookie2") >> Response.sendStatus(Ok)
 );
 
+App.get(app, ~path="/response-set-header") @@
+Middleware.from((_, _, res) =>
+  res
+  |> Response.setHeader("X-Test-Header", "Set")
+  |> Response.sendStatus(Response.StatusCode.Ok)
+);
+
 let router3 = router(~caseSensitive=true, ~strict=true, ());
 
 open ByteLimit;

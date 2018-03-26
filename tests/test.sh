@@ -107,12 +107,18 @@ run_header_test 'Get' 'GET' 'key: value' \
   '/get'
 
 run_text_test() {
-  print_test_title "$1"    
+  print_test_title "$1"
   curl -X POST -H "Content-Type: text/plain" -d "$3" http://localhost:3000$2 2>&1 >> $TEST_DATA
 }
 
 run_text_test "Can parse text using bodyparser middleware" "/router4/text-body" 'This is a test body'
 
+run_response_header_test() {
+  print_test_title "$1"
+  curl -i -X $2  -w "\nstatus: %{http_code}\n" http://localhost:3000$3 2>&1 | grep -Fi X-Test-Header >> $TEST_DATA
+}
+
+run_test 'Can set response header via setHeader' 'GET' '/response-set-header'
 
 # compare test output to reference data
 
