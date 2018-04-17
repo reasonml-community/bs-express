@@ -370,7 +370,7 @@ module Response = {
   [@bs.send.pipe: t] external sendFile : (string, 'a) => complete = "";
   [@bs.send.pipe: t] external sendString : string => complete = "send";
   [@bs.send.pipe: t] external sendJson : Js.Json.t => complete = "json";
-  [@bs.send.pipe: t] external sendBuffer : Buffer.t => complete = "send";
+  [@bs.send.pipe: t] external sendBuffer : Node.Buffer.t => complete = "send";
   [@bs.send.pipe: t] external sendArray : array('a) => complete = "send";
   [@bs.send.pipe: t] external sendRawStatus : int => complete = "sendStatus";
   let sendStatus = statusCode => sendRawStatus(StatusCode.toInt(statusCode));

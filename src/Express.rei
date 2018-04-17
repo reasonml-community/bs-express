@@ -204,7 +204,7 @@ module Response: {
   let sendFile: (string, 'a, t) => complete;
   let sendString: (string, t) => complete;
   let sendJson: (Js.Json.t, t) => complete;
-  let sendBuffer: (Buffer.t, t) => complete;
+  let sendBuffer: (Node.Buffer.t, t) => complete;
   let sendArray: (array('a), t) => complete;
   let sendRawStatus: (int, t) => complete;
   let sendStatus: (StatusCode.t, t) => complete;
