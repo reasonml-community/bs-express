@@ -307,22 +307,13 @@ module Response = {
         "maxAge": maxAge |> Js.Nullable.fromOption,
         "expires": expiresGMT |> Js.Nullable.fromOption,
         "path": path |> Js.Nullable.fromOption,
-        "httpOnly":
-          httpOnly
-          |> Js.Option.map((. x) => Js.Boolean.to_js_boolean(x))
-          |> Js.Nullable.fromOption,
-        "secure":
-          secure
-          |> Js.Option.map((. x) => Js.Boolean.to_js_boolean(x))
-          |> Js.Nullable.fromOption,
+        "httpOnly": httpOnly |> Js.Nullable.fromOption,
+        "secure": secure |> Js.Nullable.fromOption,
         "sameSite":
           sameSite
           |> Js.Option.map((. x) => sameSiteToJs(x))
           |> Js.Nullable.fromOption,
-        "signed":
-          signed
-          |> Js.Option.map((. x) => Js.Boolean.to_js_boolean(x))
-          |> Js.Nullable.fromOption,
+        "signed": signed |> Js.Nullable.fromOption,
       }
       |> filterKeys,
       response,
@@ -345,22 +336,13 @@ module Response = {
         "maxAge": Js.Nullable.undefined,
         "expires": Js.Nullable.undefined,
         "path": path,
-        "httpOnly":
-          httpOnly
-          |> Js.Option.map((. x) => Js.Boolean.to_js_boolean(x))
-          |> Js.Nullable.fromOption,
-        "secure":
-          secure
-          |> Js.Option.map((. x) => Js.Boolean.to_js_boolean(x))
-          |> Js.Nullable.fromOption,
+        "httpOnly": httpOnly |> Js.Nullable.fromOption,
+        "secure": secure |> Js.Nullable.fromOption,
         "sameSite":
           sameSite
           |> Js.Option.map((. x) => sameSiteToJs(x))
           |> Js.Nullable.fromOption,
-        "signed":
-          signed
-          |> Js.Option.map((. x) => Js.Boolean.to_js_boolean(x))
-          |> Js.Nullable.fromOption,
+        "signed": signed |> Js.Nullable.fromOption,
       }
       |> filterKeys,
       response,
@@ -430,27 +412,27 @@ module Middleware = {
   type t;
   type jsonOptions = {
     .
-    "inflate": Js.boolean,
-    "strict": Js.boolean,
+    "inflate": bool,
+    "strict": bool,
     "limit": Js.nullable(int),
   };
   type urlEncodedOptions = {
     .
-    "extended": Js.boolean,
-    "inflate": Js.boolean,
+    "extended": bool,
+    "inflate": bool,
     "limit": Js.nullable(int),
     "parameterLimit": Js.nullable(int),
   };
   type textOptions = {
     .
     "defaultCharset": string,
-    "inflate": Js.boolean,
+    "inflate": bool,
     "type": string,
     "limit": Js.Nullable.t(int),
   };
   type rawOptions = {
     .
-    "inflate": Js.boolean,
+    "inflate": bool,
     "type": string,
     "limit": Js.Nullable.t(int),
   };
@@ -459,8 +441,8 @@ module Middleware = {
   external urlencoded_ : urlEncodedOptions => t = "urlencoded";
   let json = (~inflate=true, ~strict=true, ~limit=?, ()) =>
     json_({
-      "inflate": inflate |> Js.Boolean.to_js_boolean,
-      "strict": strict |> Js.Boolean.to_js_boolean,
+      "inflate": inflate,
+      "strict": strict,
       "limit": ByteLimit.toBytes(limit),
     });
   [@bs.module "body-parser"] [@bs.val]
@@ -477,13 +459,13 @@ module Middleware = {
       "defaultCharset": defaultCharset,
       "type": fileType,
       "limit": ByteLimit.toBytes(limit),
-      "inflate": inflate |> Js.Boolean.to_js_boolean,
+      "inflate": inflate,
     });
   let urlencoded =
       (~extended=false, ~inflate=true, ~limit=?, ~parameterLimit=?, ()) =>
     urlencoded_({
-      "inflate": inflate |> Js.Boolean.to_js_boolean,
-      "extended": extended |> Js.Boolean.to_js_boolean,
+      "inflate": inflate,
+      "extended": extended,
       "parameterLimit": parameterLimit |> Js.Nullable.fromOption,
       "limit": ByteLimit.toBytes(limit),
     });
@@ -498,7 +480,7 @@ module Middleware = {
     raw_({
       "type": fileType,
       "limit": ByteLimit.toBytes(limit),
-      "inflate": inflate |> Js.Boolean.to_js_boolean,
+      "inflate": inflate,
     });
   module type S = {
     type f;
@@ -655,16 +637,16 @@ module Router = {
     );
   type routerArgs = {
     .
-    "caseSensitive": Js.boolean,
-    "mergeParams": Js.boolean,
-    "strict": Js.boolean,
+    "caseSensitive": bool,
+    "mergeParams": bool,
+    "strict": bool,
   };
   [@bs.module "express"] [@bs.val] external make_ : routerArgs => t = "Router";
   let make = (~caseSensitive=false, ~mergeParams=false, ~strict=false, ()) =>
     make_({
-      "caseSensitive": caseSensitive |> Js.Boolean.to_js_boolean,
-      "mergeParams": mergeParams |> Js.Boolean.to_js_boolean,
-      "strict": strict |> Js.Boolean.to_js_boolean,
+      "caseSensitive": caseSensitive,
+      "mergeParams": mergeParams,
+      "strict": strict,
     });
   external asMiddleware : t => Middleware.t = "%identity";
 };
@@ -705,7 +687,7 @@ module Static = {
   let defaultOptions: unit => options =
     () => (Obj.magic(Js_obj.empty()): options);
   [@bs.set] external dotfiles : (options, string) => unit = "";
-  [@bs.set] external etag : (options, Js.boolean) => unit = "";
+  [@bs.set] external etag : (options, bool) => unit = "";
   /* ... add all the other options */
   type t;
   [@bs.module "express"] external make : (string, options) => t = "static";

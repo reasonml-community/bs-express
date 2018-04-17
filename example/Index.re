@@ -17,7 +17,7 @@ let checkProperty = (req, next, property, k, res) => {
   | None => next(Next.route, res)
   | Some(x) =>
     switch (Js.Json.decodeBoolean(x)) {
-    | Some(b) when true == Js.to_bool(b) => k(res)
+    | Some(b) when b => k(res)
     | _ => next(Next.route, res)
     }
   };
@@ -37,7 +37,7 @@ let checkProperties = (req, next, properties, k, res) => {
    value */
 let setProperty = (req, property, res) => {
   let reqData = Request.asJsonObject(req);
-  Js.Dict.set(reqData, property, Js.Json.boolean(Js.true_));
+  Js.Dict.set(reqData, property, Js.Json.boolean(true));
   res;
 };
 
@@ -52,7 +52,7 @@ let getDictString = (dict, key) =>
 /* make a common JSON object representing success */
 let makeSuccessJson = () => {
   let json = Js.Dict.empty();
-  Js.Dict.set(json, "success", Js.Json.boolean(Js.true_));
+  Js.Dict.set(json, "success", Js.Json.boolean(true));
   Js.Json.object_(json);
 };
 

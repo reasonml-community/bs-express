@@ -38,9 +38,9 @@ body-parser@1.18.2, body-parser@^1.18.2:
     raw-body "2.3.2"
     type-is "~1.6.15"
 
-bs-platform@^2.2.3:
-  version "2.2.3"
-  resolved "https://registry.yarnpkg.com/bs-platform/-/bs-platform-2.2.3.tgz#d905ae10a5f3621e6a739041dfa0b58483a2174f"
+bs-platform@^3.0.0:
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/bs-platform/-/bs-platform-3.0.0.tgz#38f200730db52fdea37819376b6ac3dfb20244c0"
 
 builtin-modules@^1.0.0:
   version "1.1.1"
