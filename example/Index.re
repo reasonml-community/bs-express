@@ -474,7 +474,7 @@ let onListen = (port, e) =>
   | _ => Js.log @@ "Listening at http://127.0.0.1:" ++ string_of_int(port)
   };
 
-App.listen(app, ~onListen=onListen(3000), ());
+App.listen(app, ~port=3000, ~onListen=onListen(3000), ());
 /* Other examples are
    App.listen app ();
    App.listen app port::1000 ();
