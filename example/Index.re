@@ -466,15 +466,15 @@ Middleware.from(_next =>
 
 App.useRouterOnPath(app, ~path="/router4", router4);
 
-let onListen = (port, e) =>
+let onListen = (e) =>
   switch (e) {
   | exception (Js.Exn.Error(e)) =>
     Js.log(e);
     Node.Process.exit(1);
-  | _ => Js.log @@ "Listening at http://127.0.0.1:" ++ string_of_int(port)
+  | _ => Js.log @@ "Listening at http://127.0.0.1:3000"
   };
 
-App.listen(app, ~port=3000, ~onListen=onListen(3000), ());
+App.listen(app, ~port=3000, ~onListen=onListen, ());
 /* Other examples are
    App.listen app ();
    App.listen app port::1000 ();
