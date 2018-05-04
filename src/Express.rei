@@ -384,7 +384,7 @@ module Static: {
   type options;
   let defaultOptions: unit => options;
   let dotfiles: (options, string) => unit;
-  let etag: (options, Js.boolean) => unit;
+  let etag: (options, bool) => unit;
   type t;
 
   /*** [make directory] creates a static middleware for [directory] */
