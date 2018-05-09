@@ -364,6 +364,7 @@ module Response = {
   external redirectCode : (int, string) => complete = "redirect";
   [@bs.send.pipe: t] external redirect : string => complete = "redirect";
   [@bs.send.pipe: t] external setHeader : (string, string) => t = "set";
+  [@bs.send.pipe: t] external setLinks : Js.Dict.t(string) => t = "links";
 };
 
 module Next: {
