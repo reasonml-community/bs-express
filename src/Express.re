@@ -654,6 +654,10 @@ module Router = {
 
 let router = Router.make;
 
+module Http = {
+  type t;
+};
+
 module App = {
   include
     MakeBindFunctions(
@@ -672,7 +676,7 @@ module App = {
   /*** [asMiddleware app] casts an App instance to a Middleware type */
   [@bs.send]
   external listen_ :
-    (t, int, [@bs.uncurry] (Js.Null_undefined.t(Js.Exn.t) => unit)) => unit =
+    (t, int, [@bs.uncurry] (Js.Null_undefined.t(Js.Exn.t) => unit)) => Http.t =
     "listen";
   let listen = (app, ~port=3000, ~onListen=(_) => (), ()) =>
     listen_(app, port, onListen);
