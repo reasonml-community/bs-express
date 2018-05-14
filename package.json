@@ -14,7 +14,7 @@
   },
   "scripts": {
     "build": "bsb -make-world",
-    "start": "npm run-script build && node lib/js/example/",
+    "start": "npm run-script build && node lib/js/example/Index.js",
     "watch-run": "nodemon lib/js/example/",
     "watch": "bsb -make-world -w",
     "clean": "bsb -clean-world",

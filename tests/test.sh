@@ -79,15 +79,15 @@ run_cookie_clear_test 'Can clear cookies' 'GET' '/cookie-clear-test'
 
 
 run_json_test() {
-  print_test_title "$1"    
-  curl  -X POST -H "Content-Type: application/json" -w "\nstatus: %{http_code}" -d "$3" http://localhost:3000$2 2>&1 >> $TEST_DATA  
+  print_test_title "$1"
+  curl  -X POST -H "Content-Type: application/json" -w "\nstatus: %{http_code}" -d "$3" http://localhost:3000$2 2>&1 >> $TEST_DATA
 }
 
 run_json_test 'Can accept JSON using builtin middleware' '/builtin-middleware/json-doubler' '{ "number": 4 }'
 
 run_urlencoded_test() {
-  print_test_title "$1"    
-  curl  -X POST -H "Content-Type: application/x-www-form-urlencoded" -w "\nstatus: %{http_code}" -d "$3" http://localhost:3000$2 2>&1 >> $TEST_DATA  
+  print_test_title "$1"
+  curl  -X POST -H "Content-Type: application/x-www-form-urlencoded" -w "\nstatus: %{http_code}" -d "$3" http://localhost:3000$2 2>&1 >> $TEST_DATA
 }
 
 run_urlencoded_test 'Can accept UrlEncoded body using builtin middleware' '/builtin-middleware/urlencoded-doubler' 'number=4'
@@ -118,7 +118,7 @@ run_response_header_test() {
   curl -i -X $2  -w "\nstatus: %{http_code}\n" http://localhost:3000$3 2>&1 | grep -Fi X-Test-Header >> $TEST_DATA
 }
 
-run_test 'Can set response header via setHeader' 'GET' '/response-set-header'
+run_response_header_test 'Can set response header via setHeader' 'GET' '/response-set-header'
 
 # compare test output to reference data
 
