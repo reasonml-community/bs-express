@@ -466,7 +466,7 @@ Middleware.from(_next =>
 
 App.useRouterOnPath(app, ~path="/router4", router4);
 
-let onListen = (e) =>
+let onListen = e =>
   switch (e) {
   | exception (Js.Exn.Error(e)) =>
     Js.log(e);
@@ -474,7 +474,32 @@ let onListen = (e) =>
   | _ => Js.log @@ "Listening at http://127.0.0.1:3000"
   };
 
-App.listen(app, ~port=3000, ~onListen=onListen, ());
+let server = App.listen(app, ~port=3000, ~onListen, ());
+
+let countRequestsInJavascript: (HttpServer.t, unit) => int = [%bs.raw
+  {|
+    function setupEnpointWithHttpServer(server) {
+      let count = 0;
+      server.on('request', (req, res) => ++count)
+      return () => {
+        const result = count;
+        count = -1 // reset the count
+        return result
+      }
+    }
+  |}
+];
+
+let getRequestsCount = countRequestsInJavascript(server);
+
+App.post(app, ~path="/get-request-count") @@
+Middleware.from((_, _) =>
+  Response.sendString(
+    "The server has been called "
+    ++ string_of_int(getRequestsCount())
+    ++ " times.",
+  )
+);
 /* Other examples are
    App.listen app ();
    App.listen app port::1000 ();

@@ -202,3 +202,6 @@ status: 200
 This is a test body
 -- Can set response header via setHeader--
 X-Test-Header: Set
+
+-- Can the user user the javascipt http object directly--
+The server has been called 44 times.
