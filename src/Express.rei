@@ -356,6 +356,8 @@ module Router: {
   let asMiddleware: t => Middleware.t;
 };
 
+module HttpServer: {type t;};
+
 let router:
   (~caseSensitive: bool=?, ~mergeParams: bool=?, ~strict: bool=?, unit) =>
   Router.t;
@@ -373,7 +375,7 @@ module App: {
       ~onListen: Js.null_undefined(Js.Exn.t) => unit=?,
       unit
     ) =>
-    unit;
+    HttpServer.t;
 };
 
 
