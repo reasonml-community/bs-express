@@ -120,6 +120,13 @@ run_response_header_test() {
 
 run_response_header_test 'Can set response header via setHeader' 'GET' '/response-set-header'
 
+run_http_server_test() {
+  print_test_title "$1"
+  curl -i -X $2  -w "\nstatus: %{http_code}\n" http://localhost:3000$3 2>&1 | grep -Fi X-Test-Header >> $TEST_DATA
+}
+
+run_text_test "Can the user user the javascipt http object directly" "/get-request-count"
+
 # compare test output to reference data
 
 REFERENCE_DATA=reference.data
