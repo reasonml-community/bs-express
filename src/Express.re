@@ -690,11 +690,21 @@ let express = App.make;
      Alias for [App.make ()] */
 module Static = {
   type options;
+  type stat;
   let defaultOptions: unit => options =
     () => (Obj.magic(Js_obj.empty()): options);
   [@bs.set] external dotfiles : (options, string) => unit = "";
   [@bs.set] external etag : (options, bool) => unit = "";
-  /* ... add all the other options */
+  [@bs.set] external extensions : (options, array(string)) => unit = "";
+  [@bs.set] external fallthrough : (options, bool) => unit = "";
+  [@bs.set] external immutable : (options, bool) => unit = "";
+  [@bs.set] external indexBool : (options, bool) => unit = "index";
+  [@bs.set] external indexString : (options, string) => unit = "index";
+  [@bs.set] external lastModified : (options, bool) => unit = "";
+  [@bs.set] external maxAge : (options, int) => unit = "";
+  [@bs.set] external redirect : (options, bool) => unit = "";
+  [@bs.set] external setHeaders : (options, (Request.t, string, stat) => unit) => unit = "";
+
   type t;
   [@bs.module "express"] external make : (string, options) => t = "static";
 
