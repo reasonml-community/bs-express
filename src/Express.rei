@@ -385,9 +385,19 @@ let express: unit => App.t;
 
 module Static: {
   type options;
+  type stat;
   let defaultOptions: unit => options;
   let dotfiles: (options, string) => unit;
   let etag: (options, bool) => unit;
+  let extensions: (options, array(string)) => unit;
+  let fallthrough: (options, bool) => unit;
+  let immutable: (options, bool) => unit;
+  let indexBool: (options, bool) => unit;
+  let indexString: (options, string) => unit;
+  let lastModified: (options, bool) => unit;
+  let maxAge: (options, int) => unit;
+  let redirect: (options, bool) => unit;
+  let setHeaders: (options, (Request.t, string, stat) => unit) => unit;
   type t;
 
   /*** [make directory] creates a static middleware for [directory] */
