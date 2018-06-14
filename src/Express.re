@@ -580,13 +580,17 @@ module type Routable = {
   let use: (t, Middleware.t) => unit;
   let useWithMany: (t, array(Middleware.t)) => unit;
   let useOnPath: (t, ~path: string, Middleware.t) => unit;
+  let useOnManyPaths: (t, ~paths: array(string), Middleware.t) => unit;
   let useOnPathWithMany: (t, ~path: string, array(Middleware.t)) => unit;
   let get: (t, ~path: string, Middleware.t) => unit;
+  let getOnManyPaths: (t, ~paths: array(string), Middleware.t) => unit;
   let getWithMany: (t, ~path: string, array(Middleware.t)) => unit;
   let param: (t, ~name: string, Middleware.t) => unit;
   let post: (t, ~path: string, Middleware.t) => unit;
+  let postOnManyPaths: (t, ~paths: array(string), Middleware.t) => unit;
   let postWithMany: (t, ~path: string, array(Middleware.t)) => unit;
   let put: (t, ~path: string, Middleware.t) => unit;
+  let putOnManyPaths: (t, ~paths: array(string), Middleware.t) => unit;
   let putWithMany: (t, ~path: string, array(Middleware.t)) => unit;
   let patch: (t, ~path: string, Middleware.t) => unit;
   let patchWithMany: (t, ~path: string, array(Middleware.t)) => unit;
@@ -602,20 +606,25 @@ module MakeBindFunctions = (T: {type t;}) : (Routable with type t = T.t) => {
   [@bs.send]
   external useOnPath : (T.t, ~path: string, Middleware.t) => unit = "use";
   [@bs.send]
+  external useOnManyPaths : (T.t, ~paths: array(string), Middleware.t) => unit = "use";
+  [@bs.send]
   external useOnPathWithMany :
     (T.t, ~path: string, array(Middleware.t)) => unit =
     "use";
   [@bs.send] external get : (T.t, ~path: string, Middleware.t) => unit = "";
+  [@bs.send] external getOnManyPaths : (T.t, ~paths: array(string), Middleware.t) => unit = "get";
   [@bs.send]
   external getWithMany : (T.t, ~path: string, array(Middleware.t)) => unit =
     "get";
   [@bs.send]
   external param : (T.t, ~name: string, Middleware.t) => unit = "param";
   [@bs.send] external post : (T.t, ~path: string, Middleware.t) => unit = "";
+  [@bs.send] external postOnManyPaths : (T.t, ~paths: array(string), Middleware.t) => unit = "post";
   [@bs.send]
   external postWithMany : (T.t, ~path: string, array(Middleware.t)) => unit =
     "post";
   [@bs.send] external put : (T.t, ~path: string, Middleware.t) => unit = "";
+  [@bs.send] external putOnManyPaths : (T.t, ~paths: array(string), Middleware.t) => unit = "put";
   [@bs.send]
   external putWithMany : (T.t, ~path: string, array(Middleware.t)) => unit =
     "put";
