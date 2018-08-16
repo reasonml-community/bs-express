@@ -284,7 +284,7 @@ module Response = {
     let result = toDict(obj);
     result
     |> Js.Dict.entries
-    |> Js.Array.filter(((_key, value)) => ! Js.Nullable.test(value))
+    |> Js.Array.filter(((_key, value)) => ! Js.Nullable.isNullable(value))
     |> Js.Dict.fromArray;
   };
   let cookie =
