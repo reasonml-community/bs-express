@@ -577,6 +577,7 @@ module PromiseMiddleware =
 
 module type Routable = {
   type t;
+  let disable: (t, key: string) => unit;
   let use: (t, Middleware.t) => unit;
   let useWithMany: (t, array(Middleware.t)) => unit;
   let useOnPath: (t, ~path: string, Middleware.t) => unit;
@@ -596,6 +597,7 @@ module type Routable = {
 
 module MakeBindFunctions = (T: {type t;}) : (Routable with type t = T.t) => {
   type t = T.t;
+  [@bs.send] external disable: (T.t, key: string) => unit = "";
   [@bs.send] external use : (T.t, Middleware.t) => unit = "";
   [@bs.send]
   external useWithMany : (T.t, array(Middleware.t)) => unit = "use";
