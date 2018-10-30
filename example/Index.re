@@ -58,7 +58,7 @@ let makeSuccessJson = () => {
 
 let app = express();
 
-App.disable(app, "x-powered-by");
+App.disable(app, ~name="x-powered-by");
 
 App.useOnPath(app, ~path="/") @@
 Middleware.from((next, req, res) =>
