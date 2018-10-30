@@ -330,7 +330,6 @@ module PromiseMiddleware:
 
 module type Routable = {
   type t;
-  let disable: (t, ~name: string) => unit;
   let use: (t, Middleware.t) => unit;
   let useWithMany: (t, array(Middleware.t)) => unit;
   let useOnPath: (t, ~path: string, Middleware.t) => unit;
@@ -377,6 +376,7 @@ module App: {
       unit
     ) =>
     HttpServer.t;
+  let disable: (t, ~name: string) => unit;
 };
 
 
