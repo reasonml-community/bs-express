@@ -378,6 +378,7 @@ module App: {
       unit
     ) =>
     HttpServer.t;
+  let disable: (t, ~name: string) => unit;
 };
 
 

@@ -686,6 +686,7 @@ module App = {
     "listen";
   let listen = (app, ~port=3000, ~onListen=(_) => (), ()) =>
     listen_(app, port, onListen);
+  [@bs.send] external disable: (t, ~name: string) => unit = "";
 };
 
 let express = App.make;
