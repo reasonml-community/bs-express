@@ -583,6 +583,8 @@ module type Routable = {
   let useOnPathWithMany: (t, ~path: string, array(Middleware.t)) => unit;
   let get: (t, ~path: string, Middleware.t) => unit;
   let getWithMany: (t, ~path: string, array(Middleware.t)) => unit;
+  let options: (t, ~path: string, Middleware.t) => unit;
+  let optionsWithMany: (t, ~path: string, array(Middleware.t)) => unit;
   let param: (t, ~name: string, Middleware.t) => unit;
   let post: (t, ~path: string, Middleware.t) => unit;
   let postWithMany: (t, ~path: string, array(Middleware.t)) => unit;
@@ -609,6 +611,9 @@ module MakeBindFunctions = (T: {type t;}) : (Routable with type t = T.t) => {
   [@bs.send]
   external getWithMany : (T.t, ~path: string, array(Middleware.t)) => unit =
     "get";
+  [@bs.send] external options : (T.t, ~path: string, Middleware.t) => unit = "";
+  [@bs.send] external optionsWithMany : (T.t, ~path: string, array(Middleware.t))
+    => unit = "options";
   [@bs.send]
   external param : (T.t, ~name: string, Middleware.t) => unit = "param";
   [@bs.send] external post : (T.t, ~path: string, Middleware.t) => unit = "";
