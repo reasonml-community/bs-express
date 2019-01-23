@@ -66,6 +66,12 @@ module Request: {
        sign is private). **/
   let signedCookies: t => option(Js.Dict.t(Js.Json.t));
 
+  /*** When using session middleware 
+       this property will contain properties attached to the request.
+       If the request contains no session-data,
+       it defaults to {} */
+  let session: t => option(Js.Dict.t(Js.Json.t));
+
   /*** [hostname request] Contains the hostname derived from the Host
        HTTP header.*/
   let hostname: t => string;

@@ -84,6 +84,13 @@ module Request = {
   [@bs.get] [@bs.return null_undefined_to_opt]
   external signedCookies : t => option(Js.Dict.t(Js.Json.t)) = "";
 
+  /*** When using session middleware 
+       this property will contain properties attached to the request.
+       If the request contains no session-data,
+       it defaults to {} */
+  [@bs.get] [@bs.return null_undefined_to_opt]
+  external session : t => option(Js.Dict.t(Js.Json.t)) = "";
+
   /*** When using cookie-parser middleware, this property contains signed cookies
        sent by the request, unsigned and ready for use. Signed cookies reside in
        a different object to show developer intent; otherwise, a malicious attack
