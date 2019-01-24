@@ -244,6 +244,7 @@ module Response: {
   let redirect: (string, t) => complete;
   let setHeader: (string, string, t) => t;
   let setLinks: (Js.Dict.t(string), t) => t;
+  let end_: t => complete;
 };
 
 module Next: {
