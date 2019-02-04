@@ -9,7 +9,7 @@ npm install --save bs-express
 ```
 Then add bs-express as a dependency to `bsconfig.json`
 
-Right now the library is somewhat underdocumented, so please view the interface file [`Express.rei`](./src/Express.rei) or the example folder to see library usage.
+Right now the library is somewhat underdocumented, so please view the interface file [`Express.rei`](./src/Express.rei) or the [example folder](./example/) to see library usage.
 
 ### Run the example and tests:
 
