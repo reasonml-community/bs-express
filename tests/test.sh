@@ -27,7 +27,7 @@ run_test() {
   print_test_url "$2" "$3" "$4"
 }
 
-# Run †est server in background and save PID
+# Run test server in background and save PID
 cd ..
 node lib/js/example/Index.js &
 TEST_SERVER_PID=$!
