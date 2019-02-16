@@ -27,7 +27,9 @@ run_test() {
   print_test_url "$2" "$3" "$4"
 }
 
-
+# Run †est server in background and save PID
+node ../lib/js/example/Index.js &
+TEST_SERVER_PID=$!
 
 clean_previous_test;
 
@@ -126,6 +128,9 @@ run_http_server_test() {
 }
 
 run_text_test "Can the user user the javascipt http object directly" "/get-request-count"
+
+# Stop server
+kill TEST_SERVER_PID
 
 # compare test output to reference data
 
