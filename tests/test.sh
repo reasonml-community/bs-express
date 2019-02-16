@@ -19,7 +19,9 @@ function print_test_title() {
 }
 
 print_test_url() {
-  curl --cookie-jar - -X $1  -w "\nstatus: %{http_code}" http://localhost:3000$2 2>&1 >> $TEST_DATA
+  # --cookie-jar outputs a comment header that differs between curl versions,
+  # so use grep to filter it out
+  curl --cookie-jar - -X $1  -w "\nstatus: %{http_code}" http://localhost:3000$2 | grep "^[^#]" 2>&1 >> $TEST_DATA
 }
 
 run_test() {
