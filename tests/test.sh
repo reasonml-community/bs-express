@@ -130,7 +130,7 @@ run_http_server_test() {
 run_text_test "Can the user user the javascipt http object directly" "/get-request-count"
 
 # Stop server
-kill TEST_SERVER_PID
+kill $TEST_SERVER_PID
 
 # compare test output to reference data
 
