@@ -19,7 +19,9 @@ function print_test_title() {
 }
 
 print_test_url() {
-  curl --cookie-jar - -X $1  -w "\nstatus: %{http_code}" http://localhost:3000$2 2>&1 >> $TEST_DATA
+  # --cookie-jar outputs a comment header that differs between curl versions,
+  # so use grep to filter it out
+  curl --cookie-jar - -X $1  -w "\nstatus: %{http_code}" http://localhost:3000$2 | grep "^[^#]" 2>&1 >> $TEST_DATA
 }
 
 run_test() {
@@ -27,7 +29,14 @@ run_test() {
   print_test_url "$2" "$3" "$4"
 }
 
+# Run test server in background and save PID
+cd ..
+node lib/js/example/Index.js &
+TEST_SERVER_PID=$!
+cd tests
 
+# Ugly hack to wait for the server to start
+sleep 2s
 
 clean_previous_test;
 
@@ -120,12 +129,10 @@ run_response_header_test() {
 
 run_response_header_test 'Can set response header via setHeader' 'GET' '/response-set-header'
 
-run_http_server_test() {
-  print_test_title "$1"
-  curl -i -X $2  -w "\nstatus: %{http_code}\n" http://localhost:3000$3 2>&1 | grep -Fi X-Test-Header >> $TEST_DATA
-}
-
 run_text_test "Can the user user the javascipt http object directly" "/get-request-count"
+
+# Stop server
+kill $TEST_SERVER_PID
 
 # compare test output to reference data
 
