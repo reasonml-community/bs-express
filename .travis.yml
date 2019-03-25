@@ -1,7 +1,7 @@
 language: node_js
 cache: yarn
 node_js:
-  - '9'
+  - "9"
 script:
   - yarn run build
   - npm test
@@ -9,7 +9,7 @@ deploy:
   provider: npm
   email: nick@cuthbert.co.za
   api_key:
-    secure: ig1zTAhHwX8XpP0jJx22zMnJc4t2l8/3tuwt5JoA/duPDJAgrz53xVn2fIfHEGX0ZRv2f5O3tB40QFgt3Zde9gqKY9ETluObaBmZ6/5KwttndxD9gGMjRhRFY0Y4/v5RauxbRF7Zq7bgOQr9FqjP+VgK/kabcDE++HRZ2pb5EipuO3IPiDgJJngd3eP1koVXYWXSuXBBCNhh5ZTI999sBq217zhtJz76DjT5qDtVcdCgRcrQ/0LaXmqjGZuqWvncO4Bq5uR9Brl4RZg86LpMCgmlncRPZv1kxE4+b3cpTZnWQ0u3C4oUON6fuQOWWt3FAs832I7pDa+bhawNAqZR8flzn0iPl6fgxPTDMX9xWA/l/rwbgf6o8w2lYTBtXT5reasr79vCmMq2tVPMa36bGndDBfAaI4JTuRDxr+KCMB+Su2pWLuKR5fRv/+IPs37IndUfGZJNZXq12iXY7YZWDVUPf+duLQi3JdVKUZrWPUspQXOu9K3LskwLu23XgoflSd5i2mxWrgAPxdTh9b/0xbSJ/UqLJO8T7aACp76ZAC9REgIeofsjQfuMD2fD8oidER8sb89MXo+PlujOBVk4kJQtXCa1CLyilbsF1gJc0DSoWhG7EyaaJNZsLLwGP78zeFYhokmJI7OQZJpxdBoUmBNGqt16h46epmi1hxYqzNI=
+    secure: OiI28IMnf3nR4gnch8EeY9bZF5pqLzgmJBN+bmoJsBEjgOoKMMDuH2QNOlFUjiDmzWNwlVjYoQN9aGMChVubd1eRt2leeaubCJK98/6EA1TU8JkjI09dnArdrNmz+QORpofSCz3EXgg+C9obcDUMv6SdiX22KX8fuNk+i2L0sp1CSSUk6//ADdDMKLiDAUEVPSRSzuCfC3RpeSN2BL907mE9UcKq0IDaYCxrJ76+lk0gj7gXafLddGnMacvNdguiH8Ur/Y3JuTvqTHa4ZPyqsTAedrz34J++aA2yw//ci89F+HWXltL+eBSePwxEk7q8DYkRz1b98TjGApwFmwB866HwCrfP8oEJGBSUS4W6vy4PLeHsl6HSxBEMd1prtG6jADa/vvBvOTcgKlvacRG8Sl/eVoGdlbTE3iRHNXqvA8/Olsfu2Fu6HGXsZUPjAH45NzozEgygD0f6pJvz9Wa+JLmnqLd5xO6mdnJSRlRPTOw4yPaEopP6ksvJ/PHyAmVXzwMzCn0dyAtOVPqYM5C3Qtlao0/gj6GpQjwfZGQq9MrBhWjYwM6MLHrDBsTtmi8nDiJ13adx16vdOVo0O5hr06Slpyq2iTRt6I3ZkrzSrrlL+J9aQ5rW+xcYcoKv+BJSdeNu7/2BssUJR6rPxe5F0+BfNawHQ5u/7N8I9y51Kko=
   on:
     tags: true
     branch: master
