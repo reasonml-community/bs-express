@@ -3,3 +3,5 @@
 .merlin
 *.log
 /tests/
+/static/
+/example/
