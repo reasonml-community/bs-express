@@ -5,3 +5,5 @@
 *.log
 .bsb.lock
 tests/test.data
+package-lock.json
+yarn.lock
