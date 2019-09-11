@@ -359,7 +359,13 @@ module Router: {
   let asMiddleware: t => Middleware.t;
 };
 
-module HttpServer: {type t;};
+module HttpServer: {
+  type t;
+  let on: (t, [
+    | `request((Request.t, Response.t) => unit)
+    | `close(unit => unit)
+  ]) => unit
+};
 
 let router:
   (~caseSensitive: bool=?, ~mergeParams: bool=?, ~strict: bool=?, unit) =>
