@@ -478,21 +478,17 @@ let onListen = e =>
 
 let server = App.listen(app, ~port=3000, ~onListen, ());
 
-let countRequestsInJavascript: (HttpServer.t, unit) => int = [%bs.raw
-  {|
-    function setupEnpointWithHttpServer(server) {
-      let count = 0;
-      server.on('request', (req, res) => ++count)
-      return () => {
-        const result = count;
-        count = -1 // reset the count
-        return result
-      }
-    }
-  |}
-];
+let countRequests = server => {
+  let count = ref(0);
+  HttpServer.on(server, `request((_, _) => count := count^ + 1));
+  () => {
+    let result = count^;
+    count := (-1);
+    result;
+  };
+};
 
-let getRequestsCount = countRequestsInJavascript(server);
+let getRequestsCount = countRequests(server);
 
 App.post(app, ~path="/get-request-count") @@
 Middleware.from((_, _) =>

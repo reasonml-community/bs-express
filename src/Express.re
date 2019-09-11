@@ -662,6 +662,10 @@ let router = Router.make;
 
 module HttpServer = {
   type t;
+  [@bs.send] external on : (t, [@bs.string] [
+    | `request((Request.t, Response.t) => unit)
+    | `close(unit => unit)
+  ]) => unit = "";
 };
 
 module App = {
