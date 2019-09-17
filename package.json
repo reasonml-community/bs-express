@@ -4,11 +4,11 @@
   "description": "Express bindings in Reason",
   "main": "index.js",
   "dependencies": {
+    "body-parser": "^1.18.3",
     "express": "^4.16.3"
   },
   "devDependencies": {
     "@glennsl/bs-json": "^3.0.0",
-    "body-parser": "^1.18.3",
     "bs-platform": "^5.0.2",
     "husky": "^1.0.0-rc.13"
   },
