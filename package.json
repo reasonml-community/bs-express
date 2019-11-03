@@ -1,6 +1,6 @@
 {
   "name": "bs-express",
-  "version": "0.12.1",
+  "version": "1.0.0",
   "description": "Express bindings in Reason",
   "main": "index.js",
   "dependencies": {
@@ -9,7 +9,7 @@
   },
   "devDependencies": {
     "@glennsl/bs-json": "^3.0.0",
-    "bs-platform": "^5.0.2",
+    "bs-platform": "^5.2.1",
     "husky": "^1.0.0-rc.13"
   },
   "scripts": {
