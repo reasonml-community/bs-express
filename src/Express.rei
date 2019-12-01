@@ -220,6 +220,7 @@ module Response: {
       ~signed: bool=?,
       ~path: string=?,
       ~sameSite: [ | `Lax | `Strict]=?,
+      ~domain: string=?,
       Js.Json.t,
       t
     ) =>

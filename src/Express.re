@@ -297,6 +297,7 @@ module Response = {
         ~signed=?,
         ~path=?,
         ~sameSite: option(sameSite)=?,
+        ~domain=?,
         value,
         response,
       ) => {
@@ -314,6 +315,7 @@ module Response = {
           |> Js.Option.map((. x) => sameSiteToJs(x))
           |> Js.Nullable.fromOption,
         "signed": signed |> Js.Nullable.fromOption,
+        "domain": domain |> Js.Nullable.fromOption,
       }
       |> filterKeys,
       response,

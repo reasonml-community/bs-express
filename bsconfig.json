@@ -13,5 +13,8 @@
   "bs-dev-dependencies": [
     "@glennsl/bs-json"
   ],
-  "refmt": 3
+  "refmt": 3,
+  "warnings": {
+    "number": "-105"
+  }
 }
