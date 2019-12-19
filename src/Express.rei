@@ -244,6 +244,7 @@ module Response: {
   let redirectCode: (int, string, t) => complete;
   let redirect: (string, t) => complete;
   let setHeader: (string, string, t) => t;
+  let setType: (string, t) => t;
   let setLinks: (Js.Dict.t(string), t) => t;
   let end_: t => complete;
 };
