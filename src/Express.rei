@@ -383,6 +383,7 @@ module App: {
     (
       t,
       ~port: int=?,
+      ~hostname: string=?,
       ~onListen: Js.null_undefined(Js.Exn.t) => unit=?,
       unit
     ) =>
