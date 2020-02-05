@@ -2,22 +2,51 @@
 
 Express bindings for [BuckleScript](https://github.com/bloomberg/bucklescript) in [Reason](https://github.com/facebook/reason).
 
-## Getting Started
-Install bs-express using npm:
+## Installing
+
+1. Install `bs-express` using npm:
+
 ```
 npm install --save bs-express
 ```
-Then add bs-express as a dependency to `bsconfig.json`
+
+2. Add bs-express as a dependency to your `bsconfig.json`:
+
+```json
+{
+  "name": "your-project",
+  "bs-dependencies": ["bs-express"]
+}
+```
+
+---
 
 Right now the library is somewhat underdocumented, so please view the interface file [`Express.rei`](./src/Express.rei) or the [example folder](./example/) to see library usage.
 
-### Run the example and tests:
+---
 
-Build and start the server:
+## Contributing
+
+If you'd like to contribute, you can follow the instructions below to get things working locally.
+
+### Getting Started
+
+1. After cloning the repo, install the dependencies
+
+```shell
+npm install
 ```
+
+2. Build and start the example server:
+
+```shell
 npm start
 ```
-Run the tests:
-```
+
+### Running the tests
+
+To run tests, run the command:
+
+```shell
 npm test
 ```
