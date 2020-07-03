@@ -57,6 +57,10 @@ let makeSuccessJson = () => {
 };
 
 let app = express();
+/*
+  If you would like to set view engine
+  App.set(app, "view engine", "pug");
+ */
 
 App.disable(app, ~name="x-powered-by");
 
@@ -164,6 +168,14 @@ App.deleteWithMany(
     }),
   |],
 );
+
+/* If you have setted up view engine then you can uncomment that "get"
+App.get(app, ~path="/render") @@
+Middleware.from((_, _) => {
+   let dict: Js.Dict.t(string) = Js.Dict.empty();
+   Response.render("index", dict, ());
+});
+*/
 
 App.get(app, ~path="/baseUrl") @@
 Middleware.from((next, req) =>

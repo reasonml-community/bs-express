@@ -369,6 +369,7 @@ module Response = {
   [@bs.send.pipe: t] external setType : (string) => t = "type";
   [@bs.send.pipe: t] external setLinks : Js.Dict.t(string) => t = "links";
   [@bs.send.pipe: t] external end_ : complete = "end";
+  [@bs.send.pipe: t] external render: (string, Js.Dict.t(string), 'a) => complete = "render";
 };
 
 module Next: {
@@ -695,6 +696,7 @@ module App = {
   let listen = (app, ~port=3000, ~hostname="0.0.0.0", ~onListen=(_) => (), ()) =>
     listen_(app, port, hostname, onListen);
   [@bs.send] external disable: (t, ~name: string) => unit = "";
+  [@bs.send] external set: (t, string, string) => unit = "set";
 };
 
 let express = App.make;

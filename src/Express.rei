@@ -247,6 +247,7 @@ module Response: {
   let setType: (string, t) => t;
   let setLinks: (Js.Dict.t(string), t) => t;
   let end_: t => complete;
+  let render: (string, Js.Dict.t(string), 'a, t) => complete;
 };
 
 module Next: {
@@ -389,6 +390,7 @@ module App: {
     ) =>
     HttpServer.t;
   let disable: (t, ~name: string) => unit;
+  let set: (t, string, string) => unit;
 };
 
 
