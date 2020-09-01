@@ -219,7 +219,7 @@ module Response: {
       ~secure: bool=?,
       ~signed: bool=?,
       ~path: string=?,
-      ~sameSite: [ | `Lax | `Strict]=?,
+      ~sameSite: [ | `Lax | `Strict | `None]=?,
       ~domain: string=?,
       Js.Json.t,
       t
@@ -236,7 +236,7 @@ module Response: {
       ~secure: bool=?,
       ~signed: bool=?,
       ~path: string=?,
-      ~sameSite: [ | `Lax | `Strict]=?,
+      ~sameSite: [ | `Lax | `Strict | `None]=?,
       t
     ) =>
     t;
