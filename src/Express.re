@@ -5,15 +5,15 @@ module Error = {
 
   /*** Error type */
   [@bs.send] [@bs.return null_undefined_to_opt]
-  external message : Js_exn.t => option(string) = "";
+  external message : Js_exn.t => option(string) = "message";
   [@bs.send] [@bs.return null_undefined_to_opt]
-  external name : Js_exn.t => option(string) = "";
+  external name : Js_exn.t => option(string) = "name";
 };
 
 module Request = {
   type t;
   type params = Js_dict.t(Js_json.t);
-  [@bs.get] external params : t => params = "";
+  [@bs.get] external params : t => params = "params";
 
   /*** [params request] return the JSON object filled with the
        request parameters */
@@ -23,7 +23,7 @@ module Request = {
        common in Express application to use the Request object as a
        placeholder to maintain state through the various middleware which
        are executed. */
-  [@bs.get] external baseUrl : t => string = "";
+  [@bs.get] external baseUrl : t => string = "baseUrl";
   [@bs.get] external body_ : t => 'a = "body";
 
   /*** When using the json body-parser middleware and receiving a request with a
@@ -76,13 +76,13 @@ module Request = {
        with a content type of "application/x-www-form-urlencoded", this property
        is a Js.Dict.t string that contains the body sent by the request. **/
   [@bs.get] [@bs.return null_undefined_to_opt]
-  external cookies : t => option(Js.Dict.t(Js.Json.t)) = "";
+  external cookies : t => option(Js.Dict.t(Js.Json.t)) = "cookies";
 
   /*** When using cookie-parser middleware, this property is an object
        that contains cookies sent by the request. If the request contains
        no cookies, it defaults to {}.*/
   [@bs.get] [@bs.return null_undefined_to_opt]
-  external signedCookies : t => option(Js.Dict.t(Js.Json.t)) = "";
+  external signedCookies : t => option(Js.Dict.t(Js.Json.t)) = "signedCookies";
 
   /*** When using cookie-parser middleware, this property contains signed cookies
        sent by the request, unsigned and ready for use. Signed cookies reside in
@@ -91,17 +91,17 @@ module Request = {
        Note that signing a cookie does not make it “hidden” or encrypted;
        but simply prevents tampering (because the secret used to
        sign is private). **/
-  [@bs.get] external hostname : t => string = "";
+  [@bs.get] external hostname : t => string = "hostname";
 
   /*** [hostname request] Contains the hostname derived from the Host
        HTTP header.*/
-  [@bs.get] external ip : t => string = "";
+  [@bs.get] external ip : t => string = "ip";
 
   /*** [ip request] Contains the remote IP address of the request.*/
-  [@bs.get] external fresh : t => bool = "";
+  [@bs.get] external fresh : t => bool = "fresh";
 
   /*** [fresh request] returns [true] whether the request is "fresh" */
-  [@bs.get] external stale : t => bool = "";
+  [@bs.get] external stale : t => bool = "stale";
 
   /*** [stale request] returns [true] whether the request is "stale"*/
   [@bs.get] external methodRaw : t => string = "method";
@@ -132,11 +132,11 @@ module Request = {
 
   /*** [method_ request] return a string corresponding to the HTTP
        method of the request: GET, POST, PUT, and so on */
-  [@bs.get] external originalUrl : t => string = "";
+  [@bs.get] external originalUrl : t => string = "originalUrl";
 
   /*** [originalUrl request] returns the original url. See
        https://expressjs.com/en/4x/api.html#req.originalUrl */
-  [@bs.get] external path : t => string = "";
+  [@bs.get] external path : t => string = "path";
 
   /*** [path request] returns the path part of the request URL.*/
   type protocol =
@@ -156,10 +156,10 @@ module Request = {
 
   /*** [protocol request] returns the request protocol string: either http
        or (for TLS requests) https. */
-  [@bs.get] external secure : t => bool = "";
+  [@bs.get] external secure : t => bool = "secure";
 
   /*** [secure request] returns [true] if a TLS connection is established */
-  [@bs.get] external query : t => Js.Dict.t(Js.Json.t) = "";
+  [@bs.get] external query : t => Js.Dict.t(Js.Json.t) = "query";
 
   /*** [query request] returns an object containing a property for each
        query string parameter in the route. If there is no query string,
@@ -197,11 +197,11 @@ module Request = {
       };
     };
   [@bs.send.pipe: t] [@bs.return null_undefined_to_opt]
-  external get : string => option(string) = "";
+  external get : string => option(string) = "get";
 
   /*** [get return field] returns the specified HTTP request header
        field (case-insensitive match) */
-  [@bs.get] external xhr : t => bool = "";
+  [@bs.get] external xhr : t => bool = "xhr";
   /*** [xhr request] returns [true] if the request’s X-Requested-With
        header field is "XMLHttpRequest", indicating that the request was
        issued by a client library such as jQuery */
@@ -351,7 +351,7 @@ module Response = {
     );
     response;
   };
-  [@bs.send.pipe: t] external sendFile : (string, 'a) => complete = "";
+  [@bs.send.pipe: t] external sendFile : (string, 'a) => complete = "sendFile";
   [@bs.send.pipe: t] external sendString : string => complete = "send";
   [@bs.send.pipe: t] external sendJson : Js.Json.t => complete = "json";
   [@bs.send.pipe: t] external sendBuffer : Node.Buffer.t => complete = "send";
@@ -361,7 +361,7 @@ module Response = {
   [@bs.send.pipe: t] external rawStatus : int => t = "status";
   let status = statusCode => rawStatus(StatusCode.toInt(statusCode));
   [@bs.send.pipe: t] [@ocaml.deprecated "Use sendJson instead`"]
-  external json : Js.Json.t => complete = "";
+  external json : Js.Json.t => complete = "json";
   [@bs.send.pipe: t]
   external redirectCode : (int, string) => complete = "redirect";
   [@bs.send.pipe: t] external redirect : string => complete = "redirect";
@@ -603,7 +603,7 @@ module type Routable = {
 
 module MakeBindFunctions = (T: {type t;}) : (Routable with type t = T.t) => {
   type t = T.t;
-  [@bs.send] external use : (T.t, Middleware.t) => unit = "";
+  [@bs.send] external use : (T.t, Middleware.t) => unit = "use";
   [@bs.send]
   external useWithMany : (T.t, array(Middleware.t)) => unit = "use";
   [@bs.send]
@@ -612,28 +612,28 @@ module MakeBindFunctions = (T: {type t;}) : (Routable with type t = T.t) => {
   external useOnPathWithMany :
     (T.t, ~path: string, array(Middleware.t)) => unit =
     "use";
-  [@bs.send] external get : (T.t, ~path: string, Middleware.t) => unit = "";
+  [@bs.send] external get : (T.t, ~path: string, Middleware.t) => unit = "get";
   [@bs.send]
   external getWithMany : (T.t, ~path: string, array(Middleware.t)) => unit =
     "get";
-  [@bs.send] external options : (T.t, ~path: string, Middleware.t) => unit = "";
+  [@bs.send] external options : (T.t, ~path: string, Middleware.t) => unit = "options";
   [@bs.send] external optionsWithMany : (T.t, ~path: string, array(Middleware.t))
     => unit = "options";
   [@bs.send]
   external param : (T.t, ~name: string, Middleware.t) => unit = "param";
-  [@bs.send] external post : (T.t, ~path: string, Middleware.t) => unit = "";
+  [@bs.send] external post : (T.t, ~path: string, Middleware.t) => unit = "post";
   [@bs.send]
   external postWithMany : (T.t, ~path: string, array(Middleware.t)) => unit =
     "post";
-  [@bs.send] external put : (T.t, ~path: string, Middleware.t) => unit = "";
+  [@bs.send] external put : (T.t, ~path: string, Middleware.t) => unit = "put";
   [@bs.send]
   external putWithMany : (T.t, ~path: string, array(Middleware.t)) => unit =
     "put";
-  [@bs.send] external patch : (T.t, ~path: string, Middleware.t) => unit = "";
+  [@bs.send] external patch : (T.t, ~path: string, Middleware.t) => unit = "patch";
   [@bs.send]
   external patchWithMany : (T.t, ~path: string, array(Middleware.t)) => unit =
     "patch";
-  [@bs.send] external delete : (T.t, ~path: string, Middleware.t) => unit = "";
+  [@bs.send] external delete : (T.t, ~path: string, Middleware.t) => unit = "delete";
   [@bs.send]
   external deleteWithMany : (T.t, ~path: string, array(Middleware.t)) => unit =
     "delete";
@@ -669,7 +669,7 @@ module HttpServer = {
   [@bs.send] external on : (t, [@bs.string] [
     | `request((Request.t, Response.t) => unit)
     | `close(unit => unit)
-  ]) => unit = "";
+  ]) => unit = "on";
 };
 
 module App = {
@@ -695,7 +695,7 @@ module App = {
     "listen";
   let listen = (app, ~port=3000, ~hostname="0.0.0.0", ~onListen=(_) => (), ()) =>
     listen_(app, port, hostname, onListen);
-  [@bs.send] external disable: (t, ~name: string) => unit = "";
+  [@bs.send] external disable: (t, ~name: string) => unit = "disable";
   [@bs.send] external set: (t, string, string) => unit = "set";
 };
 
@@ -709,17 +709,17 @@ module Static = {
   type stat;
   let defaultOptions: unit => options =
     () => (Obj.magic(Js_obj.empty()): options);
-  [@bs.set] external dotfiles : (options, string) => unit = "";
-  [@bs.set] external etag : (options, bool) => unit = "";
-  [@bs.set] external extensions : (options, array(string)) => unit = "";
-  [@bs.set] external fallthrough : (options, bool) => unit = "";
-  [@bs.set] external immutable : (options, bool) => unit = "";
+  [@bs.set] external dotfiles : (options, string) => unit = "dotfiles";
+  [@bs.set] external etag : (options, bool) => unit = "etag";
+  [@bs.set] external extensions : (options, array(string)) => unit = "extensions";
+  [@bs.set] external fallthrough : (options, bool) => unit = "fallthrough";
+  [@bs.set] external immutable : (options, bool) => unit = "immutable";
   [@bs.set] external indexBool : (options, bool) => unit = "index";
   [@bs.set] external indexString : (options, string) => unit = "index";
-  [@bs.set] external lastModified : (options, bool) => unit = "";
-  [@bs.set] external maxAge : (options, int) => unit = "";
-  [@bs.set] external redirect : (options, bool) => unit = "";
-  [@bs.set] external setHeaders : (options, (Request.t, string, stat) => unit) => unit = "";
+  [@bs.set] external lastModified : (options, bool) => unit = "lastModified";
+  [@bs.set] external maxAge : (options, int) => unit = "maxAge";
+  [@bs.set] external redirect : (options, bool) => unit = "redirect";
+  [@bs.set] external setHeaders : (options, (Request.t, string, stat) => unit) => unit = "setHeaders";
 
   type t;
   [@bs.module "express"] external make : (string, options) => t = "static";

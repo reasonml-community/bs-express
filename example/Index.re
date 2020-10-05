@@ -346,7 +346,7 @@ Middleware.from((next, req) =>
   }
 );
 
-App.get(app, ~path="/redir") @@
+App.get(app, ~path="/redir") @@ 
 Middleware.from((_, _) => Response.redirect("/redir/target"));
 
 App.get(app, ~path="/redircode") @@

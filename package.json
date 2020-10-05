@@ -9,7 +9,7 @@
   },
   "devDependencies": {
     "@glennsl/bs-json": "^3.0.0",
-    "bs-platform": "^5.2.1",
+    "bs-platform": "^8.2.0",
     "husky": "^1.0.0-rc.13"
   },
   "scripts": {
