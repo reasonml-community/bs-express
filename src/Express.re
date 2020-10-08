@@ -442,6 +442,7 @@ module Middleware = {
     "type": string,
     "limit": Js.Nullable.t(int),
   };
+  type cookieOptions = {. "decode": option(string => Js.Json.t)};
   [@bs.module "express"] [@bs.val] external json_ : jsonOptions => t = "json";
   [@bs.module "express"] [@bs.val]
   external urlencoded_ : urlEncodedOptions => t = "urlencoded";
@@ -488,6 +489,10 @@ module Middleware = {
       "limit": ByteLimit.toBytes(limit),
       "inflate": inflate,
     });
+  [@bs.module "cookie-parser"] [@bs.val]
+  external cookie_: (option(string), cookieOptions) => t = "raw";
+  let cookie = (~secret=?, ~decode=?, ()) =>
+    cookie_(secret, {"decode": decode});
   module type S = {
     type f;
     type errorF;

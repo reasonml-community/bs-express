@@ -317,6 +317,7 @@ module Middleware: {
       unit
     ) =>
     t;
+  let cookie: (~secret: string=?, ~decode: string => Js.Json.t=?, unit) => t;
   module type S = {
     type f;
     let from: f => t;
