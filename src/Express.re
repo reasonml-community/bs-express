@@ -278,7 +278,7 @@ module Response = {
   [@bs.send.pipe: t]
   external clearCookie_ : (string, 'a) => unit = "clearCookie";
   [@bs.deriving jsConverter]
-  type sameSite = [ | [@bs.as "lax"] `Lax | [@bs.as "strict"] `Strict];
+  type sameSite = [ | [@bs.as "lax"] `Lax | [@bs.as "strict"] `Strict | [@bs.as "none"] `None];
   external toDict : 'a => Js.Dict.t(Js.nullable('b)) = "%identity";
   let filterKeys = obj => {
     let result = toDict(obj);
