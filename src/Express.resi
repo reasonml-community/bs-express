@@ -1,17 +1,18 @@
-type complete
-
 @ocaml.doc(
-  " abstract type which ensure middleware function must either
+  "abstract type which ensure middleware function must either
      call the [next] function or one of the [send] function on the
      response object.
 
      This should be a great argument for OCaml, the type system
-     prevents silly error which in this case would make the server hang "
+     prevents silly error which in this case would make the server hang"
 )
+type complete
+
 module Error: {
+  @ocaml.doc("Error type")
   type t = exn
 
-  @ocaml.doc("Error type") @bs.send @bs.return(null_undefined_to_opt)
+  @bs.send @bs.return(null_undefined_to_opt)
   external message: Js_exn.t => option<string> = "message"
   @bs.send @bs.return(null_undefined_to_opt)
   external name: Js_exn.t => option<string> = "name"
@@ -27,10 +28,10 @@ module Request: {
   external params: t => params = "params"
 
   @ocaml.doc(
-    " [asJsonObject request] casts a [request] to a JSON object. It is
+    "[asJsonObject request] casts a [request] to a JSON object. It is
        common in Express application to use the Request object as a
        placeholder to maintain state through the various middleware which
-       are executed. "
+       are executed."
   )
   external asJsonObject: t => Js.Dict.t<Js.Json.t> = "%identity"
 
@@ -38,39 +39,39 @@ module Request: {
   external baseUrl: t => string = "baseUrl"
 
   @ocaml.doc(
-    " When using the json body-parser middleware and receiving a request with a
+    "When using the json body-parser middleware and receiving a request with a
        content type of \"application/json\", this property is a Js.Json.t that
-       contains the body sent by the request. "
+       contains the body sent by the request."
   )
   @bs.get
   @bs.return(null_undefined_to_opt)
   external bodyJSON: t => option<Js.Json.t> = "body"
 
   @ocaml.doc(
-    " When using the raw body-parser middleware and receiving a request with a
+    "When using the raw body-parser middleware and receiving a request with a
        content type of \"application/octet-stream\", this property is a
-       Node_buffer.t that contains the body sent by the request. "
+       Node_buffer.t that contains the body sent by the request."
   )
   @bs.get
   @bs.return(null_undefined_to_opt)
   external bodyRaw: t => option<Node_buffer.t> = "body"
 
   @ocaml.doc(
-    " When using the text body-parser middleware and receiving a request with a
+    "When using the text body-parser middleware and receiving a request with a
        content type of \"text/plain\", this property is a string that
-       contains the body sent by the request. "
+       contains the body sent by the request."
   )
   let bodyText: t => option<string>
 
   @ocaml.doc(
-    " When using the urlencoded body-parser middleware and receiving a request
+    "When using the urlencoded body-parser middleware and receiving a request
        with a content type of \"application/x-www-form-urlencoded\", this property
-        is a Js.Dict.t string that contains the body sent by the request. "
+        is a Js.Dict.t string that contains the body sent by the request."
   )
   let bodyURLEncoded: t => option<Js.Dict.t<string>>
 
   @ocaml.doc(
-    " When using cookie-parser middleware, this property is an object
+    "When using cookie-parser middleware, this property is an object
        that contains cookies sent by the request. If the request contains
        no cookies, it defaults to {}."
   )
@@ -79,20 +80,19 @@ module Request: {
   external cookies: t => option<Js.Dict.t<Js.Json.t>> = "cookies"
 
   @ocaml.doc(
-    " When using cookie-parser middleware, this property contains signed cookies
+    "When using cookie-parser middleware, this property contains signed cookies
        sent by the request, unsigned and ready for use. Signed cookies reside in
        a different object to show developer intent; otherwise, a malicious attack
        could be placed on req.cookie values (which are easy to spoof).
        Note that signing a cookie does not make it “hidden” or encrypted;
        but simply prevents tampering (because the secret used to
-       sign is private). "
+       sign is private)."
   )
   @bs.get
   @bs.return(null_undefined_to_opt)
   external signedCookies: t => option<Js.Dict.t<Js.Json.t>> = "signedCookies"
 
-  @ocaml.doc("[hostname request] Contains the hostname derived from the Host HTTP header.")
-  @bs.get
+  @ocaml.doc("[hostname request] Contains the hostname derived from the Host HTTP header.") @bs.get
   external hostname: t => string = "hostname"
 
   @ocaml.doc("[ip request] Contains the remote IP address of the request.") @bs.get
@@ -105,8 +105,8 @@ module Request: {
   external stale: t => bool = "stale"
 
   @ocaml.doc(
-    " [method_ request] return a string corresponding to the HTTP
-       method of the request: GET, POST, PUT, and so on "
+    "[method_ request] return a string corresponding to the HTTP
+       method of the request: GET, POST, PUT, and so on"
   )
   @bs.get
   external methodRaw: t => string = "method"
@@ -122,14 +122,14 @@ module Request: {
     | Patch
 
   @ocaml.doc(
-    " [method_ request] return a variant corresponding to the HTTP
-       method of the request: Get, Post, Put, and so on "
+    "[method_ request] return a variant corresponding to the HTTP
+       method of the request: Get, Post, Put, and so on"
   )
   let httpMethod: t => httpMethod
 
   @ocaml.doc(
-    " [originalUrl request] returns the original url. See
-       https://expressjs.com/en/4x/api.html#req.originalUrl "
+    "[originalUrl request] returns the original url. See
+       https://expressjs.com/en/4x/api.html#req.originalUrl"
   )
   @bs.get
   external originalUrl: t => string = "originalUrl"
@@ -141,8 +141,8 @@ module Request: {
     | Https
 
   @ocaml.doc(
-    " [protocol request] returns the request protocol string: either http
-       or (for TLS requests) https. "
+    "[protocol request] returns the request protocol string: either http
+       or (for TLS requests) https."
   )
   let protocol: t => protocol
 
@@ -150,34 +150,34 @@ module Request: {
   external secure: t => bool = "secure"
 
   @ocaml.doc(
-    " [query request] returns an object containing a property for each
+    "[query request] returns an object containing a property for each
        query string parameter in the route. If there is no query string,
-       it returns the empty object, {} "
+       it returns the empty object, {}"
   )
   @bs.get
   external query: t => Js.Dict.t<Js.Json.t> = "query"
 
   @ocaml.doc(
-    " [acceptsRaw accepts types] checks if the specified content types
+    "[acceptsRaw accepts types] checks if the specified content types
        are acceptable, based on the request's Accept HTTP header field.
        The method returns the best match, or if none of the specified
-       content types is acceptable, returns [false] "
+       content types is acceptable, returns [false]"
   )
   let accepts: (array<string>, t) => option<string>
   let acceptsCharsets: (array<string>, t) => option<string>
 
   @ocaml.doc(
-    " [get return field] returns the specified HTTP request header
-       field (case-insensitive match) "
+    "[get return field] returns the specified HTTP request header
+       field (case-insensitive match)"
   )
   @bs.send.pipe(: t)
   @bs.return(null_undefined_to_opt)
   external get: string => option<string> = "get"
 
   @ocaml.doc(
-    " [xhr request] returns [true] if the request’s X-Requested-With
+    "[xhr request] returns [true] if the request’s X-Requested-With
        header field is \"XMLHttpRequest\", indicating that the request was
-       issued by a client library such as jQuery "
+       issued by a client library such as jQuery"
   )
   @bs.get
   external xhr: t => bool = "xhr"
@@ -265,9 +265,7 @@ module Response: {
   ) => t
 
   @ocaml.doc(
-    "
-   Web browsers and other compliant clients will only clear the cookie if the given options is identical to those given to res.cookie(), excluding expires and maxAge.
-    "
+    "Web browsers and other compliant clients will only clear the cookie if the given options is identical to those given to res.cookie(), excluding expires and maxAge."
   )
   let clearCookie: (
     ~name: string,
@@ -305,19 +303,17 @@ module Next: {
   type content
   type t = (Js.undefined<content>, Response.t) => complete
 
-  @ocaml.doc("value to use as [next] callback argument to invoke the next
-       middleware")
+  @ocaml.doc("value to use as [next] callback argument to invoke the next middleware")
   let middleware: Js.undefined<content>
 
   @ocaml.doc(
-    " value to use as [next] callback argument to skip middleware
-       processing for the current route. "
+    "value to use as [next] callback argument to skip middleware processing for the current route."
   )
   let route: Js.undefined<content>
 
   @ocaml.doc(
-    " [error e] returns the argument for [next] callback to be propagate
-       error [e] through the chain of middleware. "
+    "[error e] returns the argument for [next] callback to be propagate
+       error [e] through the chain of middleware."
   )
   let error: Error.t => Js.undefined<content>
 }
@@ -443,6 +439,8 @@ let express: unit => App.t
 module Static: {
   type options
   type stat
+  type t
+  
   let defaultOptions: unit => options
   @bs.set external dotfiles: (options, string) => unit = "dotfiles"
   @bs.set external etag: (options, bool) => unit = "etag"
@@ -455,7 +453,6 @@ module Static: {
   @bs.set external maxAge: (options, int) => unit = "maxAge"
   @bs.set external redirect: (options, bool) => unit = "redirect"
   @bs.set external setHeaders: (options, (Request.t, string, stat) => unit) => unit = "setHeaders"
-  type t
 
   @ocaml.doc("[make directory] creates a static middleware for [directory]") @bs.module("express")
   external make: (string, options) => t = "static"
