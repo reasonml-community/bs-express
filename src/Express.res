@@ -138,8 +138,8 @@ module Request = {
     | _ => None
     }
   }
-  @bs.send.pipe(: t) @bs.return(null_undefined_to_opt)
-  external get: string => option<string> = "get"
+  @bs.send @bs.return(null_undefined_to_opt)
+  external get: (t, string) => option<string> = "get"
 
   @bs.get
   external xhr: t => bool = "xhr"
@@ -211,10 +211,10 @@ module Response = {
     let fromInt = tFromJs
     let toInt = tToJs
   }
-  @bs.send.pipe(: t)
-  external cookie_: (string, Js.Json.t, 'a) => unit = "cookie"
-  @bs.send.pipe(: t)
-  external clearCookie_: (string, 'a) => unit = "clearCookie"
+  @bs.send
+  external cookie_: (t, string, Js.Json.t, 'a) => unit = "cookie"
+  @bs.send
+  external clearCookie_: (t, string, 'a) => unit = "clearCookie"
   @bs.deriving(jsConverter)
   type sameSite = [@bs.as("lax") #Lax | @bs.as("strict") #Strict | @bs.as("none") #None]
   external toDict: 'a => Js.Dict.t<Js.nullable<'b>> = "%identity"
@@ -226,6 +226,8 @@ module Response = {
     |> Js.Dict.fromArray
   }
   let cookie = (
+    response,
+    value,
     ~name,
     ~maxAge=?,
     ~expiresGMT=?,
@@ -235,36 +237,37 @@ module Response = {
     ~path=?,
     ~sameSite: option<sameSite>=?,
     ~domain=?,
-    value,
-    response,
+    ()
   ) => {
     cookie_(
+      response,
       name,
       value,
       {
-        "maxAge": maxAge |> Js.Nullable.fromOption,
-        "expires": expiresGMT |> Js.Nullable.fromOption,
-        "path": path |> Js.Nullable.fromOption,
-        "httpOnly": httpOnly |> Js.Nullable.fromOption,
-        "secure": secure |> Js.Nullable.fromOption,
-        "sameSite": sameSite |> Js.Option.map((. x) => sameSiteToJs(x)) |> Js.Nullable.fromOption,
-        "signed": signed |> Js.Nullable.fromOption,
-        "domain": domain |> Js.Nullable.fromOption,
+        "maxAge": maxAge -> Js.Nullable.fromOption,
+        "expires": expiresGMT -> Js.Nullable.fromOption,
+        "path": path -> Js.Nullable.fromOption,
+        "httpOnly": httpOnly -> Js.Nullable.fromOption,
+        "secure": secure -> Js.Nullable.fromOption,
+        "sameSite": Js.Option.map((. x) => sameSiteToJs(x), sameSite) -> Js.Nullable.fromOption,
+        "signed": signed -> Js.Nullable.fromOption,
+        "domain": domain -> Js.Nullable.fromOption,
       } |> filterKeys,
-      response,
-    )
+    );
     response
   }
   let clearCookie = (
+    response,
     ~name,
     ~httpOnly=?,
     ~secure=?,
     ~signed=?,
     ~path="/",
     ~sameSite: option<sameSite>=?,
-    response,
+    (),
   ) => {
     clearCookie_(
+      response,
       name,
       {
         "maxAge": Js.Nullable.undefined,
@@ -275,34 +278,33 @@ module Response = {
         "sameSite": sameSite |> Js.Option.map((. x) => sameSiteToJs(x)) |> Js.Nullable.fromOption,
         "signed": signed |> Js.Nullable.fromOption,
       } |> filterKeys,
-      response,
     )
     response
   }
-  @bs.send.pipe(: t) external sendFile: (string, 'a) => complete = "sendFile"
-  @bs.send.pipe(: t) external sendString: string => complete = "send"
-  @bs.send.pipe(: t) external sendJson: Js.Json.t => complete = "json"
-  @bs.send.pipe(: t) external sendBuffer: Node.Buffer.t => complete = "send"
-  @bs.send.pipe(: t) external sendArray: array<'a> => complete = "send"
-  @bs.send.pipe(: t) external sendRawStatus: int => complete = "sendStatus"
-  let sendStatus = statusCode => sendRawStatus(StatusCode.toInt(statusCode))
-  @bs.send.pipe(: t) external rawStatus: int => t = "status"
-  let status = statusCode => rawStatus(StatusCode.toInt(statusCode))
-  @bs.send.pipe(: t) @ocaml.deprecated("Use sendJson instead`")
-  external json: Js.Json.t => complete = "json"
-  @bs.send.pipe(: t)
-  external redirectCode: (int, string) => complete = "redirect"
-  @bs.send.pipe(: t) external redirect: string => complete = "redirect"
-  @bs.send.pipe(: t) external setHeader: (string, string) => t = "set"
-  @bs.send.pipe(: t) external setType: string => t = "type"
-  @bs.send.pipe(: t) external setLinks: Js.Dict.t<string> => t = "links"
-  @bs.send.pipe(: t) external end_: complete = "end"
-  @bs.send.pipe(: t) external render: (string, Js.Dict.t<string>, 'a) => complete = "render"
+  @bs.send external sendFile: (t, string, 'a) => complete = "sendFile"
+  @bs.send external sendString: (t, string) => complete = "send"
+  @bs.send external sendJson: (t, Js.Json.t) => complete = "json"
+  @bs.send external sendBuffer: (t, Node.Buffer.t) => complete = "send"
+  @bs.send external sendArray: (t, array<'a>) => complete = "send"
+  @bs.send external sendRawStatus: (t, int) => complete = "sendStatus"
+  let sendStatus = (inst, statusCode) => sendRawStatus(inst, StatusCode.toInt(statusCode))
+  @bs.send external rawStatus: (t, int) => t = "status"
+  let status = (inst, statusCode) => rawStatus(inst, StatusCode.toInt(statusCode))
+  @bs.send @ocaml.deprecated("Use sendJson instead`")
+  external json: (t, Js.Json.t) => complete = "json"
+  @bs.send
+  external redirectCode: (t, int, string) => complete = "redirect"
+  @bs.send external redirect: (t, string) => complete = "redirect"
+  @bs.send external setHeader: (t, string, string) => t = "set"
+  @bs.send external setType: (t, string) => t = "type"
+  @bs.send external setLinks: (t, Js.Dict.t<string>) => t = "links"
+  @bs.send external end_: t => complete = "end"
+  @bs.send external render: (t, string, Js.Dict.t<string>, 'a) => complete = "render"
 }
 
 module Next: {
   type content
-  type t = (Js.undefined<content>, Response.t) => complete
+  type t = (Response.t, Js.undefined<content>) => complete
   let middleware: Js.undefined<content>
 
   let route: Js.undefined<content>
@@ -310,7 +312,7 @@ module Next: {
   let error: Error.t => Js.undefined<content>
 } = {
   type content
-  type t = (Js.undefined<content>, Response.t) => complete
+  type t = (Response.t, Js.undefined<content>) => complete
   let middleware = Js.undefined
   external castToContent: 'a => content = "%identity"
   let route = Js.Undefined.return(castToContent("route"))
@@ -426,11 +428,11 @@ module Middleware = {
     type errorF = (next, Error.t, Request.t, Response.t) => complete
     let apply = (f, next, req, res) =>
       try f(next, req, res) catch {
-      | e => next(Next.error(e), res)
+      | e => next(res, Next.error(e))
       } |> ignore
     let applyWithError = (f, next, err, req, res) =>
       try f(next, err, req, res) catch {
-      | e => next(Next.error(e), res)
+      | e => next(res, Next.error(e))
       } |> ignore
   })
 }
@@ -441,20 +443,20 @@ module PromiseMiddleware = Middleware.Make({
   external castToErr: Js.Promise.error => Error.t = "%identity"
   let apply = (f, next, req, res) => {
     let promise: Js.Promise.t<complete> = try f(next, req, res) catch {
-    | e => Js.Promise.resolve(next(Next.error(e), res))
+    | e => Js.Promise.resolve(next(res, Next.error(e)))
     }
     promise |> Js.Promise.catch(err => {
       let err = castToErr(err)
-      Js.Promise.resolve(next(Next.error(err), res))
+      Js.Promise.resolve(next(res, Next.error(err)))
     }) |> ignore
   }
   let applyWithError = (f, next, err, req, res) => {
     let promise: Js.Promise.t<complete> = try f(next, err, req, res) catch {
-    | e => Js.Promise.resolve(next(Next.error(e), res))
+    | e => Js.Promise.resolve(next(res, Next.error(e)))
     }
     promise |> Js.Promise.catch(err => {
       let err = castToErr(err)
-      Js.Promise.resolve(next(Next.error(err), res))
+      Js.Promise.resolve(next(res, Next.error(err)))
     }) |> ignore
   }
 })
@@ -569,7 +571,7 @@ module Static = {
   type options
   type stat
   type t
-  
+
   let defaultOptions: unit => options = (): options => Obj.magic(Js_obj.empty())
   @bs.set external dotfiles: (options, string) => unit = "dotfiles"
   @bs.set external etag: (options, bool) => unit = "etag"
