@@ -276,7 +276,7 @@ module Response: {
     ~signed: bool=?,
     ~path: string=?,
     ~sameSite: [#Lax | #Strict | #None]=?,
-    ()
+    unit
   ) => t
 
   @bs.send external sendFile: (t, string, 'a) => complete = "sendFile"

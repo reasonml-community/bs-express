@@ -24,7 +24,18 @@ let checkProperty = (req, next, property, k, res) => {
 };
 
 /* same as [checkProperty] but with a list of properties */
-let checkProperties = (req, next, properties, k, res) => {
+let checkProperties: (
+  Express.Request.t,
+  (
+    'b,
+    Js.undefined(
+      Express.Next.content
+    )
+  ) => 'a,
+  list(Js.Dict.key),
+  Express.Response.t => 'a,
+  'b
+) => 'a = (req, next, properties, k, res) => {
   let rec aux = properties =>
     switch (properties) {
     | [] => k(res)
@@ -35,7 +46,11 @@ let checkProperties = (req, next, properties, k, res) => {
 
 /* [setProperty req property] sets the [property] in the [req] Request
    value */
-let setProperty = (req, property, res) => {
+let setProperty: (
+  Express.Request.t,
+  Js.Dict.key,
+  Express.Response.t
+) => Express.Response.t = (req, property, res) => {
   let reqData = Request.asJsonObject(req);
   Js.Dict.set(reqData, property, Js.Json.boolean(true));
   res;
@@ -55,7 +70,7 @@ let makeSuccessJson = () => {
   Js.Dict.set(json, "success", Js.Json.boolean(true));
   Js.Json.object_(json);
 };
-
+[%debugger]
 let app = express();
 /*
   If you would like to set view engine
@@ -96,7 +111,7 @@ Middleware.from((next, req) => {
     req,
     next,
     previousMiddlewares,
-    Response.sendJson(_, makeSuccessJson()),
+    a => Response.sendJson(a, makeSuccessJson())
   );
 });
 
