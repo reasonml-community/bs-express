@@ -170,9 +170,9 @@ module Request: {
     "[get return field] returns the specified HTTP request header
        field (case-insensitive match)"
   )
-  @bs.send.pipe(: t)
+  @bs.send
   @bs.return(null_undefined_to_opt)
-  external get: string => option<string> = "get"
+  external get: (t, string) => option<string> = "get"
 
   @ocaml.doc(
     "[xhr request] returns [true] if the request’s X-Requested-With
@@ -277,26 +277,33 @@ module Response: {
     t,
   ) => t
 
-  @bs.send.pipe(: t) external sendFile: (string, 'a) => complete = "sendFile"
-  @bs.send.pipe(: t) external sendString: string => complete = "send"
-  @bs.send.pipe(: t) external sendJson: Js.Json.t => complete = "json"
-  @bs.send.pipe(: t) external sendBuffer: Node.Buffer.t => complete = "send"
-  @bs.send.pipe(: t) external sendArray: array<'a> => complete = "send"
-  @bs.send.pipe(: t) external sendRawStatus: int => complete = "sendStatus"
-  let sendStatus: (StatusCode.t, t) => complete
-  @bs.send.pipe(: t) external rawStatus: int => t = "status"
-  let status: (StatusCode.t, t) => t
+  @bs.send external sendFile: (t, string, 'a) => complete = "sendFile"
+  @bs.send external sendString: (t, string) => complete = "send"
+  @bs.send external sendJson: (t, Js.Json.t) => complete = "json"
+  // not covered in tests
+  @bs.send external sendBuffer: (t, Node.Buffer.t) => complete = "send"
+  // not covered in tests
+  @bs.send external sendArray: (t, array<'a>) => complete = "send" 
+  @bs.send external sendRawStatus: (t, int) => complete = "sendStatus"
+  let sendStatus: (t, StatusCode.t) => complete
+  @bs.send external rawStatus: (t, int) => t = "status"
+  let status: (t, StatusCode.t) => t
 
-  @bs.send.pipe(: t) @ocaml.deprecated("Use sendJson instead`")
-  external json: Js.Json.t => complete = "json"
-  @bs.send.pipe(: t)
-  external redirectCode: (int, string) => complete = "redirect"
-  @bs.send.pipe(: t) external redirect: string => complete = "redirect"
-  @bs.send.pipe(: t) external setHeader: (string, string) => t = "set"
-  @bs.send.pipe(: t) external setType: string => t = "type"
-  @bs.send.pipe(: t) external setLinks: Js.Dict.t<string> => t = "links"
-  @bs.send.pipe(: t) external end_: complete = "end"
-  @bs.send.pipe(: t) external render: (string, Js.Dict.t<string>, 'a) => complete = "render"
+  // not covered in tests
+  @bs.send @ocaml.deprecated("Use sendJson instead`") 
+  external json: (t, Js.Json.t) => complete = "json" 
+  @bs.send
+  external redirectCode: (t, int, string) => complete = "redirect"
+  @bs.send external redirect: (t, string) => complete = "redirect"
+  @bs.send external setHeader: (t, string, string) => t = "set"
+  // not covered in tests
+  @bs.send external setType: (t, string) => t = "type"
+  // not covered in tests
+  @bs.send external setLinks: (t, Js.Dict.t<string>) => t = "links"
+  // not covered in tests
+  @bs.send external end_: t => complete = "end"
+  // not covered in tests
+  @bs.send external render: (t, string, Js.Dict.t<string>, 'a) => complete = "render"
 }
 
 module Next: {

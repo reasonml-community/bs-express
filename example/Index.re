@@ -69,7 +69,7 @@ Middleware.from((next, req, res) =>
   res |> setProperty(req, "middleware0") |> next(Next.middleware)
 ) /* call the next middleware in the processing pipeline */;
 
-App.useWithMany(
+App.useWithMany( 
   app,
   [|
     Middleware.from((next, req) =>
@@ -92,7 +92,7 @@ Middleware.from((next, req) => {
     req,
     next,
     previousMiddlewares,
-    Response.sendJson(makeSuccessJson()),
+    Response.sendJson(_, makeSuccessJson()),
   );
 });
 
@@ -113,7 +113,7 @@ App.postWithMany(
       let previousMiddlewares = ["middleware0", "middleware1", "middleware2"];
       checkProperties(req, next, previousMiddlewares, res =>
         switch (getDictString(Request.params(req), "id")) {
-        | Some("123") => Response.sendJson(makeSuccessJson(), res)
+        | Some("123") => Response.sendJson(res, makeSuccessJson())
         | _ => next(Next.route, res)
         }
       );
@@ -129,7 +129,7 @@ App.patchWithMany(
       let previousMiddlewares = ["middleware0", "middleware1", "middleware2"];
       checkProperties(req, next, previousMiddlewares, res =>
         switch (getDictString(Request.params(req), "id")) {
-        | Some("123") => Response.sendJson(makeSuccessJson(), res)
+        | Some("123") => Response.sendJson(res, makeSuccessJson())
         | _ => next(Next.route, res)
         }
       );
@@ -145,7 +145,7 @@ App.putWithMany(
       let previousMiddlewares = ["middleware0", "middleware1", "middleware2"];
       checkProperties(req, next, previousMiddlewares, res =>
         switch (getDictString(Request.params(req), "id")) {
-        | Some("123") => Response.sendJson(makeSuccessJson(), res)
+        | Some("123") => Response.sendJson(res, makeSuccessJson())
         | _ => next(Next.route, res)
         }
       );
@@ -161,7 +161,7 @@ App.deleteWithMany(
       let previousMiddlewares = ["middleware0", "middleware1", "middleware2"];
       checkProperties(req, next, previousMiddlewares, res =>
         switch (getDictString(Request.params(req), "id")) {
-        | Some("123") => Response.sendJson(makeSuccessJson(), res)
+        | Some("123") => Response.sendJson(res, makeSuccessJson())
         | _ => next(Next.route, res)
         }
       );
@@ -180,7 +180,7 @@ Middleware.from((_, _) => {
 App.get(app, ~path="/baseUrl") @@
 Middleware.from((next, req) =>
   switch (Request.baseUrl(req)) {
-  | "" => Response.sendJson(makeSuccessJson())
+  | "" => Response.sendJson(_, makeSuccessJson())
   | _ => next(Next.route)
   }
 );
@@ -188,7 +188,7 @@ Middleware.from((next, req) =>
 App.get(app, ~path="/hostname") @@
 Middleware.from((next, req) =>
   switch (Request.hostname(req)) {
-  | "localhost" => Response.sendJson(makeSuccessJson())
+  | "localhost" => Response.sendJson(_, makeSuccessJson())
   | _ => next(Next.route)
   }
 );
@@ -196,7 +196,7 @@ Middleware.from((next, req) =>
 App.get(app, ~path="/ip") @@
 Middleware.from((next, req) =>
   switch (Request.ip(req)) {
-  | "127.0.0.1" => Response.sendJson(makeSuccessJson())
+  | "127.0.0.1" => Response.sendJson(_, makeSuccessJson())
   | s =>
     Js.log(s);
     next(Next.route);
@@ -207,7 +207,7 @@ Middleware.from((next, req) =>
 App.get(app, ~path="/method") @@
 Middleware.from((next, req) =>
   switch (Request.httpMethod(req)) {
-  | Request.Get => Response.sendJson(makeSuccessJson())
+  | Request.Get => Response.sendJson(_, makeSuccessJson())
   | s =>
     Js.log(s);
     next(Next.route);
@@ -217,7 +217,7 @@ Middleware.from((next, req) =>
 App.get(app, ~path="/originalUrl") @@
 Middleware.from((next, req) =>
   switch (Request.originalUrl(req)) {
-  | "/originalUrl" => Response.sendJson(makeSuccessJson())
+  | "/originalUrl" => Response.sendJson(_, makeSuccessJson())
   | s =>
     Js.log(s);
     next(Next.route);
@@ -227,7 +227,7 @@ Middleware.from((next, req) =>
 App.get(app, ~path="/path") @@
 Middleware.from((next, req) =>
   switch (Request.path(req)) {
-  | "/path" => Response.sendJson(makeSuccessJson())
+  | "/path" => Response.sendJson(_, makeSuccessJson())
   | s =>
     Js.log(s);
     next(Next.route);
@@ -237,7 +237,7 @@ Middleware.from((next, req) =>
 App.get(app, ~path="/protocol") @@
 Middleware.from((next, req) =>
   switch (Request.protocol(req)) {
-  | Request.Http => Response.sendJson(makeSuccessJson())
+  | Request.Http => Response.sendJson(_, makeSuccessJson())
   | s =>
     Js.log(s);
     next(Next.route);
@@ -247,19 +247,19 @@ Middleware.from((next, req) =>
 App.get(app, ~path="/query") @@
 Middleware.from((next, req) =>
   switch (getDictString(Request.query(req), "key")) {
-  | Some("value") => Response.sendJson(makeSuccessJson())
+  | Some("value") => Response.sendJson(_, makeSuccessJson())
   | _ => next(Next.route)
   }
 );
 
 App.get(app, ~path="/not-found") @@
-Middleware.from((_, _) => Response.sendStatus(Response.StatusCode.NotFound));
+Middleware.from((_, _) => Response.sendStatus(_, Response.StatusCode.NotFound));
 
 App.get(app, ~path="/error") @@
 Middleware.from((_, _, res) =>
   res
-  |> Response.status(Response.StatusCode.InternalServerError)
-  |> Response.sendJson(makeSuccessJson())
+  -> Response.status(Response.StatusCode.InternalServerError)
+  -> Response.sendJson(makeSuccessJson())
 );
 
 App.getWithMany(
@@ -274,7 +274,7 @@ App.getWithMany(
     ),
     Middleware.from((next, req) =>
       switch (Request.accepts([|"text/css"|], req)) {
-      | None => Response.sendJson(makeSuccessJson())
+      | None => Response.sendJson(_, makeSuccessJson())
       | _ => next(Next.route)
       }
     ),
@@ -295,7 +295,7 @@ App.getWithMany(
     ),
     Middleware.from((next, req) =>
       switch (Request.acceptsCharsets([|"UTF-16"|], req)) {
-      | None => Response.sendJson(makeSuccessJson())
+      | None => Response.sendJson(_, makeSuccessJson())
       | _ => next(Next.route)
       }
     ),
@@ -304,8 +304,8 @@ App.getWithMany(
 
 App.get(app, ~path="/get") @@
 Middleware.from((next, req) =>
-  switch (Request.get("key", req)) {
-  | Some("value") => Response.sendJson(makeSuccessJson())
+  switch (Request.get(req, "key")) {
+  | Some("value") => Response.sendJson(_, makeSuccessJson())
   | _ => next(Next.route)
   }
 );
@@ -313,7 +313,7 @@ Middleware.from((next, req) =>
 App.get(app, ~path="/fresh") @@
 Middleware.from((next, req) =>
   if ((!) @@ Request.fresh(req)) {
-    Response.sendJson(makeSuccessJson());
+    Response.sendJson(_, makeSuccessJson());
   } else {
     next(Next.route);
   }
@@ -322,7 +322,7 @@ Middleware.from((next, req) =>
 App.get(app, ~path="/stale") @@
 Middleware.from((next, req) =>
   if (Request.stale(req)) {
-    Response.sendJson(makeSuccessJson());
+    Response.sendJson(_, makeSuccessJson());
   } else {
     next(Next.route);
   }
@@ -331,7 +331,7 @@ Middleware.from((next, req) =>
 App.get(app, ~path="/secure") @@
 Middleware.from((next, req) =>
   if ((!) @@ Request.secure(req)) {
-    Response.sendJson(makeSuccessJson());
+    Response.sendJson(_, makeSuccessJson());
   } else {
     next(Next.route);
   }
@@ -340,17 +340,17 @@ Middleware.from((next, req) =>
 App.get(app, ~path="/xhr") @@
 Middleware.from((next, req) =>
   if ((!) @@ Request.xhr(req)) {
-    Response.sendJson(makeSuccessJson());
+    Response.sendJson(_, makeSuccessJson());
   } else {
     next(Next.route);
   }
 );
 
 App.get(app, ~path="/redir") @@ 
-Middleware.from((_, _) => Response.redirect("/redir/target"));
+Middleware.from((_, _) => Response.redirect(_, "/redir/target"));
 
 App.get(app, ~path="/redircode") @@
-Middleware.from((_, _) => Response.redirectCode(301, "/redir/target"));
+Middleware.from((_, _) => Response.redirectCode(_, 301, "/redir/target"));
 
 App.getWithMany(app, ~path="/ocaml-exception") @@
 [|
@@ -360,10 +360,10 @@ App.getWithMany(app, ~path="/ocaml-exception") @@
   Middleware.fromError((_, err, _, res) =>
     switch (err) {
     | Failure(f) =>
-      res
-      |> Response.status(Response.StatusCode.PaymentRequired)
-      |> Response.sendString(f)
-    | _ => res |> Response.sendStatus(Response.StatusCode.NotFound)
+      (res
+      -> Response.status(Response.StatusCode.PaymentRequired))
+      -> Response.sendString(f)
+    | _ => res -> Response.sendStatus(Response.StatusCode.NotFound)
     }
   ),
 |];
@@ -371,17 +371,17 @@ App.getWithMany(app, ~path="/ocaml-exception") @@
 App.get(app, ~path="/promise") @@
 PromiseMiddleware.from((_req, _next, res) =>
   res
-  |> Response.sendStatus(Response.StatusCode.NoContent)
-  |> Js.Promise.resolve
+  -> Response.sendStatus(Response.StatusCode.NoContent)
+  -> Js.Promise.resolve
 );
 
 App.getWithMany(app, ~path="/failing-promise") @@
 [|
   PromiseMiddleware.from((_, _, _next) => Js.Promise.reject(Not_found)),
   PromiseMiddleware.fromError((_, _req, _next, res) =>
-    res
-    |> Response.status(Response.StatusCode.InternalServerError)
-    |> Response.sendString("Caught Failing Promise")
+    (res
+    -> Response.status(Response.StatusCode.InternalServerError))
+    -> Response.sendString("Caught Failing Promise")
     |> Js.Promise.resolve
   ),
 |];
@@ -389,42 +389,42 @@ App.getWithMany(app, ~path="/failing-promise") @@
 let router1 = router();
 
 Router.get(router1, ~path="/123") @@
-Middleware.from((_, _) => Response.sendStatus(Created));
+Middleware.from((_, _) => Response.sendStatus(_, Created));
 
 App.useRouterOnPath(app, ~path="/testing/testing", router1);
 
 let router2 = router(~caseSensitive=true, ~strict=true, ());
 
 Router.get(router2, ~path="/Case-sensitive") @@
-Middleware.from((_, _) => Response.sendStatus(Ok));
+Middleware.from((_, _) => Response.sendStatus(_, Ok));
 
 Router.get(router2, ~path="/strict/") @@
-Middleware.from((_, _) => Response.sendStatus(Ok));
+Middleware.from((_, _) => Response.sendStatus(_, Ok));
 
 App.useRouterOnPath(app, ~path="/router-options", router2);
 
 App.param(app, ~name="identifier") @@
-Middleware.from((_next, _req) => Response.sendStatus(Created));
+Middleware.from((_next, _req) => Response.sendStatus(_, Created));
 
 App.get(app, ~path="/param-test/:identifier") @@
-Middleware.from((_next, _req) => Response.sendStatus(BadRequest));
+Middleware.from((_next, _req) => Response.sendStatus(_, BadRequest));
 
 App.get(app, ~path="/cookie-set-test") @@
 Middleware.from((_next, _req) =>
   Response.cookie(~name="test-cookie", Js.Json.string("cool-cookie"))
-  >> Response.sendStatus(Ok)
+  >> Response.sendStatus(_, Ok)
 );
 
 App.get(app, ~path="/cookie-clear-test") @@
 Middleware.from((_next, _req) =>
-  Response.clearCookie(~name="test-cookie2") >> Response.sendStatus(Ok)
+  Response.clearCookie(~name="test-cookie2") >> Response.sendStatus(_, Ok)
 );
 
 App.get(app, ~path="/response-set-header") @@
 Middleware.from((_, _, res) =>
   res
-  |> Response.setHeader("X-Test-Header", "Set")
-  |> Response.sendStatus(Response.StatusCode.Ok)
+  -> Response.setHeader("X-Test-Header", "Set")
+  -> Response.sendStatus(Response.StatusCode.Ok)
 );
 
 let router3 = router(~caseSensitive=true, ~strict=true, ());
@@ -456,7 +456,7 @@ Middleware.from(_next =>
   Request.bodyJSON
   >> raiseIfNone
   >> Body.jsonDecoder
-  >> (req => {"number": req##number * 2} |> Body.encoder |> Response.sendJson)
+  >> ((req, res) => Response.sendJson(res, {"number": req##number * 2} -> Body.encoder))
 );
 
 Router.post(router3, ~path="/urlencoded-doubler") @@
@@ -464,7 +464,7 @@ Middleware.from(_next =>
   Request.bodyURLEncoded
   >> raiseIfNone
   >> Body.urlEncodedDecoder
-  >> (req => {"number": req##number * 2} |> Body.encoder |> Response.sendJson)
+  >> ((req, res) => Response.sendJson(res, {"number": req##number * 2} -> Body.encoder))
 );
 
 App.useRouterOnPath(app, ~path="/builtin-middleware", router3);
@@ -474,8 +474,8 @@ let router4 = router(~caseSensitive=true, ~strict=true, ());
 Router.use(router4, Middleware.text());
 
 Router.post(router4, ~path="/text-body") @@
-Middleware.from(_next =>
-  Request.bodyText >> raiseIfNone >> Response.sendString
+Middleware.from((_next, req, res) =>
+  Response.sendString(res) @@ Request.bodyText(req) -> raiseIfNone
 );
 
 App.useRouterOnPath(app, ~path="/router4", router4);
@@ -503,8 +503,9 @@ let countRequests = server => {
 let getRequestsCount = countRequests(server);
 
 App.post(app, ~path="/get-request-count") @@
-Middleware.from((_, _) =>
+Middleware.from((_, _, res) =>
   Response.sendString(
+    res,
     "The server has been called "
     ++ string_of_int(getRequestsCount())
     ++ " times.",
