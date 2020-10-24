@@ -267,13 +267,13 @@ App.getWithMany(
   ~path="/accepts",
   [|
     Middleware.from((next, req) =>
-      switch (Request.accepts([|"audio/whatever", "audio/basic"|], req)) {
+      switch (Request.accepts(req, [|"audio/whatever", "audio/basic"|])) {
       | Some("audio/basic") => next(Next.middleware)
       | _ => next(Next.route)
       }
     ),
     Middleware.from((next, req) =>
-      switch (Request.accepts([|"text/css"|], req)) {
+      switch (Request.accepts(req, [|"text/css"|])) {
       | None => Response.sendJson(_, makeSuccessJson())
       | _ => next(Next.route)
       }
@@ -288,13 +288,13 @@ App.getWithMany(
   ~path="/accepts-charsets",
   [|
     Middleware.from((next, req) =>
-      switch (Request.acceptsCharsets([|"UTF-8", "UTF-16"|], req)) {
+      switch (Request.acceptsCharsets(req, [|"UTF-8", "UTF-16"|])) {
       | Some("UTF-8") => next(Next.middleware)
       | _ => next(Next.route)
       }
     ),
     Middleware.from((next, req) =>
-      switch (Request.acceptsCharsets([|"UTF-16"|], req)) {
+      switch (Request.acceptsCharsets(req, [|"UTF-16"|])) {
       | None => Response.sendJson(_, makeSuccessJson())
       | _ => next(Next.route)
       }
@@ -410,14 +410,17 @@ App.get(app, ~path="/param-test/:identifier") @@
 Middleware.from((_next, _req) => Response.sendStatus(_, BadRequest));
 
 App.get(app, ~path="/cookie-set-test") @@
-Middleware.from((_next, _req) =>
-  Response.cookie(~name="test-cookie", Js.Json.string("cool-cookie"))
-  >> Response.sendStatus(_, Ok)
+Middleware.from((_next, _req, res) =>
+  res 
+  -> Response.cookie(~name="test-cookie", Js.Json.string("cool-cookie"))
+  -> Response.sendStatus(Ok)
 );
 
 App.get(app, ~path="/cookie-clear-test") @@
-Middleware.from((_next, _req) =>
-  Response.clearCookie(~name="test-cookie2") >> Response.sendStatus(_, Ok)
+Middleware.from((_next, _req, res) =>
+  res 
+  -> Response.clearCookie(~name="test-cookie2", ()) 
+  -> Response.sendStatus(Ok)
 );
 
 App.get(app, ~path="/response-set-header") @@

@@ -113,7 +113,7 @@ module Request = {
 
   @bs.get external query: t => Js.Dict.t<Js.Json.t> = "query"
 
-  let accepts: (array<string>, t) => option<string> = (types, req) => {
+  let accepts: (t, array<string>) => option<string> = (req, types) => {
     module Raw = {
       @bs.send
       external accepts: (t, array<string>) => Js.Json.t = "accepts"
@@ -126,7 +126,7 @@ module Request = {
     }
   }
 
-  let acceptsCharsets: (array<string>, t) => option<string> = (types, req) => {
+  let acceptsCharsets: (t, array<string>) => option<string> = (req, types) => {
     module Raw = {
       @bs.send
       external acceptsCharsets: (t, array<string>) => Js.Json.t = "acceptsCharsets"
@@ -226,6 +226,7 @@ module Response = {
     |> Js.Dict.fromArray
   }
   let cookie = (
+    response,
     ~name,
     ~maxAge=?,
     ~expiresGMT=?,
@@ -235,8 +236,7 @@ module Response = {
     ~path=?,
     ~sameSite: option<sameSite>=?,
     ~domain=?,
-    value,
-    response,
+    value
   ) => {
     cookie_(
       response,
@@ -256,13 +256,14 @@ module Response = {
     response
   }
   let clearCookie = (
+    response,
     ~name,
     ~httpOnly=?,
     ~secure=?,
     ~signed=?,
     ~path="/",
     ~sameSite: option<sameSite>=?,
-    response,
+    ()
   ) => {
     clearCookie_(
       response,

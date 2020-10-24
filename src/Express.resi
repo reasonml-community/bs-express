@@ -163,8 +163,8 @@ module Request: {
        The method returns the best match, or if none of the specified
        content types is acceptable, returns [false]"
   )
-  let accepts: (array<string>, t) => option<string>
-  let acceptsCharsets: (array<string>, t) => option<string>
+  let accepts: (t, array<string>) => option<string>
+  let acceptsCharsets: (t, array<string>) => option<string>
 
   @ocaml.doc(
     "[get return field] returns the specified HTTP request header
@@ -251,6 +251,7 @@ module Response: {
   }
 
   let cookie: (
+    t,
     ~name: string,
     ~maxAge: int=?,
     ~expiresGMT: Js.Date.t=?,
@@ -260,21 +261,21 @@ module Response: {
     ~path: string=?,
     ~sameSite: [#Lax | #Strict | #None]=?,
     ~domain: string=?,
-    Js.Json.t,
-    t,
+    Js.Json.t
   ) => t
 
   @ocaml.doc(
     "Web browsers and other compliant clients will only clear the cookie if the given options is identical to those given to res.cookie(), excluding expires and maxAge."
   )
   let clearCookie: (
+    t,
     ~name: string,
     ~httpOnly: bool=?,
     ~secure: bool=?,
     ~signed: bool=?,
     ~path: string=?,
     ~sameSite: [#Lax | #Strict | #None]=?,
-    t,
+    ()
   ) => t
 
   @bs.send external sendFile: (t, string, 'a) => complete = "sendFile"
