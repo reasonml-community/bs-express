@@ -360,8 +360,8 @@ App.getWithMany(app, ~path="/ocaml-exception") @@
   Middleware.fromError((_, err, _, res) =>
     switch (err) {
     | Failure(f) =>
-      (res
-      -> Response.status(Response.StatusCode.PaymentRequired))
+      res
+      -> Response.status(Response.StatusCode.PaymentRequired)
       -> Response.sendString(f)
     | _ => res -> Response.sendStatus(Response.StatusCode.NotFound)
     }
@@ -379,10 +379,10 @@ App.getWithMany(app, ~path="/failing-promise") @@
 [|
   PromiseMiddleware.from((_, _, _next) => Js.Promise.reject(Not_found)),
   PromiseMiddleware.fromError((_, _req, _next, res) =>
-    (res
-    -> Response.status(Response.StatusCode.InternalServerError))
+    res
+    -> Response.status(Response.StatusCode.InternalServerError)
     -> Response.sendString("Caught Failing Promise")
-    |> Js.Promise.resolve
+    -> Js.Promise.resolve
   ),
 |];
 
