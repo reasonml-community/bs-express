@@ -304,7 +304,7 @@ module Response: {
   // not covered in tests
   @bs.send external end_: t => complete = "end"
   // not covered in tests
-  @bs.send external render: (t, string, Js.Dict.t<string>, 'a) => complete = "render"
+  @bs.send external render: (t, string, 'v, 'a) => complete = "render"
 }
 
 module Next: {
@@ -438,6 +438,7 @@ module App: {
   ) => HttpServer.t
   @bs.send external disable: (t, ~name: string) => unit = "disable"
   @bs.send external set: (t, string, string) => unit = "set"
+  @bs.send external engine : (t, string, 'engine) => unit = "engine"
 }
 
 @ocaml.doc("[express ()] creates an instance of the App class.

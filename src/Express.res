@@ -298,7 +298,7 @@ module Response = {
   @bs.send external setType: (t, string) => t = "type"
   @bs.send external setLinks: (t, Js.Dict.t<string>) => t = "links"
   @bs.send external end_: t => complete = "end"
-  @bs.send external render: (t, string, Js.Dict.t<string>, 'a) => complete = "render"
+  @bs.send external render: (t, string, 'v, 'a) => complete = "render"
 }
 
 module Next: {
@@ -562,6 +562,7 @@ module App = {
     listen_(app, port, hostname, onListen)
   @bs.send external disable: (t, ~name: string) => unit = "disable"
   @bs.send external set: (t, string, string) => unit = "set"
+  @bs.send external engine : (t, string, 'engine) => unit = "engine"
 }
 
 let express = App.make
