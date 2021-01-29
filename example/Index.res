@@ -170,7 +170,7 @@ App.deleteWithMany(
   ],
 )
 
-/* If you have setted up view engine then you can uncomment that "get"
+/* If you have set up view engine, you can uncomment this "get"
 Middleware.from((_, _) =>{
    let dict: Js.Dict.t(string) = Js.Dict.empty();
    Response.render("index", dict, ());
