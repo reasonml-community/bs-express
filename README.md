@@ -21,7 +21,7 @@ npm install --save bs-express
 
 ---
 
-Right now the library is somewhat underdocumented, so please view the interface file [`Express.rei`](./src/Express.rei) or the [example folder](./example/) to see library usage.
+Right now the library is somewhat underdocumented, so please view the interface file [`Express.resi`](./src/Express.resi) or the [example folder](./example/) to see library usage.
 
 ---
 
