@@ -1,6 +1,6 @@
 # bs-express
 
-Express bindings for [BuckleScript](https://github.com/bloomberg/bucklescript) in [Reason](https://github.com/facebook/reason).
+Express bindings for [ReScript](https://github.com/rescript-lang/rescript-compiler) and [Reason](https://github.com/facebook/reason).
 
 ## Installing
 
