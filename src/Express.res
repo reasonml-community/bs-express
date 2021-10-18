@@ -583,7 +583,7 @@ module Static = {
   @bs.set external lastModified: (options, bool) => unit = "lastModified"
   @bs.set external maxAge: (options, int) => unit = "maxAge"
   @bs.set external redirect: (options, bool) => unit = "redirect"
-  @bs.set external setHeaders: (options, (Request.t, string, stat) => unit) => unit = "setHeaders"
+  @bs.set external setHeaders: (options, (Response.t, string, stat) => unit) => unit = "setHeaders"
 
   @bs.module("express") external make: (string, options) => t = "static"
 
